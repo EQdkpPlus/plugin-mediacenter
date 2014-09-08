@@ -1,0 +1,46 @@
+ToDo:
+- Admin/Manage Media
+	
+
+- Admin/Settings
+	- erlaubte Dateitypen für Typ "Datei", "Video" und "Image"
+	- Wasserzeichen für Bilder
+		- Bild
+		- Position
+		- Transparenz
+
+- Pageobjects
+	- EditMedia
+	
+	- EditAlbum
+
+	- TagsView
+		
+	- MixedView
+		
+	- ImageView
+	
+	- VideoView
+		- auch beachten, dass es sich um lokale Videos handeln kann (fwplayer, ... nutzen)
+	
+	- FileView
+	
+	- MyMediaView
+	
+	- MyAlbumsView
+		
+		
+- Portal
+	- Latest Files Module
+	- Random Media Module
+	- Interesting Media Module (enthält die Favoriten)
+	- Top Media Module (am meisten angesehen)
+	- Jedes Modul soll klonbar sein, und Auswahl für die verschiedenen Medientypen haben
+
+- Hooks
+	- Editor Integration
+		- Hinzufügen von Alben und Bilder
+		- Parsen, über Hook "article_parse"
+		
+	- Search Hook
+	- Benachrichtigungen: Gemeldete; Unveröffentlichte;

@@ -1,0 +1,102 @@
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('.eyeToggleTrigger').on('click', function(event){
+			if ($(this).hasClass('eye')){
+				//Hide
+				$(this).siblings('.published_cb').val(0);
+				$(this).removeClass('eye');
+				$(this).addClass('eye-gray');
+			} else {
+				$(this).siblings('.published_cb').val(1);
+				$(this).removeClass('eye-gray');
+				$(this).addClass('eye');
+			}
+		});
+		
+		$('.featuredToggleTrigger').on('click', function(event){
+			if ($(this).hasClass('featured')){
+				//Hide
+				$(this).siblings('.featured_cb').val(0);
+				$(this).removeClass('featured');
+				$(this).addClass('not-featured');
+			} else {
+				$(this).siblings('.featured_cb').val(1);
+				$(this).removeClass('not-featured');
+				$(this).addClass('featured');
+			}
+		});
+		
+		$("#pdh_selectall1").off("click");
+		$("input[name='pdh_selectall']").click(function(){
+			var closest = $(this).closest('table');
+			console.log(closest);
+			
+			var checked_status = this.checked;
+			$(closest).find("input[name='selected_ids[]']").each(function(){
+				$(this).prop('checked', checked_status).trigger('change');
+			});
+		});
+	});
+</script>
+
+<div class="breadcrumb-container">
+	<ul class="breamcrumb">
+		<li><a href="{EQDKP_CONTROLLER_PATH}{SID}" title="{L_home}"><i class="fa fa-home"></i></a></li>
+		<li><a href="{EQDKP_ROOT_PATH}admin/{SID}">{L_menu_admin_panel}</a>
+		<li><a href="{EQDKP_ROOT_PATH}plugins/mediacenter/admin/manage_categories.php{SID}">{L_mc_mediacenter}: {L_mc_manage_categories}</a></li>
+		<li class="current"><a href="{EQDKP_ROOT_PATH}plugins/mediacenter/admin/manage_media.php{SID}&la={CID}">{CATEGORY_NAME}</a></li>
+	</ul>
+	<div class="clear"></div>
+</div>
+
+<form method="post" action="{ACTION}&c={CID}" name="post">
+	<div class="contentHeader">
+		<h1 class="contentTitle">{L_mc_manage_media}: {CATEGORY_NAME}</h1>
+	</div>
+	<div class="tableHeader floatRight">
+		<button class="mainoption" type="button" name="addadj" onclick="addalbum();"><i class="fa fa-plus"></i>{L_mc_new_album}</button>
+	</div>
+	<div class="clear"></div>
+	<!-- BEGIN album_list -->
+	<h2>
+		{album_list.NAME}
+		
+		<!-- IF album_list.S_PERSONAL -->
+			<i class="fa fa-user icon-grey icon-sm1"></i>
+		<!-- ELSE -->
+			<span class="fa-stack fa-lg icon-grey icon-sm3">
+			  <i class="fa fa-user fa-stack-1x"></i>
+			  <i class="fa fa-ban fa-stack-2x"></i>
+			</span>
+		<!-- ENDIF -->
+	
+		<i class="fa fa-pencil icon-sm1 icon-grey hand" onclick="editalbum({album_list.ID})"></i>
+		
+		<i class="fa fa-trash icon-sm1 icon-grey hand" onclick="confirm_album_delete({album_list.ID})"></i>
+		
+		</h2>
+	<div class="tableHeader floatRight">
+		<button class="mainoption" type="button" name="addadj" onclick="addmedia({album_list.ID});"><i class="fa fa-plus"></i>{L_mc_add_media}</button>
+	</div>
+	
+	<table width="100%" border="0" cellspacing="1" cellpadding="2" class="colorswitch">
+		{album_list.MEDIA_LIST}
+	</table>
+	<!-- END album_list -->
+	<div class="center pagination_wrapper">
+		{PAGINATION}
+	</div>
+	<div class="contentFooter">
+		{BUTTON_MENU}
+		<button class="mainoption" type="button" name="del" onclick="delete_warning();" id="del_articles" style="display:none;"><i class="fa fa-times"></i>{L_delete_selected_entries}</button>
+		<button class="mainoption" type="submit" name="set_published" id="set_published" style="display:none;"></button>
+		<button class="mainoption" type="submit" name="set_unpublished" id="set_unpublished" style="display:none;"></button>
+		<button class="mainoption" type="submit" name="change_album" id="change_category" style="display:none;"></button>
+		
+		<input type="hidden" name="c" value="{CID}" />
+		<input type="hidden" name="del" value="1" disabled="disabled" id="mass_del_submit" />
+		<button class="mainoption" type="submit" name="save"><i class="fa fa-check"></i>{L_save}</button>
+		<button class="mainoption" type="button" onclick="window.location='manage_categories.php{SID}'"><i class="fa fa-chevron-left"></i>{L_back}</button>
+	</div>
+{CSRF_TOKEN}	
+</form>

@@ -1,0 +1,543 @@
+<!-- IF S_NORMAL_HEADER -->
+<div class="breadcrumb-container">
+	<ul class="breamcrumb">
+		<li><a href="{EQDKP_CONTROLLER_PATH}{SID}" title="{L_home}"><i class="fa fa-home"></i></a></li>
+		<li class="current"><a>{L_mc_mediacenter}: {L_mc_edit_media}</a></li>
+	</ul>
+	<div class="clear"></div>
+</div>
+<!-- ENDIF -->
+
+
+<!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+<script src="{EQDKP_ROOT_PATH}plugins/mediacenter/includes/uploader/js/jquery.iframe-transport.js"></script>
+<!-- The basic File Upload plugin -->
+<script src="{EQDKP_ROOT_PATH}plugins/mediacenter/includes/uploader/js/jquery.fileupload.js"></script>
+
+
+<!-- IF S_TYPE_IMAGE -->
+<script src="{EQDKP_ROOT_PATH}plugins/mediacenter/includes/jcrop/js/jquery.Jcrop.min.js"></script>
+<link rel="stylesheet" href="{EQDKP_ROOT_PATH}plugins/mediacenter/includes/jcrop/css/jquery.Jcrop.css" type="text/css" />
+
+<script>
+  var jcrop_api;
+  jQuery(function($){
+    $('.jcrop').Jcrop({
+      onChange:   showCoords,
+      onSelect:   showCoords,
+      onRelease:  clearCoords,
+      boxWidth: 500,
+    },function(){
+      jcrop_api = this;
+    });
+  });
+
+  // Simple event handler, called from onChange and onSelect
+  // event handlers, as per the Jcrop invocation above
+  function showCoords(c)
+  {
+	jQuery('#x').val(c.x);
+	jQuery('#y').val(c.y);
+	jQuery('#w').val(c.w);
+	jQuery('#h').val(c.h);
+  };
+
+  function clearCoords()
+  {
+	jQuery('#x').val('');
+	jQuery('#y').val('');
+	jQuery('#w').val('');
+	jQuery('#h').val('');
+  };
+  
+  function image_resize(){
+	  if (parseInt(jQuery('#w').val())>0) {
+		  $('.loadingIE').show();
+		  	var x = Math.round(jQuery('#x').val());
+			var y = Math.round(jQuery('#y').val());
+			var w = Math.round(jQuery('#w').val());
+			var h = Math.round(jQuery('#h').val());
+			
+		  $.get( "{EQDKP_CONTROLLER_PATH}EditMedia{SEO_EXTENSION}{SID}&imageedit=resize&id={IMAGE_ID}&x="+x+"&y="+y+"&w="+w+"&h="+h, function( data ) {
+			  reload_image();
+		  });
+		  
+	  };
+  }
+  
+  function image_rotate_r(){
+	  $('.loadingIE').show();
+	  $.get( "{EQDKP_CONTROLLER_PATH}EditMedia{SEO_EXTENSION}{SID}&imageedit=rotate&id={IMAGE_ID}&dir=r", function( data ) {
+		  reload_image();
+	  });
+  }
+  
+  function image_rotate_l(){
+	  $('.loadingIE').show();
+	  $.get( "{EQDKP_CONTROLLER_PATH}EditMedia{SEO_EXTENSION}{SID}&imageedit=rotate&id={IMAGE_ID}&dir=l", function( data ) {
+		  reload_image();
+	  });
+  }
+  
+  function image_mirror_v(){
+	  $('.loadingIE').show();
+	  $.get( "{EQDKP_CONTROLLER_PATH}EditMedia{SEO_EXTENSION}{SID}&imageedit=mirror&dir=v&id={IMAGE_ID}", function( data ) {
+		  reload_image();
+	  });
+  }
+  
+  function image_mirror_h(){
+	  $('.loadingIE').show();
+	  $.get( "{EQDKP_CONTROLLER_PATH}EditMedia{SEO_EXTENSION}{SID}&imageedit=mirror&dir=h&id={IMAGE_ID}", function( data ) {
+		  reload_image();
+	  });
+  }
+  
+  function image_restore(){
+	  $('.loadingIE').show();
+	  $.get( "{EQDKP_CONTROLLER_PATH}EditMedia{SEO_EXTENSION}{SID}&imageedit=restore&id={IMAGE_ID}", function( data ) {
+		  reload_image();
+	  });
+  }
+  
+  function reload_image(){
+	  $('.loadingIE').hide();
+	  var image = "{LOCAL_IMAGE}?_t="+(new Date().getTime());
+	  $('.jcrop').attr('src', image);	  
+	  jcrop_api.setImage(image);
+  }
+  
+  $(document).ready(function(){
+	  reload_image();
+  });
+</script>
+
+<!-- ENDIF -->
+
+<script>
+	function reload_albums(){
+		$.get("{EQDKP_CONTROLLER_PATH}/AddMedia/{SID}&reload_albums",
+			function(data){
+				var myobj = $('#album_id');
+				myobj.after(data);
+				myobj.remove();
+				
+				myobj = $('#album_massupload');
+				data = $(data).attr('id', 'albums_massupload');
+				myobj.after(data);
+				myobj.remove();
+			});
+	}
+	
+	function load_mediatypes(){
+		var albumid = $('#album_id').val();
+		$('#albums_massupload').val(albumid);
+		
+		$.get("{EQDKP_CONTROLLER_PATH}/AddMedia/{SID}&media_types&album="+albumid,
+			function(data){
+				var myobj = $('#type');
+				myobj.after(data);
+				myobj.remove();
+				
+				var size = $(data).length;
+				if (size == 1){
+					$('#type').parent().parent().hide();
+					$('#type').trigger('change');
+				} else {
+					$('#type').parent().parent().show();
+					$('#type').trigger('change');
+				}
+			});
+	}
+
+	
+	function handle_type(value){
+		if (value == 0 || value == 1){
+			$('#externalfile').parent().parent().show();
+			$('#previewimage').parent().parent().show();
+		} else {
+			$('#externalfile').parent().parent().hide();
+			$('#previewimage').parent().parent().hide();
+		}
+	}
+	
+	function myreset(){
+		$("#nl_progressbar").hide();
+		$('#drag-drop-area-single').show();
+		$("#myfile").val("");
+		$("#myfilename").val("");
+		this.form.reset();
+	}
+	
+	function set_albums(value){
+		$('#album_id').val(value);
+	}
+		
+	$(document).ready(function(){
+		handle_type($("#type").val());
+		
+		load_mediatypes();
+				
+		$('#drag-drop-area-single').on('dragover', function(evt){
+		  evt.preventDefault();
+		});
+
+		$('#drag-drop-area-single').on('drop', function(evt){
+		  evt.preventDefault();
+		  var file = evt.originalEvent.dataTransfer.files[0];
+		  
+		  var fd = new FormData();
+	      fd.append('file', file);
+	      
+	      $("#nl_progressbar_label").html(file.name);
+	      
+	      $("#nl_progressbar").show();
+	      $("#nl_progressbar").progressbar({
+			 value: 0
+		  });
+	      $('#drag-drop-area-single').hide();
+	      
+	      
+	      //Handle empty fields
+	      if ($('#name').val() == ""){
+	    	  $('#name').val(file.name);
+	      }
+	      
+	      //Select Dropdown to Image
+	      if (file.type == "image/jpeg" || file.type == "image/png" || file.type == "image/gif"){
+	    	  $("#type").val(2);
+	    	  $("#type").trigger('change');
+	      }
+	      
+	      $("#myfilename").val(file.name);
+	      
+	      //Send File to Server
+	      var uploadURL = "{EQDKP_CONTROLLER_PATH}AddMedia/{SID}&upload=1"; //Upload URL
+	      var jqXHR=$.ajax({
+	              xhr: function() {
+	              var xhrobj = $.ajaxSettings.xhr();
+	              if (xhrobj.upload) {
+	                      xhrobj.upload.addEventListener('progress', function(event) {
+	                          var percent = 0;
+	                          var position = event.loaded || event.position;
+	                          var total = event.total;
+	                          if (event.lengthComputable) {
+	                              percent = Math.ceil(position / total * 100);
+	                          }
+	                          //Set progress
+						      $("#nl_progressbar").progressbar({
+								 value: percent
+							  });
+	                      }, false);
+	                  }
+	              return xhrobj;
+	          },
+	          url: uploadURL,
+	          type: "POST",
+	          contentType:false,
+	          processData: false,
+	          cache: false,
+	          data: fd,
+	          success: function(data){
+	        	  if (data != "error"){
+		              $("#nl_progressbar").progressbar({
+		     			 value: 100
+		     		  });
+		              
+		              //Remove Spinner
+		              $(".nl_progressbar_label .fa-spinner").addClass("fa-check");
+		              $(".nl_progressbar_label .fa-spinner").removeClass("fa-spin fa-spinner");
+		              
+		              $("#myfile").val(data);
+		              
+	          	} else {
+	          		$("#nl_progressbar").progressbar({
+		     			 value: 0
+		     		});
+	          		$(".nl_progressbar_label .fa-spinner").addClass("fa-remove");
+		            $(".nl_progressbar_label .fa-spinner").removeClass("fa-spin fa-spinner");
+	          	}
+	          }
+	      });
+	 	
+		});
+		
+	})
+	
+	 $(document).ready(function(){
+
+	    $('#fileupload').fileupload({
+	    	dropZone: $('#drag-drop-area'),
+	        url: '{EQDKP_CONTROLLER_PATH}EditMedia{SEO_EXTENSION}{SID}&massupload=true',
+	        dataType: 'json',
+	        add: function (e, data) {
+	        	if (data.files[0].type == "image/jpeg" || data.files[0].type == "image/png" || data.files[0].type == "image/gif"){
+	            	var oFReader = new FileReader();
+	    			oFReader.readAsDataURL(data.files[0]);
+	    			oFReader.onload = function (oFREvent) {
+	    				var bla = $( '<div class="filecontainer"><img src="'+oFREvent.target.result+'" class="uploadPreview" /> <div class="filename">'+data.files[0].name+' <span class="loading"><i class="fa fa-spin fa-spinner fa-lg"></i></span></div><div class="fileprogress"><div class="progress-bar progress-bar-success" style="width:0%;"></div></div><div class="clear"></div></div>' );
+	    				data.context = bla;
+	    				$( "#files" ).prepend(bla);
+	    				data.submit();
+	    			};
+	        		
+	        	} else {
+	        		var bla = $( '<div style="clear:both;"><div class="filename">'+data.files[0].name+' <span class="loading"><i class="fa fa-spin fa-spinner fa-lg"></i></span></div><div class="fileprogress"><div class="progress-bar progress-bar-success" style="width:0%;"></div></div><div class="clear"></div></div>' );
+	        		data.context = bla;
+    				$( "#files" ).prepend(bla);
+	        		data.submit();
+	        	}
+	        },
+	        progress: function (e, data) {
+	            var progress = parseInt(data.loaded / data.total * 100, 10);
+	            data.context.find('.progress-bar').css(
+	                    'width',
+	                    progress + '%'
+	                );
+	        },
+	        done: function (e, data) {
+	        	data.context.find('.loading').html('<i class="fa fa-lg fa-check"></i>');
+	        },
+	        fail: function (e, data) {
+	        	data.context.find('.loading').html('<i class="fa fa-lg fa-remove"></i>');
+	        },
+	        progressall: function (e, data) {
+	            var progress = parseInt(data.loaded / data.total * 100, 10);
+	            $('#progress .progress-bar').css(
+	                'width',
+	                progress + '%'
+	            );
+	        }
+	    }).prop('disabled', !$.support.fileInput)
+	        .parent().addClass($.support.fileInput ? undefined : 'disabled');
+		
+	});
+</script>
+<style>
+#drag-drop-area-single {
+    border: 4px dashed #bbb;
+    height: 100px;
+}
+.drag-drop-inside {
+    margin: 15px auto 0;
+    width: 250px;
+}
+.drag-drop-inside p {
+    color: #aaa;
+    display: none;
+    font-size: 14px;
+    margin: 5px 0;
+}
+.drag-drop-inside p {
+    text-align: center;
+}
+.drag-drop-inside p.drag-drop-info {
+    font-size: 20px;
+}
+.drag-drop-inside p, .drag-drop-inside p.drag-drop-buttons {
+    display: block;
+}
+.drag-drop.drag-over #drag-drop-area {
+    border-color: #83b4d8;
+}
+
+#massupload #drag-drop-area {
+    border: 4px dashed #bbb;
+    height: 200px;
+}
+#massupload .drag-drop-inside {
+    margin: 70px auto 0;
+    width: 250px;
+}
+
+.ui-progressbar { position:relative; height:30px;}
+.nl_progressbar_label { position: absolute; width: 90%; text-align: center; line-height: 30px; left:5%; right:5%;}
+
+.icon-container div {
+	background-color: #f0f0f0;
+	background-image: linear-gradient(to bottom, #fff, #d9d9d9);
+	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 1px 2px rgba(0, 0, 0, 0.05);
+	text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+	
+	border-width: 1px 0;
+    margin: 0;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+    display: inline-block;
+    border-radius: 3px;
+    
+    color: #333;
+	cursor: pointer;
+	font-size: 14px;
+	line-height: 20px;
+	overflow: visible;
+	padding: 4px 10px;
+	text-align: center;
+}
+.icon-container {
+	padding-bottom: 5px;
+}
+
+.uploadPreview {
+	float: left;
+    margin: 2px 10px 0 0;
+    max-height: 32px;
+    max-width: 40px;
+}
+
+#files .filename {
+	float: left;
+	margin-top: 4px;
+}
+
+#files .fileprogress {
+	float: right;
+	width: 200px;
+	margin-top: 4px;
+}
+
+#files {
+	max-width: 800px;
+}
+
+#files .filecontainer {
+	clear: both;
+	border-bottom: 1px solid #bbb;
+	padding-bottom: 2px;
+	padding-top: 2px;
+}
+
+
+#files .fileprogress {
+    background-color: #bbb;
+    height: 25px;
+    padding: 1px;
+    width: 350px;     
+    border-radius: 5px;
+    box-shadow: 0 1px 5px #000 inset, 0 1px 0 #444;           
+}
+
+#files .fileprogress div {
+    display: inline-block;
+    height: 100%;
+    border-radius: 3px;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, .5) inset;
+    transition: width .4s ease-in-out;
+    
+    background-color: #4ca916;
+    background-image: linear-gradient(top, #4ca916, #4ca916);  
+    box-shadow: 0 2px 2px rgba(255, 255, 255, .4) inset, 0 -2px 2px rgba(255, 255, 255, .4) inset;    
+    animation: animate-glow 1s ease-out infinite;
+}
+</style>
+
+<!-- IF S_NORMAL_HEADER -->
+<div class="contentHeader">
+	<h1 class="contentTitle">{L_mc_edit_media}</h1>
+</div>
+<!-- ENDIF -->
+
+<div id="editmedia_tab">
+	<ul>
+		<li><a href="#settings"><!-- IF S_EDIT -->{L_mc_edit_media}<!-- ELSE -->{L_mc_add_media}<!-- ENDIF --></a></li>
+		<!-- IF S_TYPE_IMAGE -->
+		<li><a href="#edit">{L_mc_edit_image}</a></li>
+		<!-- ENDIF -->
+		<!-- IF not S_EDIT -->
+		<li><a href="#massupload">{L_mc_massupload}</a></li>
+		<!-- ENDIF -->
+	</ul>
+	<div id="settings">
+	<form id="editalbum" action="" method="post" enctype='multipart/form-data'>
+	<fieldset class="settings mediumsettings">
+		<!-- BEGIN fields -->
+		<dl>
+			<dt><label>{fields.NAME}</label><br /><span>{fields.HELP}</span></dt>
+			<dd>{fields.FIELD}{fields.TEXT}</dd>
+		</dl>
+		<!-- END fields -->
+		<!-- IF LOCALFILE != "" -->
+		<dl>
+			<dt><label>{L_mc_f_file}</label></dt>
+			<dd>{LOCALFILE}</dd>
+		</dl>
+		<!-- ENDIF -->
+	</fieldset>
+	
+	<!-- The file input field used as target for the file upload widget -->
+	<div id="drag-drop-area-single" style="position: relative;">
+		<div class="drag-drop-inside">
+		<p class="drag-drop-info">{L_mc_drop_file}</p>
+		<p>{L_mc_or}</p>
+		<p class="drag-drop-buttons"><input type="button" class="button" value="{L_mc_select_file}" id="plupload-browse-button" style="position: relative; z-index: 1;" onclick="$('#fileupload').trigger('click')">
+		
+		<input id="fileupload" type="file" name="file" class="upload" style="display:none;">
+		</p>
+		</div>
+	</div>
+	
+	<div id="nl_progressbar" style="display:none;">
+		<span class="nl_progressbar_label"><i class="fa fa-spinner fa-spin fa-lg"></i> &nbsp;<span id="nl_progressbar_label"></span></span>
+	</div>
+	
+	<input type="hidden" name="localfile" value="" id="myfile" />
+	<input type="hidden" name="filename" value="" id="myfilename" />
+	
+	<center>
+		<button type="submit" name="save" value="1" id="saveButton"><i class="fa fa-check"></i>{L_save}</button>
+		<button type="button" onclick="myreset();"><i class="fa fa-trash-o"></i>{L_reset}</button>
+	</center>
+	{CSRF_TOKEN}
+	<input type="hidden" name="admin" value="{ADMINMODE}" />
+	</form>
+	</div>
+	<!-- IF not S_EDIT -->
+	<div id="massupload">
+		<form id="editalbum" action="" method="post" enctype='multipart/form-data'>
+		<fieldset class="settings mediumsettings">
+		<dl>
+			<dt><label>{L_mc_f_album}</label></dt>
+			<dd>{DD_ALBUMS} <button onclick="addalbum()" type="button"><i class="fa fa-plus"></i> {L_mc_new_album}</button></dd>
+		</dl>
+		</fieldset>
+		<!-- The file input field used as target for the file upload widget -->
+		<div id="drag-drop-area" style="position: relative;">
+			<div class="drag-drop-inside">
+			<p class="drag-drop-info">Dateien hierher ziehen</p>
+			<p>oder</p>
+			<p class="drag-drop-buttons"><input type="button" class="button" value="Dateien auswählen" id="plupload-browse-button" style="position: relative; z-index: 1;" onclick="$('#fileupload').trigger('click')">
+			
+			<input id="fileupload" type="file" name="files[]" class="upload" multiple style="display:none;">
+			</p>
+			</div>
+		</div>
+		</form>
+		
+		<!-- The container for the uploaded files -->
+		<div id="files" class="files"></div>
+		<div class="clear"></div>
+	</div>
+	<!-- ENDIF -->
+	
+	<!-- IF S_TYPE_IMAGE -->
+	<div id="edit">
+		<div class="icon-container">
+			<div onclick="image_resize()" title="{L_mc_ei_resize}"><i class="fa fa-cut"></i></div>
+			<div onclick="image_rotate_l()" title="{L_mc_ei_rotate_l}"><i class="fa fa-rotate-left"></i></div>
+			<div onclick="image_rotate_r()" title="{L_mc_ei_rotate_r}"><i class="fa fa-rotate-right"></i></div>
+			<div onclick="image_mirror_h()" title="{L_mc_ei_mirror_h}"><i class="fa fa-arrows-h"></i></div>
+			<div onclick="image_mirror_v()" title="{L_mc_ei_mirror_v}"><i class="fa fa-arrows-v"></i></div>
+			<div onclick="image_restore()" title="{L_mc_ei_restore}"><i class="fa fa-trash"></i></div>
+			<span class="loadingIE" style="font-size: 20px; display:none;"><i class="fa fa-spin fa-spinner"></i></span>
+		</div>
+		
+		<div class="">
+			<img src="{LOCAL_IMAGE}" class="jcrop"/>
+		</div>
+		
+		<input type="hidden" id="x" name="x" />
+		<input type="hidden" id="y" name="y" />
+		<input type="hidden" id="w" name="w" />
+		<input type="hidden" id="h" name="h" />
+	</div>
+	<!-- ENDIF -->
+</div>

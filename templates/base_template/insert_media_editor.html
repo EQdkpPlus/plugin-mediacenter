@@ -1,0 +1,12 @@
+Insert Media Editor
+
+<script type="text/javascript">
+	var editor, tinymce, tinyMCE, parentWindow;
+	
+	
+	parentWindow = (!window.frameElement && window.dialogArguments) || opener || parent || top;
+  	tinymce = parentWindow.tinymce;
+	tinyMCE = parentWindow.tinyMCE;
+	editor = tinymce.EditorManager.activeEditor;
+	console.log(editor);
+</script>			
