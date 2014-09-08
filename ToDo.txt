@@ -44,3 +44,6 @@ ToDo:
 		
 	- Search Hook
 	- Benachrichtigungen: Gemeldete; Unveröffentlichte;
+	
+- Plugin Klasse:
+	- Menü: alle Kategorien reinbringen, 'default_hide' auf 1, damit die Standardmäßig ausgeblendet werden

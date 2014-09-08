@@ -178,21 +178,31 @@ class mediacenter extends plugin_generic
     */
   private function gen_main_menu()
   {
-	/*
+	//TODO: Add here each Category
 	$main_menu = array(
         1 => array (
-          'link'  => $this->routing->build('WriteApplication', false, false, true, true),
-          'text'  => $this->user->lang('gr_add'),
-          'check' => 'u_mediacenter_add',
-		  'signedin' => 0,
-        ),
-		2 => array (
-          'link'  => $this->routing->build('ListApplications', false, false, true, true),
-          'text'  => $this->user->lang('gr_view'),
+          'link'  => $this->routing->build('MediaCenter', 'Downloads', false, true, true),
+          'text'  => 'Downloads',
           'check' => 'u_mediacenter_view',
         ),
+		2 => array (
+          'link'  => $this->routing->build('MediaCenter', 'Gallery', false, true, true),
+          'text'  => 'Gallery',
+          'check' => 'u_mediacenter_view',
+        ),
+		3 => array (
+				'link'  => $this->routing->build('MediaCenter', 'Videos', false, true, true),
+				'text'  => 'Videos',
+				'check' => 'u_mediacenter_view',
+	),
+		4 => array (
+				'link'  => $this->routing->build('MediaCenter', 'Media', false, true, true),
+				'text'  => 'Media',
+				'check' => 'u_mediacenter_view',
+				'default_hide' => 1,
+		),
     );
-	*/
+	
 
     return $main_menu;
   }
