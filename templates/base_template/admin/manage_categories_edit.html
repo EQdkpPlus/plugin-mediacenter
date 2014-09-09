@@ -9,7 +9,7 @@ function check_alias() {
 	if(alias != "") {
 		jQuery.ajax({
 			type: "POST",
-			url: "manage_categories.php{SID}&checkalias=1&c={CID}",
+			url: "manage_categories.php{SID}&checkalias=1&cid={CID}",
 			data: 'alias='+ alias, 
 			cache: false,
 			success: function(response){
@@ -33,7 +33,7 @@ function calculate_permission(perm, gid, obj){
 				
 	jQuery.ajax({
 			type: "POST",
-			url: "manage_categories.php{SID}&calcperm=1&c={CID}",
+			url: "manage_categories.php{SID}&calcperm=1&cid={CID}",
 			data: 'perm='+ perm+'&gid='+gid+'&value='+$(obj).val()+'&parent='+$('#parent').val(), 
 			cache: false,
 			success: function(response){

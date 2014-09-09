@@ -35,7 +35,7 @@ class Manage_Categories extends page_generic {
 			'update'	=> array('process' => 'update', 'csrf' => true),
 			'checkalias'=> array('process' => 'ajax_checkalias'),
 			'calcperm'	=> array('process' => 'ajax_calculate_permission'),
-			'c'			=> array('process' => 'edit'),
+			'cid'		=> array('process' => 'edit'),
 				
 		);
 		parent::__construct(false, $handler, array('mediacenter_categories', 'name'), null, 'selected_ids[]');
@@ -44,7 +44,7 @@ class Manage_Categories extends page_generic {
 	
 	public function ajax_checkalias(){
 		$strAlias = $this->in->get('alias');
-		$intCID = $this->in->get('c', 0);
+		$intCID = $this->in->get('cid', 0);
 		
 		$blnResult = $this->pdh->get('mediacenter_categories', 'check_alias', array($strAlias, true));
 		if (!$blnResult && $this->pdh->get('mediacenter_categories', 'alias', array($intCID)) === $strAlias) $blnResult = true;
@@ -60,7 +60,7 @@ class Manage_Categories extends page_generic {
 	}
 	
 	public function ajax_calculate_permission(){
-		$intCID = $this->in->get('c', 0);
+		$intCID = $this->in->get('cid', 0);
 		$strPermission = $this->in->get('perm');
 		$strPermissionValue = $this->in->get('value', 0);
 		$intGroupID = $this->in->get('gid', 0);
@@ -77,7 +77,7 @@ class Manage_Categories extends page_generic {
 	}
 	
 	public function update(){
-		$id = $this->in->get('c', 0);
+		$id = $this->in->get('cid', 0);
 		$strName = $this->in->get('name');
 		$strDescription = $this->in->get('description', '', 'raw');
 		$strAlias = $this->in->get('alias');
@@ -147,7 +147,7 @@ class Manage_Categories extends page_generic {
 	}
 	
 	public function edit(){
-		$id = $this->in->get('c', 0);
+		$id = $this->in->get('cid', 0);
 		
 		$arrPermissionDropdown = array(
 			-1 => $this->user->lang('inherited'),
@@ -160,14 +160,14 @@ class Manage_Categories extends page_generic {
 
 		foreach($arrGroups as $gid){
 			$this->tpl->assign_block_vars('group_row', array(
-				'ID' 		=> $gid,
-				'NAME' 		=> $this->pdh->get('user_groups', 'name', array($gid)),
-				'DD_CREATE' =>new hdropdown('perm[cre]['.$gid.']', array('options' => $arrPermissionDropdown, 'value' => (isset($arrPermissions['cre'][$gid]) ? $arrPermissions['cre'][$gid] : -1), 'js' => 'onchange="calculate_permission(\'cre\', '.$gid.', this)"')),
-				'DD_UPDATE' => new hdropdown('perm[upd]['.$gid.']', array('options' => $arrPermissionDropdown, 'value' => (isset($arrPermissions['upd'][$gid]) ? $arrPermissions['upd'][$gid] : -1), 'js' => 'onchange="calculate_permission(\'upd\', '.$gid.', this)"')),
-				'DD_DELETE' => new hdropdown('perm[del]['.$gid.']', array('options' => $arrPermissionDropdown, 'value' => (isset($arrPermissions['del'][$gid]) ? $arrPermissions['del'][$gid] : -1), 'js' => 'onchange="calculate_permission(\'del\', '.$gid.', this)"')),
-				'DD_READ' 	=> new hdropdown('perm[rea]['.$gid.']', array('options' => $arrPermissionDropdown, 'value' => (isset($arrPermissions['rea'][$gid]) ? $arrPermissions['rea'][$gid] : -1), 'js' => 'onchange="calculate_permission(\'rea\', '.$gid.', this)"')),
-				'DD_CHANGE_STATE' => new hdropdown('perm[chs]['.$gid.']', array('options' => $arrPermissionDropdown, 'value' => (isset($arrPermissions['chs'][$gid]) ? $arrPermissions['chs'][$gid] : -1), 'js' => 'onchange="calculate_permission(\'chs\', '.$gid.', this)"')),
-				'DD_ADD_ALBUM' => new hdropdown('perm[ada]['.$gid.']', array('options' => $arrPermissionDropdown, 'value' => (isset($arrPermissions['ada'][$gid]) ? $arrPermissions['ada'][$gid] : -1), 'js' => 'onchange="calculate_permission(\'ada\', '.$gid.', this)"')),
+				'ID' 				=> $gid,
+				'NAME' 				=> $this->pdh->get('user_groups', 'name', array($gid)),
+				'DD_CREATE' 		=>new hdropdown('perm[cre]['.$gid.']', array('options' => $arrPermissionDropdown, 'value' => (isset($arrPermissions['cre'][$gid]) ? $arrPermissions['cre'][$gid] : -1), 'js' => 'onchange="calculate_permission(\'cre\', '.$gid.', this)"')),
+				'DD_UPDATE' 		=> new hdropdown('perm[upd]['.$gid.']', array('options' => $arrPermissionDropdown, 'value' => (isset($arrPermissions['upd'][$gid]) ? $arrPermissions['upd'][$gid] : -1), 'js' => 'onchange="calculate_permission(\'upd\', '.$gid.', this)"')),
+				'DD_DELETE' 		=> new hdropdown('perm[del]['.$gid.']', array('options' => $arrPermissionDropdown, 'value' => (isset($arrPermissions['del'][$gid]) ? $arrPermissions['del'][$gid] : -1), 'js' => 'onchange="calculate_permission(\'del\', '.$gid.', this)"')),
+				'DD_READ' 			=> new hdropdown('perm[rea]['.$gid.']', array('options' => $arrPermissionDropdown, 'value' => (isset($arrPermissions['rea'][$gid]) ? $arrPermissions['rea'][$gid] : -1), 'js' => 'onchange="calculate_permission(\'rea\', '.$gid.', this)"')),
+				'DD_CHANGE_STATE'	=> new hdropdown('perm[chs]['.$gid.']', array('options' => $arrPermissionDropdown, 'value' => (isset($arrPermissions['chs'][$gid]) ? $arrPermissions['chs'][$gid] : -1), 'js' => 'onchange="calculate_permission(\'chs\', '.$gid.', this)"')),
+				'DD_ADD_ALBUM' 		=> new hdropdown('perm[ada]['.$gid.']', array('options' => $arrPermissionDropdown, 'value' => (isset($arrPermissions['ada'][$gid]) ? $arrPermissions['ada'][$gid] : -1), 'js' => 'onchange="calculate_permission(\'ada\', '.$gid.', this)"')),
 					
 				'CALC_CREATE' 		=> $this->pdh->get('mediacenter_categories', 'calculated_permissions', array((($id) ? $id : 0), 'cre', $gid)) ? '<span class="positive">'.$this->user->lang('allowed').'</span>' : '<span class="negative">'.$this->user->lang('disallowed').'</span>',
 				'CALC_UPDATE' 		=> $this->pdh->get('mediacenter_categories', 'calculated_permissions', array((($id) ? $id : 0), 'upd', $gid)) ? '<span class="positive">'.$this->user->lang('allowed').'</span>' : '<span class="negative">'.$this->user->lang('disallowed').'</span>',
