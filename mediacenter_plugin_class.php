@@ -109,7 +109,9 @@ class mediacenter extends plugin_generic
 	
 	$this->add_hook('tinymce_normal_setup', 'mediacenter_tinymce_normal_setup_hook', 'tinymce_normal_setup');
 	$this->add_hook('main_menu_items', 'mediacenter_main_menu_items_hook', 'main_menu_items');
-
+	$this->add_hook('article_parse', 'mediacenter_article_parse_hook', 'article_parse');
+	
+	
 	// -- Menu --------------------------------------------
     $this->add_menu('admin', $this->gen_admin_menu());
 	$this->add_menu('main', $this->gen_main_menu());

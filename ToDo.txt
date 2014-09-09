@@ -39,7 +39,7 @@ ToDo:
 
 - Hooks
 	- Editor Integration
-		- Parsen, über Hook "article_parse"
+		- Ausgabe und Design der Medien (benötigt noch URLs zum Download etc.)
 		
 	- Search Hook
 	- Benachrichtigungen: Gemeldete; Unveröffentlichte;

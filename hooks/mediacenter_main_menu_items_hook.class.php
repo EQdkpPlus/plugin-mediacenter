@@ -25,7 +25,7 @@ if (!defined('EQDKP_INC'))
 /*+----------------------------------------------------------------------------
   | shoutbox_search_hook
   +--------------------------------------------------------------------------*/
-if (!class_exists('shoutbox_search_hook'))
+if (!class_exists('mediacenter_main_menu_items_hook'))
 {
   class mediacenter_main_menu_items_hook extends gen_class
   {
