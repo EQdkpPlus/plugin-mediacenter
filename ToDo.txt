@@ -39,11 +39,9 @@ ToDo:
 
 - Hooks
 	- Editor Integration
-		- Hinzufügen von Alben und Bilder
 		- Parsen, über Hook "article_parse"
 		
 	- Search Hook
 	- Benachrichtigungen: Gemeldete; Unveröffentlichte;
 	
 - Plugin Klasse:
-	- Menü: alle Kategorien reinbringen, 'default_hide' auf 1, damit die Standardmäßig ausgeblendet werden

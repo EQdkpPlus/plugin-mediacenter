@@ -39,7 +39,7 @@ if ( !class_exists( "pdh_r_mediacenter_categories" ) ) {
 			
 	public $presets = array(
 		'mediacenter_categories_id' => array('id', array('%intCategoryID%'), array()),
-		'mediacenter_categories_name' => array('name', array('%intCategoryID%'), array()),
+		'mediacenter_categories_name' => array('name', array('%intCategoryID%', '%link_url%', '%link_url_suffix%'), array()),
 		'mediacenter_categories_alias' => array('alias', array('%intCategoryID%'), array()),
 		'mediacenter_categories_description' => array('description', array('%intCategoryID%'), array()),
 		'mediacenter_categories_per_page' => array('per_page', array('%intCategoryID%'), array()),
@@ -90,7 +90,6 @@ if ( !class_exists( "pdh_r_mediacenter_categories" ) ) {
 						'published'				=> (int)$drow['published'],
 						'parent'				=> (int)$drow['parent'],
 						'sort_id'				=> (int)$drow['sort_id'],
-						'type'					=> (int)$drow['type'],
 						'notify_on_onpublished'	=> (int)$drow['notify_on_onpublished'],
 						'default_published_state'=> (int)$drow['default_published_state'],
 						'allow_comments'		=> (int)$drow['allow_comments'],
@@ -127,6 +126,52 @@ if ( !class_exists( "pdh_r_mediacenter_categories" ) ) {
 			} else return array_keys($this->mediacenter_categories);
 		}
 		
+		
+		//Get all published categories, check permissions
+		public function get_published_id_list($intUserID = false){
+			if ($intUserID === false) $intUserID = $this->user->id;
+			$arrOut = array();
+			
+			foreach($this->get_id_list(true) as $intCategoryID){				
+				//Check cat permission
+				$arrPermissions = $this->get_user_permissions($intCategoryID, $intUserID);
+				if (!$arrPermissions['read']) continue;
+				
+				$arrOut[] = $intCategoryID;
+			}
+
+			return $arrOut;
+		}
+		
+		//Get all published media IDs, checks permissions
+		public function get_published_media($intCategoryID, $intUserID = false){
+			if (!$this->get_published($intCategoryID)) return array();
+			if ($intUserID === false) $intUserID = $this->user->id;
+			$arrOut = array();
+				
+			//Check cat permission
+			$arrPermissions = $this->get_user_permissions($intCategoryID, $intUserID);
+			if (!$arrPermissions['read']) continue;
+				
+				
+			//Get Albums
+			$arrAlbums = $this->pdh->get('mediacenter_albums', 'albums_for_category', array($intCategoryID));
+			foreach($arrAlbums as $intAlbumID){
+				$arrMedia = $this->pdh->get('mediacenter_media', 'id_list', array($intAlbumID));
+			
+				foreach($arrMedia as $intMediaID){
+					//Check Published
+					if (!$this->pdh->get('mediacenter_media', 'published', array($intMediaID))) continue;
+						
+					$arrOut[] = $intMediaID;
+				}
+			
+			}
+			
+			return $arrOut;
+		}
+		
+		
 		/**
 		 * Get all data of Element with $strID
 		 * @return multitype: Array with all data
@@ -162,8 +207,8 @@ if ( !class_exists( "pdh_r_mediacenter_categories" ) ) {
 			return false;
 		}
 		
-		public function get_html_name($intCategoryID){
-			return $this->get_name_prefix($intCategoryID).'<a href="'.$this->root_path.'plugins/mediacenter/admin/manage_media.php'.$this->SID.'&c='.$intCategoryID.'">'.$this->get_name($intCategoryID).'</a>';
+		public function get_html_name($intCategoryID, $strLink, $strSuffix){
+			return $this->get_name_prefix($intCategoryID).'<a href="'.$strLink.$this->SID.'&cid='.$intCategoryID.((strlen($strSuffix)) ? $strSuffix : '').'">'.$this->get_name($intCategoryID).'</a>';
 		}
 
 		/**
@@ -288,18 +333,6 @@ if ( !class_exists( "pdh_r_mediacenter_categories" ) ) {
 		}
 
 		/**
-		 * Returns type for $intCategoryID				
-		 * @param integer $intCategoryID
-		 * @return multitype type
-		 */
-		 public function get_type($intCategoryID){
-			if (isset($this->mediacenter_categories[$intCategoryID])){
-				return $this->mediacenter_categories[$intCategoryID]['type'];
-			}
-			return false;
-		}
-
-		/**
 		 * Returns notify_on_onpublished for $intCategoryID				
 		 * @param integer $intCategoryID
 		 * @return multitype notify_on_onpublished
@@ -353,7 +386,7 @@ if ( !class_exists( "pdh_r_mediacenter_categories" ) ) {
 		}
 		
 		public function get_editicon($intCategoryID){
-			return '<a href="'.$this->root_path.'plugins/mediacenter/admin/manage_media.php'.$this->SID.'&c='.$intCategoryID.'"><i class="fa fa-pencil fa-lg" title="'.$this->user->lang('edit').'"></i></a>';
+			return '<a href="'.$this->root_path.'plugins/mediacenter/admin/manage_media.php'.$this->SID.'&cid='.$intCategoryID.'"><i class="fa fa-pencil fa-lg" title="'.$this->user->lang('edit').'"></i></a>';
 		}
 		
 		public function get_check_alias($strAlias, $blnCheckAlbums=false){
@@ -498,7 +531,7 @@ if ( !class_exists( "pdh_r_mediacenter_categories" ) ) {
 				default: $strPath .= '/';
 			}
 				
-			return $strPath.$this->SID;
+			return $this->controller_path_plain.'MediaCenter/'.$strPath.$this->SID;
 		}
 		
 		private function add_path($intCategoryID, $strPath=''){
@@ -543,7 +576,7 @@ if ( !class_exists( "pdh_r_mediacenter_categories" ) ) {
 			if ($intCategoryID == 1) return "";
 			$strBreadcrumb = ($this->get_parent($intCategoryID)) ? $this->add_breadcrumb($this->get_parent($intCategoryID)) : '';
 		
-			$strBreadcrumb .=  '<li class="current"><a href="'.$this->controller_path.$this->get_path($intCategoryID).'">'.$this->get_name($intCategoryID).'</a></li>';
+			$strBreadcrumb .=  '<li class="current"><a href="'.$this->controller_path.'MediaCenter/'.$this->get_path($intCategoryID).'">'.$this->get_name($intCategoryID).'</a></li>';
 			return $strBreadcrumb;
 		}
 		
@@ -551,7 +584,7 @@ if ( !class_exists( "pdh_r_mediacenter_categories" ) ) {
 			if ($intCategoryID == 1) return $strBreadcrumb;
 			$strName = $this->get_name($intCategoryID);
 			$strPath = $this->get_path($intCategoryID);
-			$strBreadcrumb = '<li><a href="'.$this->controller_path.$strPath.'">'.$strName.'</a></li>'.$strBreadcrumb;
+			$strBreadcrumb = '<li><a href="'.$this->controller_path.'MediaCenter/'.$strPath.'">'.$strName.'</a></li>'.$strBreadcrumb;
 				
 			if ($this->get_path($intCategoryID)){
 				$strBreadcrumb = $this->add_breadcrumb($this->get_parent($intCategoryID), $strBreadcrumb);
@@ -583,7 +616,18 @@ if ( !class_exists( "pdh_r_mediacenter_categories" ) ) {
 		
 		public function get_album_count($intCategoryID){
 			return count($this->pdh->get('mediacenter_albums', 'albums_for_category', array($intCategoryID)));
-			
+		}
+		
+		public function get_category_tree($blnPublishedOnly=false, $blnWithPrefix=true){
+			$arrCategories = array();
+			$arrCategoryIDs = $this->pdh->sort($this->get_id_list($blnPublishedOnly), 'mediacenter_categories', 'sort_id', 'asc');
+			foreach($arrCategoryIDs as $intCategoryID){
+				if ($blnPublishedOnly && !$this->get_published($intCategoryID)) continue;
+				
+				$catName = (($blnWithPrefix) ? $this->get_name_prefix($intCategoryID) : '').$this->get_name($intCategoryID);	
+				$arrCategories[$intCategoryID] = $catName;
+			}
+			return $arrCategories;
 		}
 
 	}//end class

@@ -52,6 +52,10 @@ class views_pageobject extends pageobject {
   	echo "View MyVideos";
   }
   
+  public function view_tags(){
+  	echo "View Tags";
+  }
+  
   public function display(){
   	
   	
@@ -63,17 +67,24 @@ class views_pageobject extends pageobject {
   		d($arrMediaData);
   		
   	} elseif (strlen($this->url_id)) {
+  		$arrPathParts = registry::get_const('patharray');
   		
   		
   		//For Kategory-View: index.php/MediaCenter/Downloads/
   		//Also Subcategories possible:
   		// index.php/MediaCenter/Blablupp/Sowieso/Downloads/
   		$strCategoryAlias = $this->url_id;
+  		if ($strCategoryAlias != $arrPathParts[0]){
+  			$strCategoryAlias = $this->url_id = $arrPathParts[0];
+  		}
+  		
   		$intCategoryId = $this->pdh->get('mediacenter_categories', 'resolve_alias', array($strCategoryAlias));
   		if ($intCategoryId){
+  			
   			echo 'View Category. CategoryID: '.$intCategoryId;
   			$arrCategoryData = $this->pdh->get('mediacenter_categories', 'data', array($intCategoryId));
   			d($arrCategoryData);
+  			
   		} else {
   			echo 'Category not found';
   		}

@@ -54,6 +54,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 					return false;
 				} elseif($strFile != "") {
 					$strLocalfile = register('encrypt')->decrypt($strFile);
+					if(file_exists($strFileFolder.$strLocalfile)) $arrAdditionalData['size'] = filesize($strFileFolder.$strLocalfile);
 				}
 				
 				//If it's a image, we have a preview image
@@ -101,6 +102,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				} elseif ($strFile != ""){
 					//Internal File
 					$strLocalfile = register('encrypt')->decrypt($strFile);
+					if(file_exists($strFileFolder.$strLocalfile)) $arrAdditionalData['size'] = filesize($strFileFolder.$strLocalfile);
 				} else return false;
 				
 				
@@ -109,8 +111,15 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				if ($strFile == "" || $strFilename == "") return false;
 				$strLocalfile = register('encrypt')->decrypt($strFile);
 				
-				//Preview Image
 				$strExtension = strtolower(pathinfo($strFilename, PATHINFO_EXTENSION));
+				
+				//Exif Data
+				if ($strExtension == 'jpg'){
+					$arrExif = $this->exif_data($strFileFolder.$strLocalfile);
+					if ($arrExif) $arrAdditionalData = array_merge($arrAdditionalData, $arrExif);
+				}
+				
+				//Preview Image
 				if (!in_array($strExtension, array('jpg', 'jpeg', 'png', 'gif'))) return false;
 				$filename = md5(rand().unique_id());
 				$strFileFolder = $this->pfh->FolderPath('files', 'mediacenter');
@@ -190,7 +199,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 		
 		
 		public function update_media($intMediaID, $intAlbumID, $strName, $strDescription, $intType, $strExternalLink, $strPreviewimage, $strTags, $strFile, $strFilename,
-			$intPublished=false, $intFeatured=false, $intUserID=false, $intViews=false, $intReported=false){
+			$intPublished=false, $intFeatured=false, $intUserID=false, $intViews=false, $intReported=false, $intDownloads=false){
 			$strLocalfile = $this->pdh->get('mediacenter_media', 'localfile', array($intMediaID));
 			$arrAdditionalData = $this->pdh->get('mediacenter_media', 'additionaldata', array($intMediaID));
 			$strLocalPreviewImage = $this->pdh->get('mediacenter_media', 'previewimage', array($intMediaID));
@@ -204,6 +213,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				if ($strFile != "" && $strFilename != ""){
 					$strLocalfile = register('encrypt')->decrypt($strFile);
 					$strLocalfilename = $strFilename;
+					if(file_exists($strFileFolder.$strLocalfile)) $arrAdditionalData['size'] = filesize($strFileFolder.$strLocalfile);
 				}
 				
 				//If it's a image, we have a preview image
@@ -252,6 +262,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 					//Internal File
 					$strLocalfile = register('encrypt')->decrypt($strFile);
 					$strLocalfilename = $strFilename;
+					if(file_exists($strFileFolder.$strLocalfile)) $arrAdditionalData['size'] = filesize($strFileFolder.$strLocalfile);
 				}
 				
 				
@@ -262,9 +273,19 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				if ($strFile != "" && $strFilename != ""){
 					$strLocalfile = register('encrypt')->decrypt($strFile);
 					$strLocalfilename = $strFilename;
+					if(!file_exists($strFileFolder.$strLocalfile)) return false;
+					
+					$arrAdditionalData['size'] = filesize($strFileFolder.$strLocalfile);
+					
+					$strExtension = strtolower(pathinfo($strFilename, PATHINFO_EXTENSION));
+					
+					//Exif Data
+					if ($strExtension == 'jpg'){
+						$arrExif = $this->exif_data($strFileFolder.$strLocalfile);
+						if ($arrExif) $arrAdditionalData = array_merge($arrAdditionalData, $arrExif);
+					}
 					
 					//Preview Image
-					$strExtension = strtolower(pathinfo($strFilename, PATHINFO_EXTENSION));
 					if (!in_array($strExtension, array('jpg', 'jpeg', 'png', 'gif'))) return false;
 					$filename = md5(rand().unique_id());
 					$strFileFolder = $this->pfh->FolderPath('files', 'mediacenter');
@@ -310,6 +331,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			$intViews = ($intViews !== false) ? $intViews : $this->pdh->get('mediacenter_media', 'views', array($intMediaID));
 			$intUserID = ($intUserID !== false) ? $intUserID : $this->pdh->get('mediacenter_media', 'user_id', array($intMediaID));
 			$intReported = ($intReported !== false) ? $intReported : $this->pdh->get('mediacenter_media', 'reported', array($intMediaID));
+			$intDownloads = ($intDownloads !== false) ? $intDownloads : $this->pdh->get('mediacenter_media', 'downloads', array($intMediaID));
 			
 			$arrOldData = $this->pdh->get('mediacenter_media', 'data', array($intMediaID));
 			
@@ -329,6 +351,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 					'user_id'		=> $intUserID,
 					'featured'		=> $intFeatured,
 					'views'			=> $intViews,
+					'downloads'		=> $intDownloads,
 					'reported'		=> $intReported,
 			);
 			
@@ -371,23 +394,32 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			if (!in_array($intType, $arrTypes)){
 				echo "not allowed"; return false;
 			}
-				
-			$strLocalfile = $strFile;
 			$arrAdditionalData = array();
+			
+			$strLocalfile = $strFile;
+			$strFileFolder = $this->pfh->FolderPath('files', 'mediacenter');
+			if(file_exists($strFileFolder.$strLocalfile)) $arrAdditionalData['size'] = filesize($strFileFolder.$strLocalfile);
 			$strLocalPreviewImage = "";
 			$strThumbfolder = $this->pfh->FolderPath('thumbs', 'mediacenter');
-			
+
 			if ($intType == 2 || $oldType == 2){
 				//Preview Image
 				$filename = md5(rand().unique_id());
-				$strFileFolder = $this->pfh->FolderPath('files', 'mediacenter');
 				$this->pfh->copy($strFileFolder.$strLocalfile, $strThumbfolder.$filename.'.'.$strExtension);
 				$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.64.'.$strExtension, 64);
 				$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.240.'.$strExtension, 240);
 				
 				$strLocalPreviewImage = $filename.'.'.$strExtension;
 			}
-				
+			
+			if ($intType == 2){
+				//Exif Data
+				if ($strExtension == 'jpg'){
+					$arrExif = $this->exif_data($strFileFolder.$strLocalfile);
+					if($arrExif) $arrAdditionalData = array_merge($arrAdditionalData, $arrExif);
+				}
+			}
+
 			//Default Publish State
 			$intCategoryID  = $this->pdh->get('mediacenter_albums', 'category_id', array($intAlbumID));
 			$blnDefaultPublishState = $this->pdh->get('mediacenter_categories', 'default_publish_state', array($intCategoryID));
@@ -562,6 +594,127 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			}
 				
 			return false;
+		}
+		
+		private function exif_data($strFilename){
+			$arrOut = array();
+			if (function_exists('exif_read_data')) {
+				$arrExifData = exif_read_data($strFilename, 0, true);
+				if (!$arrExifData) return false;
+				
+				//Camera
+				if (isset($arrExifData['IFD0'])) {
+					if (!empty($arrExifData['IFD0']['Make'])) {
+						$strMake = $arrExifData['IFD0']['Make'];
+					}
+					
+					if (!empty($arrExifData['IFD0']['Model'])) {
+						$strModel = $arrExifData['IFD0']['Model'];
+					}
+					
+					$arrOut['Camera'] = $strMake.((strlen($strMake)) ? ' ': '').$strModel;
+				}
+				
+
+				if (isset($arrExifData['EXIF'])) {
+					//CreationTime
+					if (isset($arrExifData['EXIF']['DateTimeOriginal'])) {
+						$creationTime = @intval(strtotime($arrExifData['EXIF']['DateTimeOriginal']));
+					} else if (isset($arrExifData['EXIF']['DateTimeDigitized'])) {
+						$creationTime = @intval(strtotime($arrExifData['EXIF']['DateTimeDigitized']));
+					} else if (!empty($arrExifData['EXIF']['DateTime'])) {
+						$creationTime = @intval(strtotime($arrExifData['EXIF']['DateTime']));
+					} else {
+						$creationTime = 0;
+					}
+					if ($creationTime < 0 || $creationTime > 2147483647) $creationTime = 0;
+					$arrOut['CreationTime'] = $creationTime;
+					
+					//Camera Settings
+					if (isset($arrExifData['EXIF']['ExposureTime'])) {
+						$arrOut['ExposureTime'] = $arrExifData['EXIF']['ExposureTime'];
+					}
+					if (isset($arrExifData['EXIF']['FNumber'])) {
+						$arrOut['FNumber'] = $this->exif_get_float($arrExifData['EXIF']['FNumber']);
+					}
+					if (isset($arrExifData['EXIF']['FocalLength'])) {
+						$arrOut['FocalLength'] = $this->exif_get_float($arrExifData['EXIF']['FocalLength']);
+					}
+					if (isset($arrExifData['EXIF']['ISOSpeedRatings'])) {
+						$arrOut['ISOSpeedRatings'] = intval($arrExifData['EXIF']['ISOSpeedRatings']);
+					}		
+					if(isset($arrExifData['EXIF']['ShutterSpeedValue'])){
+						$arrOut['ShutterSpeedValue'] = $this->exif_get_shutter($arrExifData['EXIF']['ShutterSpeedValue']);
+					}
+					if (isset($arrExifData['EXIF']['ApertureValue'])){
+						$arrOut['ApertureValue'] = $this->exif_get_fstop($arrExifData['EXIF']['ApertureValue']);
+					}elseif(isset($arrExifData['COMPUTED']['ApertureFNumber'])){
+						$arrOut['ApertureValue'] = $arrExifData['COMPUTED']['ApertureFNumber'];
+					}
+				}
+				
+				//Coordinates
+				if (isset($arrExifData['GPS']) && isset($arrExifData['GPS']['GPSLongitudeRef']) && isset($arrExifData['GPS']['GPSLongitude'])) {
+					$longitude = 0;
+					$degrees = (isset($arrExifData['GPS']['GPSLongitude'][0]) ? $this->coordinate_to_decimal($arrExifData['GPS']['GPSLongitude'][0]) : 0.0);
+					$minutes = (isset($arrExifData['GPS']['GPSLongitude'][1]) ? $this->coordinate_to_decimal($arrExifData['GPS']['GPSLongitude'][1]) : 0.0);
+					$seconds = (isset($arrExifData['GPS']['GPSLongitude'][2]) ? $this->coordinate_to_decimal($arrExifData['GPS']['GPSLongitude'][2]) : 0.0);
+					$longitude = ($degrees * 60.0 + (($minutes * 60.0 + $seconds) / 60.0)) / 60.0;
+					if ($arrExifData['GPS']['GPSLongitudeRef'] == 'W') $longitude *= -1;
+					$arrOut['Longitude'] = $longitude;
+				}
+				
+				if (isset($arrExifData['GPS']) && isset($arrExifData['GPS']['GPSLatitudeRef']) && isset($arrExifData['GPS']['GPSLatitude'])) {
+					$latitude = 0;
+					$degrees = isset($arrExifData['GPS']['GPSLatitude'][0]) ? $this->coordinate_to_decimal($arrExifData['GPS']['GPSLatitude'][0]) : 0.0;
+					$minutes = isset($arrExifData['GPS']['GPSLatitude'][1]) ? $this->coordinate_to_decimal($arrExifData['GPS']['GPSLatitude'][1]) : 0.0;
+					$seconds = isset($arrExifData['GPS']['GPSLatitude'][2]) ? $this->coordinate_to_decimal($arrExifData['GPS']['GPSLatitude'][2]) : 0.0;
+					$latitude = ($degrees * 60.0 + (($minutes * 60.0 + $seconds) / 60.0)) / 60.0;
+					if ($arrExifData['GPS']['GPSLatitudeRef'] == 'S') $latitude *= -1;
+					$arrOut['Latitude'] = $latitude;
+				}
+
+				return $arrOut;
+			}
+			return array();
+		}
+		
+		//----------------------------------------
+		// Helper Functions
+		
+		private function exif_get_float($value) {
+		  $pos = strpos($value, '/');
+		  if ($pos === false) return (float) $value;
+		  $a = (float) substr($value, 0, $pos);
+		  $b = (float) substr($value, $pos+1);
+		  return ($b == 0) ? ($a) : ($a / $b);
+		}
+		
+		private function exif_get_shutter($shutterspeed) {
+
+		  $apex    = $this->exif_get_float($shutterspeed);
+		  $shutter = pow(2, -$apex);
+		  if ($shutter == 0) return false;
+		  if ($shutter >= 1) return round($shutter) . 's';
+		  return '1/' . round(1 / $shutter) . 's';
+		}
+		
+		private function exif_get_fstop($aperturevalue) {
+		  $apex  = $this->exif_get_float($aperturevalue);
+		  $fstop = pow(2, $apex/2);
+		  if ($fstop == 0) return false;
+		  return 'f/' . round($fstop,1);
+		}
+		
+		private function coordinate_to_decimal($coordinate) {
+			$result = 0.0;
+			$coordinateData = explode('/', $coordinate);
+			for ($i = 0, $j = count($coordinateData); $i < $j; $i++) {
+				if ($i == 0) $result = (float) $coordinateData[0];
+				else if ($coordinateData[$i]) $result /= (float) $coordinateData[$i];
+			}
+		
+			return $result;
 		}
 
 	}//end class

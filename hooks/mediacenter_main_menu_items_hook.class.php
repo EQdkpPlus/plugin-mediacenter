@@ -27,7 +27,7 @@ if (!defined('EQDKP_INC'))
   +--------------------------------------------------------------------------*/
 if (!class_exists('shoutbox_search_hook'))
 {
-  class mediacenter_tinymce_normal_setup_hook extends gen_class
+  class mediacenter_main_menu_items_hook extends gen_class
   {
 
 	/**
@@ -36,32 +36,22 @@ if (!class_exists('shoutbox_search_hook'))
     *
     * @return array
     */
-	public function tinymce_normal_setup($arrOptions)
+	public function main_menu_items()
 	{
+		$main_menu = array();
 		
-		$arrOptions['js'] .= "
-		var fileURL = '".$this->controller_path."InsertMediaEditor/".$this->SID."&simple_head=1'; 
- 		editor.addButton('custom_buttons', {
-         title: 'Insert Media',
-         icon: 'pageobject',
-         onclick: function() {
-            win = editor.windowManager.open({
-				file : fileURL,
-				title : \"Insert Media\",
-				width : 700,
-				height : 450,
-				resizable : \"yes\",
-				inline : \"yes\",  // This parameter only has an effect if you use the inlinepopups plugin!
-				popup_css : true, // Disable TinyMCEs default popup CSS
-				close_previous : \"yes\"
-			});
-         }
-      });
-				
-				
-		";
+		$arrCategories = $this->pdh->get('mediacenter_categories', 'category_tree', array(true, false));
+		
+		foreach($arrCategories as $intCategoryID => $strCategoryName){
+			$main_menu[] = array(
+				'link'  => $this->pdh->get('mediacenter_categories', 'path', array($intCategoryID)),
+				'text'  => $strCategoryName,
+				'check' => 'u_mediacenter_view',
+				'default_hide' => 1,
+			);
+		}
 
-		return $arrOptions;
+		return $main_menu;
 	}
   }
 }

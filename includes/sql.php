@@ -70,6 +70,7 @@ $mediacenterSQL = array(
 	`additionaldata` TEXT NULL COLLATE 'utf8_bin',
 	`date` INT(10) UNSIGNED NOT NULL,
 	`views` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  	`downloads` INT(10) UNSIGNED NOT NULL DEFAULT '0',	
   	`user_id` INT(10) UNSIGNED NOT NULL DEFAULT '0',
 	PRIMARY KEY (`id`)
 )

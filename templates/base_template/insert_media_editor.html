@@ -1,5 +1,3 @@
-Insert Media Editor
-
 <script type="text/javascript">
 	var editor, tinymce, tinyMCE, parentWindow;
 	
@@ -9,4 +7,112 @@ Insert Media Editor
 	tinyMCE = parentWindow.tinyMCE;
 	editor = tinymce.EditorManager.activeEditor;
 	console.log(editor);
-</script>			
+	
+	function insertFile(name)	{
+		var image = false;
+		try {
+			if (is_image(name)){			
+				image = true;
+			} else {			
+				image = false;
+			}
+
+		} catch(e) {
+			alert("Error");
+		}
+		
+		if (image){
+			output = '<img src="'+name+'" alt="Image" />';
+		} else {
+			var index = name.lastIndexOf("/") + 1;
+			var filename = name.substr(index);
+			output = '<a href="'+name+'">'+filename+'</a>';
+		}
+		
+		editor.insertContent(output);
+		
+		editor.execCommand('mceRepaint');
+	}
+	
+	function is_image(file_name) {
+	  // Die erlaubten Dateiendungen
+	  var image_extensions = new Array('jpg', 'jpeg','gif','png');
+
+	  // Dateiendung der Datei
+	  var extension = file_name.split('.');
+	  extension = extension[extension.length - 1];
+	  extension = extension.toLowerCase();
+	  for (var k in image_extensions) {
+		if (image_extensions[k] == extension) return true;
+	  }
+	  return false;
+	}
+</script>
+
+<!-- IF S_CATEGORIES -->
+<table width="100%" border="0" cellspacing="1" cellpadding="2" class="colorswitch" id="article_categories-table">
+	{CATEGORY_LIST}
+</table>
+<div class="center pagination_wrapper">
+	{PAGINATION}
+</div>
+<!-- ENDIF -->
+
+<!-- IF S_MEDIA -->
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("#pdh_selectall1").off("click");
+		$("input[name='pdh_selectall']").click(function(){
+			var closest = $(this).closest('table');
+			console.log(closest);
+			
+			var checked_status = this.checked;
+			$(closest).find("input[name='selected_ids[]']").each(function(){
+				$(this).prop('checked', checked_status).trigger('change');
+			});
+		});
+	});
+	
+	function insert_media(){
+		//Albums
+		$("input[name='album[]']:checked").each(function(){
+			insert_album_editor($(this).val());
+		});
+		
+		//Media
+		$("input[name='selected_ids[]']:checked").each(function(){
+			insert_media_editor($(this).val());
+		});
+	}
+	
+	function editmedia(mediaid){
+		insert_media_editor(mediaid);
+	}
+
+	
+	function insert_album_editor(albumid){
+		var output = '<p class="system-block mediacenter-album" data-album-id="'+albumid+'">Album #'+albumid+'</p>';
+		editor.insertContent(output);
+		editor.execCommand('mceRepaint');
+	}
+	
+	function insert_media_editor(mediaid){
+		var output = '<p class="system-block mediacenter-media" data-media-id="'+mediaid+'">Media #'+mediaid+'</p>';
+		editor.insertContent(output);
+		editor.execCommand('mceRepaint');
+	}
+</script>
+
+<div class="tableHeader floatRight">
+	<button type="button" onclick="insert_media();"><i class="fa fa-paste"></i> {L_mc_insert_media}</button>
+</div>
+
+<!-- BEGIN album_list -->
+<h2><input type="checkbox" name="album[]" value="{album_list.ID}" /> {album_list.NAME}</h2>
+
+<table width="100%" border="0" cellspacing="1" cellpadding="2" class="colorswitch">
+	{album_list.MEDIA_LIST}
+</table>
+<!-- END album_list -->
+<button type="button" onclick="insert_media();"><i class="fa fa-paste"></i> {L_mc_insert_media}</button>
+<!-- ENDIF -->

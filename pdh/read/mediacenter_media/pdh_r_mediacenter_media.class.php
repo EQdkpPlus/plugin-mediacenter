@@ -56,6 +56,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 		'mediacenter_media_views' => array('views', array('%intMediaID%'), array()),
 		'mediacenter_media_user_id' => array('user_id', array('%intMediaID%'), array()),
 		'mediacenter_media_editicon' => array('editicon', array('%intMediaID%'), array()),
+		'mediacenter_media_downloads' => array('downloads', array('%intMediaID%'), array()),
 			
 	);
 		
@@ -95,8 +96,9 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 						'additionaldata'	=> $drow['additionaldata'],
 						'date'				=> (int)$drow['date'],
 						'views'				=> (int)$drow['views'],
+						'downloads'			=> (int)$drow['downloads'],
 						'user_id'			=> (int)$drow['user_id'],
-
+			
 					);
 				}
 				
@@ -108,12 +110,13 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 		/**
 		 * @return multitype: List of all IDs
 		 */				
-		public function get_id_list($intAlbumID){
+		public function get_id_list($intAlbumID, $blnPublishedOnly=false){
 			if ($this->mediacenter_media === null) return array();
 			
 			if ($intAlbumID){
 				$arrKeys = array();
 				foreach($this->mediacenter_media as $intMediaID => $val){
+					if ($blnPublishedOnly && !$this->get_published($intMediaID)) continue;
 					if ($val['album_id'] == $intAlbumID) $arrKeys[] = $intMediaID;
 				}
 				return $arrKeys;
@@ -431,6 +434,18 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 		 public function get_views($intMediaID){
 			if (isset($this->mediacenter_media[$intMediaID])){
 				return $this->mediacenter_media[$intMediaID]['views'];
+			}
+			return false;
+		}
+		
+		/**
+		 * Returns downloads for $intMediaID
+		 * @param integer $intMediaID
+		 * @return multitype views
+		 */
+		public function get_downloads($intMediaID){
+			if (isset($this->mediacenter_media[$intMediaID])){
+				return $this->mediacenter_media[$intMediaID]['downloads'];
 			}
 			return false;
 		}

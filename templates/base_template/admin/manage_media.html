@@ -49,7 +49,7 @@
 	<div class="clear"></div>
 </div>
 
-<form method="post" action="{ACTION}&c={CID}" name="post">
+<form method="post" action="{ACTION}&cid={CID}" name="post">
 	<div class="contentHeader">
 		<h1 class="contentTitle">{L_mc_manage_media}: {CATEGORY_NAME}</h1>
 	</div>
@@ -93,7 +93,7 @@
 		<button class="mainoption" type="submit" name="set_unpublished" id="set_unpublished" style="display:none;"></button>
 		<button class="mainoption" type="submit" name="change_album" id="change_category" style="display:none;"></button>
 		
-		<input type="hidden" name="c" value="{CID}" />
+		<input type="hidden" name="cid" value="{CID}" />
 		<input type="hidden" name="del" value="1" disabled="disabled" id="mass_del_submit" />
 		<button class="mainoption" type="submit" name="save"><i class="fa fa-check"></i>{L_save}</button>
 		<button class="mainoption" type="button" onclick="window.location='manage_categories.php{SID}'"><i class="fa fa-chevron-left"></i>{L_back}</button>

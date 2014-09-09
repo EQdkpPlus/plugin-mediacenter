@@ -272,7 +272,7 @@ class Manage_Categories extends page_generic {
 					array('name' => 'mediacenter_categories_media_count','sort' => true, 'th_add' => 'width="20"', 'td_add' => ''),
 			),
 		);
-		$hptt = $this->get_hptt($hptt_page_settings, $view_list, $view_list, array('%link_url%' => 'manage_media.php', '%link_url_suffix%' => '&amp;upd=true'));
+		$hptt = $this->get_hptt($hptt_page_settings, $view_list, $view_list, array('%link_url%' => $this->root_path.'plugins/mediacenter/admin/manage_media.php', '%link_url_suffix%' => ''));
 		$page_suffix = '&amp;start='.$this->in->get('start', 0);
 		$sort_suffix = '?sort='.$this->in->get('sort');
 		

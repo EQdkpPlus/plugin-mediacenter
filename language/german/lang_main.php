@@ -87,6 +87,9 @@ $lang = array(
 	'mc_f_reported'				=> 'Gemeldet',
 	'mc_f_delete_comments'		=> 'Kommentare löschen',
 	'mc_f_delete_votes'			=> 'Bewertungen löschen',
+	'mc_f_downloads'			=> 'Anzahl Downloads',
+	'mc_insert_media'			=> 'Medien einfügen',
+		
 	'action_category_deleted'	=> 'Kategorie gelöscht',
 	'action_category_update'	=> 'Kategorie geändert',
 	'action_category_added'		=> 'Kategorie hinzugefügt',

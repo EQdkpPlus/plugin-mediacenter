@@ -451,7 +451,7 @@ class editmedia_pageobject extends pageobject {
   				//$intPublished=false, $intFeatured=false, $intUserID=false, $intViews=false, $intReported=false
 	  			$mixResult = $this->pdh->put('mediacenter_media', 'update_media', array(
 	  					$this->url_id, (int)$arrValues['album_id'], $arrValues['name'], $arrValues['description'], (int)$arrValues['type'], $arrValues['externalfile'], $arrValues['previewimage'], $arrValues['tags'], $this->in->get('localfile'), $this->in->get('filename'),
-	  					(int)$arrValues['published'], (int)$arrValues['featured'], (int)$arrValues['user_id'], (int)$arrValues['views'],(int)$arrValues['reported']
+	  					(int)$arrValues['published'], (int)$arrValues['featured'], (int)$arrValues['user_id'], (int)$arrValues['views'],(int)$arrValues['reported'], (int)$arrValues['downloads']
 	  			));
   			}else {
   				$mixResult = $this->pdh->put('mediacenter_media', 'update_media', array(
@@ -622,10 +622,6 @@ class editmedia_pageobject extends pageobject {
   				'options'	=> $arrUser,
   				'lang'		=> 'user',
   		);
-  		$arrFields['views'] = array(
-  				'type'		=> 'int',
-  				'lang'		=> 'mc_f_views',
-  		);
   		$arrFields['published'] = array(
   				'type'		=> 'radio',
   				'lang'		=> 'mc_f_published',
@@ -635,6 +631,15 @@ class editmedia_pageobject extends pageobject {
   				'lang'		=> 'mc_f_featured',
   		);
   		if ($this->url_id){
+  			$arrFields['views'] = array(
+  					'type'		=> 'int',
+  					'lang'		=> 'mc_f_views',
+  			);
+  			$arrFields['downloads'] = array(
+  					'type'		=> 'int',
+  					'lang'		=> 'mc_f_downloads',
+  			);
+  			
 	  		$arrFields['reported'] = array(
 	  				'type'		=> 'radio',
 	  				'lang'		=> 'mc_f_reported',

@@ -108,8 +108,8 @@ class mediacenter extends plugin_generic
 	$this->routing->addRoute('InsertMediaEditor', 'inserteditor', 'plugins/mediacenter/pageobjects');
 	
 	$this->add_hook('tinymce_normal_setup', 'mediacenter_tinymce_normal_setup_hook', 'tinymce_normal_setup');
-	
-	
+	$this->add_hook('main_menu_items', 'mediacenter_main_menu_items_hook', 'main_menu_items');
+
 	// -- Menu --------------------------------------------
     $this->add_menu('admin', $this->gen_admin_menu());
 	$this->add_menu('main', $this->gen_main_menu());
@@ -178,31 +178,8 @@ class mediacenter extends plugin_generic
     */
   private function gen_main_menu()
   {
-	//TODO: Add here each Category
-	$main_menu = array(
-        1 => array (
-          'link'  => $this->routing->build('MediaCenter', 'Downloads', false, true, true),
-          'text'  => 'Downloads',
-          'check' => 'u_mediacenter_view',
-        ),
-		2 => array (
-          'link'  => $this->routing->build('MediaCenter', 'Gallery', false, true, true),
-          'text'  => 'Gallery',
-          'check' => 'u_mediacenter_view',
-        ),
-		3 => array (
-				'link'  => $this->routing->build('MediaCenter', 'Videos', false, true, true),
-				'text'  => 'Videos',
-				'check' => 'u_mediacenter_view',
-	),
-		4 => array (
-				'link'  => $this->routing->build('MediaCenter', 'Media', false, true, true),
-				'text'  => 'Media',
-				'check' => 'u_mediacenter_view',
-				'default_hide' => 1,
-		),
-    );
-	
+
+	$main_menu = array();
 
     return $main_menu;
   }
