@@ -50,7 +50,7 @@ class MediaCenterSettings extends page_generic
       message_die($this->user->lang('mc_plugin_not_installed'));
 
     $handler = array(
-      'save' => array('process' => 'save', 'csrf' => true, 'check' => 'a_mediacenter_'),
+      'save' => array('process' => 'save', 'csrf' => true),
     );
 	
 	$this->user->check_auth('a_mediacenter_settings');  
@@ -59,6 +59,8 @@ class MediaCenterSettings extends page_generic
 
     $this->process();
   }
+  
+  private $arrData = false;
 
   /**
    * save
@@ -67,18 +69,48 @@ class MediaCenterSettings extends page_generic
   public function save()
   {
 
-    // update configuration
-    $this->config->set($savearray, '', 'mediacenter');
-    // Success message
-    $messages[] = $this->user->lang('mc_config_saved');
+  	$objForm = register('form', array('mc_settings'));
+  	$objForm->langPrefix = 'mc_';
+  	$objForm->validate = true;
+  	$objForm->add_fieldsets($this->fields());
+  	$arrValues = $objForm->return_values();
 
-    $this->display($messages);
+  	if ($objForm->error){
+  		$this->arrData = $arrValues;
+  	} else {
+  	
+	  	// update configuration
+	    $this->config->set($arrValues, '', 'mediacenter');
+	    // Success message
+	    $messages[] = $this->user->lang('mc_config_saved');
+	
+	    $this->display($messages);
+  	}
+   
   }
   
   
   private function fields(){
+  	$arrFields = array(
+  		'extensions' => array(
+	  		'extensions_image' => array(
+	  			'type' => 'text',
+	  			'size' => 40,
+	  		),
+	  		
+	  		'extensions_file' => array(
+	  			'type' => 'text',
+	  			'size' => 40,
+	  		),
+	  		
+	  		'extensions_video' => array(
+	  			'type' => 'text',
+	  			'size' => 40,
+	  		),
+  		),
+  	);
   
-  
+  	return $arrFields;
   }
   
 
@@ -96,18 +128,21 @@ class MediaCenterSettings extends page_generic
       foreach($messages as $name)
         $this->core->message($name, $this->user->lang('mediacenter'), 'green');
     }
+    
+    $arrValues = $this->config->get_config('mediacenter');
+    if ($this->arrData !== false) $arrValues = $this->arrData;
 
     // -- Template ------------------------------------------------------------
 	// initialize form class
-	$this->form->lang_prefix = 'mc_settings_';
-	$this->form->use_fieldsets = true;
-		
-	$arrFields = $this->fields();
-	
-	$this->form->add_fieldsets($arrFields);
+	$objForm = register('form', array('mc_settings'));
+	$objForm->reset_fields();
+  	$objForm->lang_prefix = 'mc_';
+  	$objForm->validate = true;
+  	$objForm->use_fieldsets = true;
+  	$objForm->add_fieldsets($this->fields());
 		
 	// Output the form, pass values in
-	$this->form->output($arrData);
+	$objForm->output($arrValues);
 
     // -- EQDKP ---------------------------------------------------------------
     $this->core->set_vars(array(
