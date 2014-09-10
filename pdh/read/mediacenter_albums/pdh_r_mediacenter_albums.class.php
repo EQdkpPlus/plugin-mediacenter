@@ -68,6 +68,7 @@ if ( !class_exists( "pdh_r_mediacenter_albums" ) ) {
 						'user_id'			=> (int)$drow['user_id'],
 						'date'				=> (int)$drow['date'],
 						'category_id'		=> (int)$drow['category_id'],
+						'type'				=> $this->calc_type((int)$drow['id']),
 					);
 				}
 				
@@ -82,6 +83,43 @@ if ( !class_exists( "pdh_r_mediacenter_albums" ) ) {
 		public function get_id_list(){
 			if ($this->mediacenter_albums === null) return array();
 			return array_keys($this->mediacenter_albums);
+		}
+		
+		/**
+		 * Calculated the Type on an Album based on Media Types
+		 * 
+		 * @param integer $intAlbumID
+		 * @return mixed
+		 */
+		private function calc_type($intAlbumID){
+			$arrMedia = $this->pdh->get('mediacenter_media', 'id_list', array($intAlbumID));
+			$intType = false;
+			foreach ($arrMedia as $intMediaID){
+				if ($intType === false) {
+					//First one
+					$intType = (int)$this->pdh->get('mediacenter_media', 'type', array($intMediaID));
+				} else {
+					if ($intType != (int)$this->pdh->get('mediacenter_media', 'type', array($intMediaID))) return false;
+				}
+				
+			}
+			
+			return $intType;
+		}
+		
+		/**
+		 * Returns the calculated Type of an album, based on media types
+		 * Does not check the Category Type
+		 * Returns false is the type is mixed. Returns int with the Type is album has only one type
+		 * 
+		 * @param integer $intAlbumID
+		 * @return mixed
+		 */
+		public function get_calculated_type($intAlbumID){
+		if (isset($this->mediacenter_albums[$intAlbumID])){
+				return $this->mediacenter_albums[$intAlbumID]['type'];
+			}
+			return false;
 		}
 		
 		/**

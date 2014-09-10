@@ -242,6 +242,10 @@ if ( !class_exists( "pdh_r_mediacenter_categories" ) ) {
 		 */
 		 public function get_per_page($intCategoryID){
 			if (isset($this->mediacenter_categories[$intCategoryID])){
+				if ($this->mediacenter_categories[$intCategoryID]['per_page'] == 0){
+					return (int)$this->config->get('per_page', 'mediacenter');
+				}
+				
 				return $this->mediacenter_categories[$intCategoryID]['per_page'];
 			}
 			return false;

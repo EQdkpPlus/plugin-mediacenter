@@ -42,7 +42,7 @@ if ( !class_exists( "pdh_w_mediacenter_albums" ) ) {
 					'category_id'	=> $intCategoryID,
 			);
 			
-			$objQuery = $this->db->prepare($arrQuery)->execute();
+			$objQuery = $this->db->prepare('INSERT INTO __mediacenter_albums :p')->set($arrQuery)->execute();
 			
 			$this->pdh->enqueue_hook('mediacenter_albums_update');
 			if ($objQuery) {

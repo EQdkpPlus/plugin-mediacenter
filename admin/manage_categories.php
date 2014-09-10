@@ -90,6 +90,7 @@ class Manage_Categories extends page_generic {
 		$intAllowVoting = $this->in->get('allow_voting', 0);
 		$intDefaultLayout = $this->in->get('layout', 0);
 		$arrTypes = $this->in->getArray('types', 'int');
+		$intPerPage = $this->in->get('per_page', (int)$this->config->get('per_page', 'mediacenter'));
 		
 		if ($strName == "" ) {
 			$this->core->message($this->user->lang('name'), $this->user->lang('missing_values'), 'red');
@@ -99,11 +100,11 @@ class Manage_Categories extends page_generic {
 		
 		if ($id){
 			$blnResult = $this->pdh->put('mediacenter_categories', 'update', array(
-				$id, $strName, $strDescription, $strAlias, $intPublished, $intParentCategory, $intArticlePublishedState, $arrPermissions, $intNotifyUnpublishedArticles, $intAllowComments, $intDefaultLayout, $arrTypes, $intAllowVoting
+				$id, $strName, $strDescription, $strAlias, $intPublished, $intParentCategory, $intArticlePublishedState, $arrPermissions, $intNotifyUnpublishedArticles, $intAllowComments, $intDefaultLayout, $arrTypes, $intAllowVoting, $intPerPage
 			));
 		} else {
 			$blnResult = $this->pdh->put('mediacenter_categories', 'add', array(
-				$strName, $strDescription, $strAlias, $intPublished, $intParentCategory, $intArticlePublishedState, $arrPermissions, $intNotifyUnpublishedArticles, $intAllowComments, $intDefaultLayout, $arrTypes, $intAllowVoting
+				$strName, $strDescription, $strAlias, $intPublished, $intParentCategory, $intArticlePublishedState, $arrPermissions, $intNotifyUnpublishedArticles, $intAllowComments, $intDefaultLayout, $arrTypes, $intAllowVoting, $intPerPage
 			));
 		}
 		
@@ -210,6 +211,7 @@ class Manage_Categories extends page_generic {
 				'DD_LAYOUT_TYPE' 	=> new hdropdown('layout', array('options' => $this->user->lang('mc_layout_types'), 'value' => $this->pdh->get('mediacenter_categories', 'layout', array($id)))),
 				'DD_MEDIA_TYPE' 	=> new hmultiselect('types', array('options' => $this->user->lang('mc_types'), 'value' => $this->pdh->get('mediacenter_categories', 'types', array($id)))),
 				'R_PUBLISHED'		=> new hradio('published', array('value' =>  ($this->pdh->get('mediacenter_categories', 'published', array($id))))),
+				'SPINNER_PER_PAGE'	=> new hspinner('per_page', array('value' =>  ($this->pdh->get('mediacenter_categories', 'per_page', array($id))), 'max'  => 50, 'min'  => 5,'step' => 5,'onlyinteger' => true)),
 			));
 			
 		} else {
@@ -224,6 +226,7 @@ class Manage_Categories extends page_generic {
 				'DD_MEDIA_TYPE' 	=> new hmultiselect('types', array('options' => $this->user->lang('mc_types'), 'value' => array(0,1,2))),
 				'R_PUBLISHED'		=> new hradio('published', array('value' =>  1)),
 				'R_VOTING'			=> new hradio('allow_voting', array('value' => 1)),
+				'SPINNER_PER_PAGE'	=> new hspinner('per_page', array('value' => $this->config->get('per_page', 'mediacenter'), 'max'  => 50, 'min'  => 5,'step' => 5,'onlyinteger' => true)),	
 			));
 		}
 

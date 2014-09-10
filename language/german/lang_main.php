@@ -100,6 +100,24 @@ $lang = array(
 	'action_media_update'		=> 'Medium geändert',
 	'action_media_added'		=> 'Medium hinzugefügt',
 	'action_mediacenter_reset_votes' => 'Bewertungen zurückgesetzt',
+		
+	'mc_fs_extensions'			=> 'Dateiendungen',
+	'mc_f_extensions_image'		=> 'Erlaubte Dateiendungen für Typ "Bild"',
+	'mc_f_extensions_image_help'=> 'Trage hier, durch Komma getrennt, die erlaubten Dateiendungen für Bilder ein.',	
+	'mc_f_extensions_file'		=> 'Erlaubte Dateiendungen für Typ "Datei"',
+	'mc_f_extensions_file_help' => 'Trage hier, durch Komma getrennt, die erlaubten Dateiendungen für Dateien ein.',
+	'mc_f_extensions_video'		=> 'Erlaubte Dateiendungen für Typ "Video"',
+	'mc_f_extensions_video_help'=> 'Trage hier, durch Komma getrennt, die erlaubten Dateiendungen für lokale Videos ein.',
+	'mc_fs_watermark'			=> 'Wasserzeichen',
+	'mc_f_watermark_enabled'	=> 'Wasserzeichen für Bilder aktivieren',
+	'mc_f_watermark_position'	=> 'Position des Wasserzeichens',
+	'mc_watermark_positions'	=> array('rt' => 'Rechts oben', 'rb' => 'Rechts unten', 'lb' => 'Links unten', 'lt' => 'Links oben'),
+	'mc_f_watermark_transparency'=> 'Transparenz des Wasserzeichens',
+	'mc_f_watermark_logo'		=> 'Wasserzeichen',
+	'mc_f_watermark_logo_help'	=> 'Als Wasserzeichen eignen sich sehr gut transparente Bilder im png-Format (Transparenz durch Alphakanal), aber auch jedes andere Bild.',
+	'mc_watermark_transparency' => 'Transparenz',
+	'mc_f_per_page'				=> 'Einträge pro Seite',
+	'mc_fs_defaults'			=> 'Standardeinstellungen',
  );
 
 ?>

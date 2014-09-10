@@ -38,6 +38,7 @@ if(!class_exists('pdh_w_mediacenter_categories')) {
 				'default_published_state' => "{L_ARTICLE_PUBLISHED_STATE}",
 				'allow_comments'	=> "{L_MC_ALLOW_COMMENTS}",
 				'allow_votings'		=> "{L_MC_ALLOW_VOTING}",
+				'per_page'			=> "{L_MC_F_PER_PAGE}",
 				
 		);
 
@@ -75,7 +76,7 @@ if(!class_exists('pdh_w_mediacenter_categories')) {
 		
 		
 		public function add($strName, $strDescription, $strAlias, $intPublished, $intParentCategory, $intArticlePublishedState, 
-				$arrPermissions, $intNotifyUnpublishedArticles, $intAllowComments, $intDefaultLayout, $arrTypes, $intAllowVoting){
+				$arrPermissions, $intNotifyUnpublishedArticles, $intAllowComments, $intDefaultLayout, $arrTypes, $intAllowVoting, $intPerPage){
 			if ($strAlias == ""){
 				$strAlias = $this->create_alias($strName);
 			} else {
@@ -103,6 +104,7 @@ if(!class_exists('pdh_w_mediacenter_categories')) {
 				'types'			=> serialize($arrTypes),
 				'sort_id'		=> 99999999,
 				'allow_voting'  => $intAllowVoting,
+				'per_page'		=> $intPerPage,
 			);
 			
 			$objQuery = $this->db->prepare("INSERT INTO __mediacenter_categories :p")->set($arrQuery)->execute();
@@ -120,7 +122,7 @@ if(!class_exists('pdh_w_mediacenter_categories')) {
 		}
 		
 		public function update($id, $strName, $strDescription, $strAlias, $intPublished, $intParentCategory, $intArticlePublishedState, 
-				$arrPermissions, $intNotifyUnpublishedArticles, $intAllowComments, $intDefaultLayout, $arrTypes, $intAllowVoting){
+				$arrPermissions, $intNotifyUnpublishedArticles, $intAllowComments, $intDefaultLayout, $arrTypes, $intAllowVoting, $intPerPage){
 			
 			if ($strAlias == "" || $strAlias != $this->pdh->get('mediacenter_categories', 'alias', array($id))){
 				$strAlias = $this->create_alias($strName);
@@ -149,6 +151,7 @@ if(!class_exists('pdh_w_mediacenter_categories')) {
 				'types'			=> serialize($arrTypes),
 				'sort_id'		=> 99999999,
 				'allow_voting'  => $intAllowVoting,
+				'per_page'		=> $intPerPage,
 			);
 			
 			$arrOldData = $this->pdh->get('mediacenter_categories', 'data', array($id));

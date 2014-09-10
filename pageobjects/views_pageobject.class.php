@@ -41,6 +41,7 @@ class views_pageobject extends pageobject {
     	'myvideos'	=> array('process' => 'view_myvideos'),
     	'myalbums' 	=> array('process' => 'view_myalbums'),
     	'tags' 		=> array('process' => 'view_tags'),
+    	'a'			=> array('process' => 'view_album'),
     );
     parent::__construct(false, $handler);
 
@@ -54,6 +55,15 @@ class views_pageobject extends pageobject {
   
   public function view_tags(){
   	echo "View Tags";
+  }
+  
+  //For URL: index.php/MediaCenter/Downloads/MyAlbumname-a1/
+  public function view_album(){
+  	echo "view album";
+  	$intAlbumID = $this->in->get('a');
+  	
+  	d($this->pdh->get('mediacenter_album', 'data', array($intAlbumID)));
+  	
   }
   
   public function display(){

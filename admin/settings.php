@@ -92,22 +92,63 @@ class MediaCenterSettings extends page_generic
   
   private function fields(){
   	$arrFields = array(
+  		'defaults' => array(
+  			'per_page' => array(
+  				'type' => 'spinner',
+  				'max'  => 50,
+  				'min'  => 5,
+  				'step' => 5,
+  				'onlyinteger' => true,
+  				'default' => 25,
+  			),
+  				
+  		),
   		'extensions' => array(
 	  		'extensions_image' => array(
 	  			'type' => 'text',
-	  			'size' => 40,
+	  			'size' => 50,
 	  		),
 	  		
 	  		'extensions_file' => array(
 	  			'type' => 'text',
-	  			'size' => 40,
+	  			'size' => 50,
 	  		),
 	  		
 	  		'extensions_video' => array(
 	  			'type' => 'text',
-	  			'size' => 40,
+	  			'size' => 50,
 	  		),
   		),
+  		'watermark' => array(
+	  		'watermark_enabled' => array(
+  				'type' 			=> 'radio',
+	  			'dependency'	=> array(1 => array('watermark_logo', 'watermark_position', 'watermark_transparency')),
+  			),
+  			'watermark_logo' => array(
+  				'type'	=> 'file',
+  				'preview' => true,
+  				'extensions'	=> array('jpg', 'png'),
+  				'mimetypes'		=> array(
+  						'image/jpeg',
+  						'image/png',
+  				),
+  				'folder'		=> $this->pfh->FolderPath('watermarks', 'mediacenter'),
+  				'numerate'		=> true,
+	  		),
+  			'watermark_position' => array(
+  				'type' => 'dropdown',
+  				'options' => $this->user->lang('mc_watermark_positions'),
+  			),
+  			'watermark_transparency' => array(
+  				'type'	=> 'slider',
+  				'min'	=> 0,
+  				'max'	=> 100,
+  				'value' => 0,
+  				'width'	=> '300px',
+  				'label' => $this->user->lang('mc_watermark_transparency'),
+  				'range' => false,
+  			),
+	  	),
   	);
   
   	return $arrFields;
@@ -131,6 +172,8 @@ class MediaCenterSettings extends page_generic
     
     $arrValues = $this->config->get_config('mediacenter');
     if ($this->arrData !== false) $arrValues = $this->arrData;
+    
+    if (strlen($arrValues['watermark_logo'])) $arrValues['watermark_logo'] = $this->root_path.$arrValues['watermark_logo'];
 
     // -- Template ------------------------------------------------------------
 	// initialize form class
@@ -139,6 +182,7 @@ class MediaCenterSettings extends page_generic
   	$objForm->lang_prefix = 'mc_';
   	$objForm->validate = true;
   	$objForm->use_fieldsets = true;
+  	$objForm->use_dependency = true;
   	$objForm->add_fieldsets($this->fields());
 		
 	// Output the form, pass values in
