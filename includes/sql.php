@@ -53,6 +53,7 @@ $mediacenterSQL = array(
 	2 => "CREATE TABLE `__mediacenter_media` (
 	`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`album_id` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  	`category_id` INT(10) UNSIGNED NOT NULL DEFAULT '0',
 	`name` VARCHAR(255) NOT NULL DEFAULT '' COLLATE 'utf8_bin',
 	`description` TEXT NOT NULL COLLATE 'utf8_bin',
 	`localfile` TEXT NULL COLLATE 'utf8_bin',

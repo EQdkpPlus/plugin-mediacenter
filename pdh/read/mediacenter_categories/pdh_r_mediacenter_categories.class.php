@@ -608,13 +608,12 @@ if ( !class_exists( "pdh_r_mediacenter_categories" ) ) {
 		}
 		
 		public function get_media_count($intCategoryID){
-			$arrAlbums = $this->pdh->get('mediacenter_albums', 'albums_for_category', array($intCategoryID));
+			$arrMedia = $this->pdh->get('mediacenter_media', 'id_list_for_category', array($intCategoryID));
 			$intCount = 0;
-			if (is_array($arrAlbums)){
-				foreach ($arrAlbums as $intAlbumID){
-					$intCount += count($this->pdh->get('mediacenter_media', 'id_list', array($intAlbumID)));
-				}
+			foreach($arrMedia as $intAlbumID => $arrMedias){
+				$intCount += count($arrMedias);
 			}
+			
 			return $intCount;
 		}
 		

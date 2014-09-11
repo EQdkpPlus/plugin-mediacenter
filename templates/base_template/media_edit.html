@@ -428,6 +428,62 @@
     box-shadow: 0 2px 2px rgba(255, 255, 255, .4) inset, 0 -2px 2px rgba(255, 255, 255, .4) inset;    
     animation: animate-glow 1s ease-out infinite;
 }
+
+
+option.category { font-weight:bold; }
+option.category:before { 
+	content:"\f07c";
+	font-family: FontAwesome;
+	padding-right: 3px;
+}
+
+option.video:after {
+	content:"\f03d";
+	font-family: FontAwesome;
+	padding-left: 3px;
+	font-weight: normal;
+}
+option.image:after {
+	content:"\f030";
+	font-family: FontAwesome;
+	padding-left: 3px;
+	font-weight: normal;
+}
+option.file:after {
+	content:"\f15b";
+	font-family: FontAwesome;
+	padding-left: 3px;
+	font-weight: normal;
+}
+
+option.filevideo:after {
+	content:"\f15b   \f03d";
+	font-family: FontAwesome;
+	padding-left: 3px;
+	font-weight: normal;
+}
+
+option.videoimage:after {
+	content:"\f03d   \f030";
+	font-family: FontAwesome;
+	padding-left: 3px;
+	font-weight: normal;
+}
+
+option.fileimage:after {
+	content:"\f15b   \f030";
+	font-family: FontAwesome;
+	padding-left: 3px;
+	font-weight: normal;
+}
+
+option.filevideoimage:after {
+	content:"\f15b   \f03d   \f030";
+	font-family: FontAwesome;
+	padding-left: 3px;
+	font-weight: normal;
+}
+
 </style>
 
 <!-- IF S_NORMAL_HEADER -->
@@ -496,7 +552,7 @@
 		<fieldset class="settings mediumsettings">
 		<dl>
 			<dt><label>{L_mc_f_album}</label></dt>
-			<dd>{DD_ALBUMS} <button onclick="addalbum()" type="button"><i class="fa fa-plus"></i> {L_mc_new_album}</button></dd>
+			<dd><select onchange="set_albums(this.value)" class="input" id="albums_massupload" name="albums_massupload" size="1">{DD_ALBUMS}</select> <button onclick="addalbum()" type="button"><i class="fa fa-plus"></i> {L_mc_new_album}</button></dd>
 		</dl>
 		</fieldset>
 		<!-- The file input field used as target for the file upload widget -->

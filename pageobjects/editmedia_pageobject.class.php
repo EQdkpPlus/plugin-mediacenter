@@ -297,15 +297,9 @@ class editmedia_pageobject extends pageobject {
   
   public function ajax_reload_albums(){
   	header('content-type: text/html; charset=UTF-8');
- 	
-  	$arrAlbumIDs = $this->pdh->get('mediacenter_albums', 'id_list');
-  	$arrAlbums = array();
-  	foreach ($arrAlbumIDs as $albumID){
-  		$arrAlbums[$albumID] = $this->pdh->get('mediacenter_albums', 'name', array($albumID)).' ('.$this->pdh->get('mediacenter_categories', 'name', array($this->pdh->get('mediacenter_albums', 'category_id', array($albumID)))).')';
-  	}
   	
-  	echo new hdropdown('album_id', array('options' => $arrAlbums));
-  	
+  	echo '<select onchange="load_mediatypes();" class="input" id="album_id" name="album_id" size="1">'.$this->pdh->geth('mediacenter_albums', 'album_tree').'</select>',
+
   	exit;
   }
   
@@ -330,18 +324,22 @@ class editmedia_pageobject extends pageobject {
   	exit;
   }
   
-  public function upload_massupload(){
-  	//TODO: Make this an Setting
-  	$arrAllowedExtensions = array('jpg', 'jpeg', 'png', 'zip');
+  public function upload_massupload(){  	
+  	$strAlbumID = $this->in->get('album_id', '');
+  	if(substr($strAlbumID, 0, 1) == 'c'){
+  		$intCategoryID = (int)substr($strAlbumID, 1);
+  		$intAlbumID = 0;
+  	} else {
+  		$intAlbumID = intval($strAlbumID);
+  		$intCategoryID = $this->pdh->get('mediacenter_albums', 'category_id', array($intAlbumID));
+  	}
   	
-  	$intAlbumID = $this->in->get('album_id', 0);
-  	if (!$intAlbumID) {
+  	if (!$intCategoryID) {
   		echo "error";
   		exit();
   	}
   	
   	//Check Permissions
-  	$intCategoryID = $this->pdh->get('mediacenter_albums', 'category_id', array($intAlbumID));
   	$arrPermissions = $this->pdh->get('mediacenter_categories', 'user_permissions', array($intCategoryID, $this->user->id));
   	if (!$arrPermissions || !$arrPermissions['create']){
   		echo "error";
@@ -349,7 +347,7 @@ class editmedia_pageobject extends pageobject {
   	}
   	
   	//Check if Personal Album
-  	if ($this->pdh->get('mediacenter_albums', 'personal_album', array($intAlbumID))){
+  	if ($intAlbumID && $this->pdh->get('mediacenter_albums', 'personal_album', array($intAlbumID))){
   		if (!$this->user->check_auth('a_mediacenter_manage', false) && $this->user->id != $this->pdh->get('mediacenter_albums', 'user_id', array($intAlbumID))) {
   			echo "error";
   			exit();
@@ -366,18 +364,12 @@ class editmedia_pageobject extends pageobject {
   		echo "error";
   		exit();
   	}
-  	 
-  	$fileEnding		= strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-  	if (!in_array($fileEnding, $arrAllowedExtensions)) {
-  		echo "error";
-  		exit();
-  	}
-  	 
+  	   	 
   	$new_filename = md5(rand().rand().rand().unique_id());
   	 
   	$this->pfh->FileMove($tempname, $folder.$new_filename, true);
   	
-  	$result = $this->pdh->put('mediacenter_media', 'add_massupdate', array($intAlbumID, $filename, $new_filename));
+  	$result = $this->pdh->put('mediacenter_media', 'add_massupdate', array($strAlbumID, $filename, $new_filename));
   	if (!$result) {
   		echo "error result"; exit();
   	}
@@ -387,10 +379,7 @@ class editmedia_pageobject extends pageobject {
   	exit;
   }
   
-  public function upload_file(){
-  	//TODO: Make this an Setting
-  	$arrAllowedExtensions = array('jpg', 'jpeg', 'png', 'zip');
-  	
+  public function upload_file(){  	
   	$folder = $this->pfh->FolderPath('files', 'mediacenter');
   	$this->pfh->secure_folder('files', 'mediacenter');
   	
@@ -401,6 +390,8 @@ class editmedia_pageobject extends pageobject {
   		echo "error";
   		exit();
   	}
+  	
+  	$arrAllowedExtensions = array_merge($this->extensions_file(), $this->extensions_image(), $this->extensions_video());
   	
   	$fileEnding		= strtolower(pathinfo($filename, PATHINFO_EXTENSION));		
   	if (!in_array($fileEnding, $arrAllowedExtensions)) {
@@ -426,8 +417,10 @@ class editmedia_pageobject extends pageobject {
   	$arrValues = $objForm->return_values();
   	$mixResult = false;
   	
+  	$arrValues['album_id'] = $this->in->get('album_id');
+  	
   	//Check if Personal Album
-  	if ($this->pdh->get('mediacenter_albums', 'personal_album', array((int)$arrValues['album_id']))){
+  	if (is_numeric($arrValues['album_id']) && $this->pdh->get('mediacenter_albums', 'personal_album', array())){
   		if (!$this->user->check_auth('a_mediacenter_manage', false) && $this->user->id != $this->pdh->get('mediacenter_albums', 'user_id', array((int)$arrValues['album_id']))) {
   			$this->user->check_auth('u_mediacenter_something');
   		};
@@ -440,7 +433,12 @@ class editmedia_pageobject extends pageobject {
   		if ($this->url_id) {
   			
   			//Check Permissions
-  			$intCategoryID = $this->pdh->get('mediacenter_albums', 'category_id', array((int)$arrValues['album_id']));
+  			if(substr($arrValues['album_id'], 0, 1) == 'c'){
+  				$intCategoryID = (int)substr($arrValues['album_id'], 1);
+  			} else {
+  				$intCategoryID = $this->pdh->get('mediacenter_albums', 'category_id', array($arrValues['album_id']));
+  			}
+  			
   			$arrPermissions = $this->pdh->get('mediacenter_categories', 'user_permissions', array($intCategoryID, $this->user->id));
   			if ((!$arrPermissions || !$arrPermissions['update']) && !$this->user->check_auth('a_mediacenter_manage', false)){
   				$this->user->check_auth('u_mediacenter_something');
@@ -450,18 +448,23 @@ class editmedia_pageobject extends pageobject {
   				//$intAlbumID, $strName, $strDescription, $intType, $strExternalLink, $strPreviewimage, $strTags, $strFile, $strFilename
   				//$intPublished=false, $intFeatured=false, $intUserID=false, $intViews=false, $intReported=false
 	  			$mixResult = $this->pdh->put('mediacenter_media', 'update_media', array(
-	  					$this->url_id, (int)$arrValues['album_id'], $arrValues['name'], $arrValues['description'], (int)$arrValues['type'], $arrValues['externalfile'], $arrValues['previewimage'], $arrValues['tags'], $this->in->get('localfile'), $this->in->get('filename'),
+	  					$this->url_id, $arrValues['album_id'], $arrValues['name'], $arrValues['description'], (int)$arrValues['type'], $arrValues['externalfile'], $arrValues['previewimage'], $arrValues['tags'], $this->in->get('localfile'), $this->in->get('filename'),
 	  					(int)$arrValues['published'], (int)$arrValues['featured'], (int)$arrValues['user_id'], (int)$arrValues['views'],(int)$arrValues['reported'], (int)$arrValues['downloads']
 	  			));
   			}else {
   				$mixResult = $this->pdh->put('mediacenter_media', 'update_media', array(
-  						$this->url_id, (int)$arrValues['album_id'], $arrValues['name'], $arrValues['description'], (int)$arrValues['type'], $arrValues['externalfile'], $arrValues['previewimage'], $arrValues['tags'], $this->in->get('localfile'), $this->in->get('filename')
+  						$this->url_id, $arrValues['album_id'], $arrValues['name'], $arrValues['description'], (int)$arrValues['type'], $arrValues['externalfile'], $arrValues['previewimage'], $arrValues['tags'], $this->in->get('localfile'), $this->in->get('filename')
   				));
   			}
   			
   		} else {
   			//Check Permissions
-  			$intCategoryID = $this->pdh->get('mediacenter_albums', 'category_id', array((int)$arrValues['album_id']));
+  			if(substr($arrValues['album_id'], 0, 1) == 'c'){
+  				$intCategoryID = (int)substr($arrValues['album_id'], 1);
+  			} else {
+  				$intCategoryID = $this->pdh->get('mediacenter_albums', 'category_id', array($arrValues['album_id']));
+  			}
+  			
   			$arrPermissions = $this->pdh->get('mediacenter_categories', 'user_permissions', array($intCategoryID, $this->user->id));
   			if ((!$arrPermissions || !$arrPermissions['create']) && !$this->user->check_auth('a_mediacenter_manage', false)){
   				$this->user->check_auth('u_mediacenter_something');
@@ -472,13 +475,13 @@ class editmedia_pageobject extends pageobject {
 	  			//$intAlbumID, $strName, $strDescription, $intType, $strExternalLink, $strPreviewimage, $strTags, $strFile, $strFilename
   				//$intPublished=false, $intFeatured=false, $intUserID=false, $intViews=false
 	  			$mixResult = $this->pdh->put('mediacenter_media', 'insert_media', array(
-	  				(int)$arrValues['album_id'], $arrValues['name'], $arrValues['description'], (int)$arrValues['type'], $arrValues['externalfile'], $arrValues['previewimage'], $arrValues['tags'], $this->in->get('localfile'), $this->in->get('filename'),
+	  				$arrValues['album_id'], $arrValues['name'], $arrValues['description'], (int)$arrValues['type'], $arrValues['externalfile'], $arrValues['previewimage'], $arrValues['tags'], $this->in->get('localfile'), $this->in->get('filename'),
 	  				(int)$arrValues['published'], (int)$arrValues['featured'], (int)$arrValues['user_id'], (int)$arrValues['views']
 	  			));
   			
   			} else {
   				$mixResult = $this->pdh->put('mediacenter_media', 'insert_media', array(
-  						(int)$arrValues['album_id'], $arrValues['name'], $arrValues['description'], (int)$arrValues['type'], $arrValues['externalfile'], $arrValues['previewimage'], $arrValues['tags'], $this->in->get('localfile'), $this->in->get('filename')
+  						$arrValues['album_id'], $arrValues['name'], $arrValues['description'], (int)$arrValues['type'], $arrValues['externalfile'], $arrValues['previewimage'], $arrValues['tags'], $this->in->get('localfile'), $this->in->get('filename')
   				));
   			}
   		}
@@ -536,7 +539,7 @@ class editmedia_pageobject extends pageobject {
 
   	$this->jquery->Tab_header('editmedia_tab');
   	$this->tpl->assign_vars(array(
-  		'DD_ALBUMS' => new hdropdown('albums_massupload', array('options' => $this->pdh->get('mediacenter_albums', 'category_tree'), 'value' => $this->in->get('aid', 0), 'js' => 'onchange="set_albums(this.value)"')),
+  		'DD_ALBUMS' => $this->pdh->geth('mediacenter_albums', 'album_tree', array($this->in->get('aid', 0))),
   		'ADMINMODE'	=> $this->blnAdminMode,
   	));
   	
@@ -544,7 +547,7 @@ class editmedia_pageobject extends pageobject {
 	if (count($this->arrData)) $arrValues = $this->arrData;
 	
 	//Set Album ID
-	if ($this->in->get('aid', 0)) $arrValues['album_id'] = $this->in->get('aid', 0);
+	if ($this->in->get('aid')) $arrValues['album_id'] = $this->in->get('aid');
 	
 	$objForm->output($arrValues);
 	
@@ -561,18 +564,24 @@ class editmedia_pageobject extends pageobject {
   
   
   //Get Fields for Form
-  private function fields(){
-  	$arrAlbums = $this->pdh->get('mediacenter_albums', 'category_tree');
-  	
+  private function fields(){  	
   	$arrMediaTypes = array();
+  	
+  	if ($this->in->get('aid')){
+  		$strSelected = $this->in->get('aid');
+  	}elseif($this->url_id){
+  		$intAlbum = $this->pdh->get('mediacenter_media', 'album_id', array($this->url_id));
+  		$strSelected = $intAlbum;
+  		if (!$intAlbum) {
+  			$intCategory = $this->pdh->get('mediacenter_media', 'category_id', array($this->url_id));
+  			$strSelected = 'c'.$intCategory;
+  		}
+  	}
   	  	
   	$arrFields = array(
   		'album_id' => array(
-  			'type' => 'dropdown',
+  			'text' => '<select onchange="load_mediatypes();" class="input" id="album_id" name="album_id" size="1">'.$this->pdh->geth('mediacenter_albums', 'album_tree', array($strSelected)).'</select> <button onclick="addalbum()" type="button"><i class="fa fa-plus"></i> '.$this->user->lang('mc_new_album').'</button>',	
   			'lang' => 'mc_f_album',
-  			'text2' => '<button onclick="addalbum()" type="button"><i class="fa fa-plus"></i> '.$this->user->lang('mc_new_album').'</button>',
-  			'options' => $arrAlbums,
-  			'js'	=> 'onchange="load_mediatypes();"'
   		),
   		'name' => array(
   			'type'	=> 'text',
@@ -660,6 +669,33 @@ class editmedia_pageobject extends pageobject {
   	}
   	  	
   	return $arrFields;
+  }
+  
+  private function extensions_file(){
+  	$arrExtensionsFilePlain = preg_split("/[\s,]+/", $this->config->get('extensions_file', 'mediacenter'));
+  	$arrExtensionsFile = array();
+  	foreach($arrExtensionsFilePlain as $val){
+  		$arrExtensionsFile[] = utf8_strtolower(str_replace(".", "", $val));
+  	}
+  	return $arrExtensionsFile;
+  }
+  
+  private function extensions_image(){
+  	$arrExtensionsFilePlain = preg_split("/[\s,]+/", $this->config->get('extensions_image', 'mediacenter'));
+  	$arrExtensionsFile = array();
+  	foreach($arrExtensionsFilePlain as $val){
+  		$arrExtensionsFile[] = utf8_strtolower(str_replace(".", "", $val));
+  	}
+  	return $arrExtensionsFile;
+  }
+  
+  private function extensions_video(){
+  	$arrExtensionsFilePlain = preg_split("/[\s,]+/", $this->config->get('extensions_video', 'mediacenter'));
+  	$arrExtensionsFile = array();
+  	foreach($arrExtensionsFilePlain as $val){
+  		$arrExtensionsFile[] = utf8_strtolower(str_replace(".", "", $val));
+  	}
+  	return $arrExtensionsFile;
   }
 }
 ?>

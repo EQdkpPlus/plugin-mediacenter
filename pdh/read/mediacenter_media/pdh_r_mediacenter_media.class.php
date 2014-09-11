@@ -37,6 +37,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 	public $presets = array(
 		'mediacenter_media_id' => array('id', array('%intMediaID%'), array()),
 		'mediacenter_media_album_id' => array('album_id', array('%intMediaID%'), array()),
+		'mediacenter_media_category_id' => array('category_id', array('%intMediaID%'), array()),
 		'mediacenter_media_name' => array('name', array('%intMediaID%'), array()),
 		'mediacenter_media_description' => array('description', array('%intMediaID%'), array()),
 		'mediacenter_media_filename' => array('filename', array('%intMediaID%'), array()),
@@ -56,8 +57,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 		'mediacenter_media_views' => array('views', array('%intMediaID%'), array()),
 		'mediacenter_media_user_id' => array('user_id', array('%intMediaID%'), array()),
 		'mediacenter_media_editicon' => array('editicon', array('%intMediaID%'), array()),
-		'mediacenter_media_downloads' => array('downloads', array('%intMediaID%'), array()),
-			
+		'mediacenter_media_downloads' => array('downloads', array('%intMediaID%'), array()),		
 	);
 		
 	public function reset(){
@@ -79,6 +79,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 					$this->mediacenter_media[(int)$drow['id']] = array(
 						'id'				=> (int)$drow['id'],
 						'album_id'			=> (int)$drow['album_id'],
+						'category_id'		=> (int)$drow['category_id'],
 						'name'				=> $drow['name'],
 						'description'		=> $drow['description'],
 						'filename'			=> $drow['filename'],
@@ -97,8 +98,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 						'date'				=> (int)$drow['date'],
 						'views'				=> (int)$drow['views'],
 						'downloads'			=> (int)$drow['downloads'],
-						'user_id'			=> (int)$drow['user_id'],
-			
+						'user_id'			=> (int)$drow['user_id'],			
 					);
 				}
 				
@@ -110,7 +110,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 		/**
 		 * @return multitype: List of all IDs
 		 */				
-		public function get_id_list($intAlbumID, $blnPublishedOnly=false){
+		public function get_id_list($intAlbumID=false, $blnPublishedOnly=false){
 			if ($this->mediacenter_media === null) return array();
 			
 			if ($intAlbumID){
@@ -121,6 +121,28 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 				}
 				return $arrKeys;
 			}else return array_keys($this->mediacenter_media);
+		}
+		
+		/**
+		 * @param integer $intCategoryID
+		 * @param boolean $blnPublishedOnly
+		 * @return array  Array: albumid => array with all Media in Category. Albumid 0 = only in category
+		 */
+		public function get_id_list_for_category($intCategoryID, $blnPublishedOnly=false){
+			if ($this->mediacenter_media === null) return array();
+			$arrOut = array();
+			
+			foreach($this->mediacenter_media as $intMediaID => $val){
+				if ($blnPublishedOnly && !$this->get_published($intMediaID)) continue;
+				
+				if ($this->get_category_id($intMediaID) == $intCategoryID){
+					if (!isset($arrOut[$this->get_album_id($intMediaID)])) $arrOut[$this->get_album_id($intMediaID)] = array();
+					
+					$arrOut[$this->get_album_id($intMediaID)][] = $intMediaID;
+				}
+			}
+			
+			return $arrOut;
 		}
 		
 		/**
@@ -158,11 +180,21 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 			return false;
 		}
 		
+		
+		/**
+		 * Returns category_id for $intMediaID
+		 * @param integer $intMediaID
+		 * @return multitype category_id
+		 */
 		public function get_category_id($intMediaID){
-			$albumID = $this->get_album_id($intMediaID);
-			if ($albumID){
-				$intCategoryID = $this->pdh->get('mediacenter_albums', 'category_id', array($albumID));
-				return $intCategoryID;
+			if ($this->get_album_id($intMediaID) == 0){
+				return $this->mediacenter_media[$intMediaID]['category_id'];
+			} else {		
+				$albumID = $this->get_album_id($intMediaID);
+				if ($albumID){
+					$intCategoryID = $this->pdh->get('mediacenter_albums', 'category_id', array($albumID));
+					return $intCategoryID;
+				}
 			}
 			return false;
 		}

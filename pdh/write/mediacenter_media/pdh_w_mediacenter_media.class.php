@@ -26,6 +26,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 		private $arrLogLang = array(
 				'id'				=> "{L_ID}",
 				'album_id'			=> "{L_MC_F_ALBUM}",
+				'category_id'		=> "{L_MC_F_CATEGORY}",
 				'name'				=> "{L_NAME}",
 				'description'		=> "{L_DESCRIPTION}",
 				'localfile'			=> "{L_MC_F_FILE}",
@@ -47,6 +48,27 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			$strLocalPreviewImage = "";
 			$strThumbfolder = $this->pfh->FolderPath('thumbs', 'mediacenter');
 			
+			if(substr($intAlbumID, 0, 1) == 'c'){
+				$intCategoryID = (int)substr($intAlbumID, 1);
+			} else {
+				$intCategoryID = $this->pdh->get('mediacenter_albums', 'category_id', array($intAlbumID));
+			}
+			
+			//Check Type
+			$arrTypes = $this->pdh->get('mediacenter_categories', 'types', array($intCategoryID));			
+			if (!$intCategoryID || !$arrTypes || (count($arrTypes) == 0)) return false;
+			
+			//If Type is not allowed, make type file
+			if (!in_array($intType, $arrTypes)){
+				$intType = 0; //File
+			}
+			
+			//If type file now allowed: wrong type
+			if (!in_array($intType, $arrTypes)){
+				return false;
+			}
+			
+			
 			if ($intType == 0){
 				//File
 				if ($strFile == "" && $strExternalLink == ""){
@@ -55,6 +77,10 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				} elseif($strFile != "") {
 					$strLocalfile = register('encrypt')->decrypt($strFile);
 					if(file_exists($strFileFolder.$strLocalfile)) $arrAdditionalData['size'] = filesize($strFileFolder.$strLocalfile);
+					
+					//Check Extension
+					$strExtension = strtolower(pathinfo($strFilename, PATHINFO_EXTENSION));
+					if (!in_array($strExtension, $this->extensions_file())) return false;
 				}
 				
 				//If it's a image, we have a preview image
@@ -103,6 +129,10 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 					//Internal File
 					$strLocalfile = register('encrypt')->decrypt($strFile);
 					if(file_exists($strFileFolder.$strLocalfile)) $arrAdditionalData['size'] = filesize($strFileFolder.$strLocalfile);
+					//Check Extension
+					$strExtension = strtolower(pathinfo($strFilename, PATHINFO_EXTENSION));
+					if (!in_array($strExtension, $this->extensions_video())) return false;
+				
 				} else return false;
 				
 				
@@ -112,6 +142,8 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				$strLocalfile = register('encrypt')->decrypt($strFile);
 				
 				$strExtension = strtolower(pathinfo($strFilename, PATHINFO_EXTENSION));
+				//Check Extension
+				if (!in_array($strExtension, $this->extensions_image())) return false;
 				
 				//Exif Data
 				if ($strExtension == 'jpg'){
@@ -163,8 +195,14 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			$intViews = ($intViews !== false) ? $intViews : 0;
 			$intUserID = ($intUserID !== false) ? $intUserID : $this->user->id;
 			
+			if(substr($intAlbumID, 0, 1) == 'c'){
+				$intCategoryID = (int)substr($intAlbumID, 1);
+				$intAlbumID = 0;
+			} else $intCategoryID = 0;
+			
 			$arrQuery = array(
 					'album_id'		=> $intAlbumID,
+					'category_id'	=> $intCategoryID,
 					'name'			=> $strName,
 					'description'	=> $strDescription,
 					'type'			=> $intType,
@@ -206,6 +244,26 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			$strThumbfolder = $this->pfh->FolderPath('thumbs', 'mediacenter');
 			$strLocalfilename = $this->pdh->get('mediacenter_media', 'filename', array($intMediaID));
 			
+			if(substr($intAlbumID, 0, 1) == 'c'){
+				$intCategoryID = (int)substr($intAlbumID, 1);
+			} else {
+				$intCategoryID = $this->pdh->get('mediacenter_albums', 'category_id', array($intAlbumID));
+			}
+				
+			//Check Type
+			$arrTypes = $this->pdh->get('mediacenter_categories', 'types', array($intCategoryID));
+			if (!$intCategoryID || !$arrTypes || (count($arrTypes) == 0)) return false;
+				
+			//If Type is not allowed, make type file
+			if (!in_array($intType, $arrTypes)){
+				$intType = 0; //File
+			}
+				
+			//If type file now allowed: wrong type
+			if (!in_array($intType, $arrTypes)){
+				return false;
+			}
+			
 			if ($intType == 0){
 				//File
 				
@@ -214,6 +272,10 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 					$strLocalfile = register('encrypt')->decrypt($strFile);
 					$strLocalfilename = $strFilename;
 					if(file_exists($strFileFolder.$strLocalfile)) $arrAdditionalData['size'] = filesize($strFileFolder.$strLocalfile);
+				
+					//Check Extension
+					$strExtension = strtolower(pathinfo($strLocalfilename, PATHINFO_EXTENSION));
+					if (!in_array($strExtension, $this->extensions_file())) return false;
 				}
 				
 				//If it's a image, we have a preview image
@@ -263,6 +325,9 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 					$strLocalfile = register('encrypt')->decrypt($strFile);
 					$strLocalfilename = $strFilename;
 					if(file_exists($strFileFolder.$strLocalfile)) $arrAdditionalData['size'] = filesize($strFileFolder.$strLocalfile);
+					//Check Extension
+					$strExtension = strtolower(pathinfo($strLocalfilename, PATHINFO_EXTENSION));
+					if (!in_array($strExtension, $this->extensions_video())) return false;
 				}
 				
 				
@@ -278,6 +343,8 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 					$arrAdditionalData['size'] = filesize($strFileFolder.$strLocalfile);
 					
 					$strExtension = strtolower(pathinfo($strFilename, PATHINFO_EXTENSION));
+					//Check Extension
+					if (!in_array($strExtension, $this->extensions_image())) return false;
 					
 					//Exif Data
 					if ($strExtension == 'jpg'){
@@ -335,8 +402,14 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			
 			$arrOldData = $this->pdh->get('mediacenter_media', 'data', array($intMediaID));
 			
+			if(substr($intAlbumID, 0, 1) == 'c'){
+				$intCategoryID = (int)substr($intAlbumID, 1);
+				$intAlbumID = 0;
+			} else $intCategoryID = 0;
+			
 			$arrQuery = array(
 					'album_id'		=> $intAlbumID,
+					'category_id'	=> $intCategoryID,
 					'name'			=> $strName,
 					'description'	=> $strDescription,
 					'type'			=> $intType,
@@ -372,17 +445,23 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 		
 		
 		public function add_massupdate($intAlbumID, $strFilename, $strFile){
-			$intCategoryID = $this->pdh->get('mediacenter_albums', 'category_id', array($intAlbumID));		
+			if(substr($intAlbumID, 0, 1) == 'c'){
+				$intCategoryID = (int)substr($intAlbumID, 1);
+			} else {
+				$intCategoryID = $this->pdh->get('mediacenter_albums', 'category_id', array($intAlbumID));
+			}
+
 			$arrTypes = $this->pdh->get('mediacenter_categories', 'types', array($intCategoryID));
 			
 			if (!$intCategoryID || !$arrTypes || (count($arrTypes) == 0)) return false;
 			
 			//Try to detect the Type
 			$strExtension = strtolower(pathinfo($strFilename, PATHINFO_EXTENSION));
-			$intType = $oldType = 0; //Default: file
-			if (in_array($strExtension, array('jpg', 'jpeg', 'png', 'gif'))){
+			$intType = $oldType = 0; //Default: file			
+			
+			if (in_array($strExtension, $this->extensions_image())){
 				$intType = $oldType = 2;// Image
-			}elseif(in_array($strExtension, array('mp4', 'm4v', 'f4v', 'flv', 'webm'))){
+			}elseif(in_array($strExtension, $this->extensions_video())){
 				$intType = $oldType = 1; //Video
 			}
 			//If Type is not allowed, make type file
@@ -394,6 +473,19 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			if (!in_array($intType, $arrTypes)){
 				echo "not allowed"; return false;
 			}
+			
+			//Check Extension
+			switch($intType){
+				case 0: if (!in_array($strExtension, $this->extensions_file())) return false;
+				break;
+				case 1: if (!in_array($strExtension, $this->extensions_video())) return false;
+				break;
+				case 2: if (!in_array($strExtension, $this->extensions_image())) return false;
+				break;
+				default: return false;
+			}
+			
+			
 			$arrAdditionalData = array();
 			
 			$strLocalfile = $strFile;
@@ -425,8 +517,14 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			$blnDefaultPublishState = $this->pdh->get('mediacenter_categories', 'default_publish_state', array($intCategoryID));
 			$intPublished = ($this->user->check_auth('a_mediacenter_manage', false)) ? 1 : $blnDefaultPublishState;
 			
+			if(substr($intAlbumID, 0, 1) == 'c'){
+				$intCategoryID = (int)substr($intAlbumID, 1);
+				$intAlbumID = 0;
+			} else $intCategoryID = 0;
+			
 			$arrQuery = array(
 					'album_id'		=> $intAlbumID,
+					'category_id'	=> $intCategoryID,
 					'name'			=> str_replace('.'.$strExtension, '', $strFilename),
 					'description'	=> "",
 					'type'			=> $intType,
@@ -500,8 +598,14 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 		
 		public function change_album($arrIDs, $intAlbumID){
 			
+			if(substr($intAlbumID, 0, 1) == 'c'){
+				$intCategoryID = (int)substr($intAlbumID, 1);
+				$intAlbumID = 0;
+			} else $intCategoryID = 0;
+			
 			$arrNew = array(
-					'album_id'	=> $intAlbumID,
+				'album_id'		=> $intAlbumID,
+				'category_id'	=> $intCategoryID,
 			);
 			foreach($arrIDs as $id){
 				$arrOld = array(
@@ -715,6 +819,33 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			}
 		
 			return $result;
+		}
+		
+		private function extensions_file(){
+			$arrExtensionsFilePlain = preg_split("/[\s,]+/", $this->config->get('extensions_file', 'mediacenter'));
+			$arrExtensionsFile = array();
+			foreach($arrExtensionsFilePlain as $val){
+				$arrExtensionsFile[] = utf8_strtolower(str_replace(".", "", $val));
+			}
+			return $arrExtensionsFile;
+		}
+		
+		private function extensions_image(){
+			$arrExtensionsFilePlain = preg_split("/[\s,]+/", $this->config->get('extensions_image', 'mediacenter'));
+			$arrExtensionsFile = array();
+			foreach($arrExtensionsFilePlain as $val){
+				$arrExtensionsFile[] = utf8_strtolower(str_replace(".", "", $val));
+			}
+			return $arrExtensionsFile;
+		}
+		
+		private function extensions_video(){
+			$arrExtensionsFilePlain = preg_split("/[\s,]+/", $this->config->get('extensions_video', 'mediacenter'));
+			$arrExtensionsFile = array();
+			foreach($arrExtensionsFilePlain as $val){
+				$arrExtensionsFile[] = utf8_strtolower(str_replace(".", "", $val));
+			}
+			return $arrExtensionsFile;
 		}
 
 	}//end class

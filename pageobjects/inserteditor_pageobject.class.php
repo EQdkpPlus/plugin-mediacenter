@@ -75,6 +75,18 @@ class inserteditor_pageobject extends pageobject {
   		$page_suffix = '&amp;start='.$this->in->get('start', 0).'&amp;simple_head=1';
   		$sort_suffix = '?sort='.$this->in->get('sort');
   		
+  		
+  		$arrMediaInCategory = $this->pdh->get('mediacenter_media', 'id_list_for_category', array($intCategoryID));
+  		if (isset($arrMediaInCategory[0]) && count($arrMediaInCategory[0])){
+  			$view_list = $arrMediaInCategory[0];
+  			$hptt = $this->get_hptt($hptt_page_settings, $view_list, $view_list, array('%link_url%' => 'manage_media.php', '%link_url_suffix%' => '&amp;upd=true'), $intCategoryID.'.0');
+  				
+  			$this->tpl->assign_vars(array(
+  					'S_IN_CATEGORY' => true,
+  					'MEDIA_LIST'	=> $hptt->get_html_table($this->in->get('sort'), $page_suffix,null,1,null,false, array('mediacenter_media', 'checkbox_check')),
+  			));
+  		}
+  		
   		$arrAlbums = $this->pdh->get('mediacenter_albums', 'albums_for_category', array($intCategoryID));$view_list = $this->pdh->get('mediacenter_categories', 'id_list', array());
   		foreach($arrAlbums as $intAlbumID){
   			$view_list = $this->pdh->get('mediacenter_media', 'id_list', array($intAlbumID, true));

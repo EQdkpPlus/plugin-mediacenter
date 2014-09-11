@@ -111,7 +111,6 @@ class mediacenter extends plugin_generic
 	$this->add_hook('main_menu_items', 'mediacenter_main_menu_items_hook', 'main_menu_items');
 	$this->add_hook('article_parse', 'mediacenter_article_parse_hook', 'article_parse');
 	
-	
 	// -- Menu --------------------------------------------
     $this->add_menu('admin', $this->gen_admin_menu());
 	$this->add_menu('main', $this->gen_main_menu());
@@ -130,6 +129,23 @@ class mediacenter extends plugin_generic
     for ($i = 1; $i <= count($mediacenterSQL['install']); $i++)
       $this->add_sql(SQL_INSTALL, $mediacenterSQL['install'][$i]);
 	  
+  }
+  
+  /**
+   * post_install
+   * Add Default Settings
+   */
+  public function post_install(){
+  	
+  	//Default Settings
+  	$arrSave = array(
+  		'per_page' => 25,
+  		'extensions_image' => 'png, jpeg, jpg, gif',
+  		'extensions_file'	=> 'png, jpeg, jpg, gif, txt, zip, mp3',
+  		'extensions_video'	=> 'mp4, m4v, f4v, flv, webm',
+  	);
+  	
+  	$this->config->set($arrSave, '', 'mediacenter');
   }
 
   /**

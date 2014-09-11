@@ -106,6 +106,13 @@
 <div class="tableHeader floatRight">
 	<button type="button" onclick="insert_media();"><i class="fa fa-paste"></i> {L_mc_insert_media}</button>
 </div>
+	
+<!-- IF S_IN_CATEGORY -->
+<table width="100%" border="0" cellspacing="1" cellpadding="2" class="colorswitch">
+	{MEDIA_LIST}
+</table>
+<!-- ENDIF -->
+
 
 <!-- BEGIN album_list -->
 <h2><input type="checkbox" name="album[]" value="{album_list.ID}" /> {album_list.NAME}</h2>

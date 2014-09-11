@@ -54,9 +54,17 @@
 		<h1 class="contentTitle">{L_mc_manage_media}: {CATEGORY_NAME}</h1>
 	</div>
 	<div class="tableHeader floatRight">
+		<button class="mainoption" type="button" name="addadj" onclick="addmedia('c{CID}');"><i class="fa fa-plus"></i>{L_mc_add_media}</button>
 		<button class="mainoption" type="button" name="addadj" onclick="addalbum();"><i class="fa fa-plus"></i>{L_mc_new_album}</button>
 	</div>
 	<div class="clear"></div>
+	<!-- IF S_IN_CATEGORY -->
+	<table width="100%" border="0" cellspacing="1" cellpadding="2" class="colorswitch">
+		{MEDIA_LIST}
+	</table>
+	<!-- ENDIF -->
+	
+	
 	<!-- BEGIN album_list -->
 	<h2>
 		{album_list.NAME}

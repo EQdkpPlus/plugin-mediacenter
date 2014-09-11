@@ -244,6 +244,40 @@ if ( !class_exists( "pdh_r_mediacenter_albums" ) ) {
 		  	}
 		  	return $arrCategories;
 		}
+		
+		public function get_html_album_tree($strValue = false){
+			$strOut = "";
+			
+			
+			$arrCategoryIDs = $this->pdh->sort($this->pdh->get('mediacenter_categories', 'id_list', array()), 'mediacenter_categories', 'sort_id', 'asc');
+			foreach($arrCategoryIDs as $intCategoryID){
+				$strPrefix = $this->pdh->get('mediacenter_categories', 'name_prefix', array($intCategoryID));
+				$catName = $strPrefix.$this->pdh->get('mediacenter_categories', 'name', array($intCategoryID));
+				
+				$selected = ($strValue !== false && $strValue == 'c'.$intCategoryID) ? 'selected="selected"' : '';
+					
+				$arrAlbums = $this->get_albums_for_category($intCategoryID);
+				$class = ' ';
+				$arrTypes = $this->pdh->get('mediacenter_categories', 'types', array($intCategoryID));
+				foreach($arrTypes as $typeid){
+					switch($typeid){
+						case 0: $class .= 'file';
+						break;
+						case 1: $class .= 'video';
+						break;
+						case 2: $class .= 'image';
+					}
+				}
+				
+				$strOut .= '<option class="category'.$class.'"'.$selected.' value="c'.$intCategoryID.'">'.$catName.'</option>';
+				
+				foreach($arrAlbums as $albumID){
+					$selected = ($strValue !== false && $strValue == $albumID) ? 'selected="selected"' : '';		
+					$strOut .= '<option class="'.$class.'"'.$selected.' value="'.$albumID.'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.$strPrefix.$this->pdh->get('mediacenter_albums', 'name', array($albumID)).'</option>';
+				}
+			}
+			return $strOut;
+		}
 
 	}//end class
 }//end if

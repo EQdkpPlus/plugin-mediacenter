@@ -147,6 +147,18 @@ class Manage_Media extends page_generic {
 			'message'	=> $this->user->lang('mc_confirm_delete_album'),
 		), 'confirm');
 		
+		$arrMediaInCategory = $this->pdh->get('mediacenter_media', 'id_list_for_category', array($intCategoryID));
+		if (isset($arrMediaInCategory[0]) && count($arrMediaInCategory[0])){
+			$view_list = $arrMediaInCategory[0];
+			$hptt = $this->get_hptt($hptt_page_settings, $view_list, $view_list, array('%link_url%' => 'manage_media.php', '%link_url_suffix%' => '&amp;upd=true'), $intCategoryID.'.0');
+			
+			$this->tpl->assign_vars(array(
+				'S_IN_CATEGORY' => true,
+				'MEDIA_LIST'	=> $hptt->get_html_table($this->in->get('sort'), $page_suffix,null,1,null,false, array('mediacenter_media', 'checkbox_check')),
+			));
+		}
+		
+		
 		foreach($arrAlbums as $intAlbumID){
 			$view_list = $this->pdh->get('mediacenter_media', 'id_list', array($intAlbumID));
 			$hptt = $this->get_hptt($hptt_page_settings, $view_list, $view_list, array('%link_url%' => 'manage_media.php', '%link_url_suffix%' => '&amp;upd=true'), $intCategoryID.'.'.$intAlbumID);
@@ -154,6 +166,7 @@ class Manage_Media extends page_generic {
 			$this->tpl->assign_block_vars('album_list', array(
 				'NAME'				=> $this->pdh->get('mediacenter_albums', 'name', array($intAlbumID)),
 				'S_PERSONAL'		=> $this->pdh->get('mediacenter_albums', 'personal_album', array($intAlbumID)) ? true : false,
+				'S_ALBUM'			=> true,
 				'USER'				=> $this->pdh->get('user', 'name', array($this->pdh->get('mediacenter_albums', 'user_id', array($intAlbumID)))),
 				'ID'				=> $intAlbumID,
 				'HPTT_COLUMN_COUNT'	=> $hptt->get_column_count(),

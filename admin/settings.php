@@ -78,7 +78,8 @@ class MediaCenterSettings extends page_generic
   	if ($objForm->error){
   		$this->arrData = $arrValues;
   	} else {
-  	
+  		if (!$arrValues['watermark_logo']) $arrValues['watermark_logo'] = $this->config->get('watermark_logo', 'mediacenter');
+  		
 	  	// update configuration
 	    $this->config->set($arrValues, '', 'mediacenter');
 	    // Success message
