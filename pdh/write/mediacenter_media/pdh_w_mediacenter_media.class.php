@@ -93,6 +93,11 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 					$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.64.'.$strExtension, 64);
 					$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.240.'.$strExtension, 240);
 					
+					//Watermark
+					if ((int)$this->config->get('watermark_enabled', 'mediacenter')){
+						$this->create_watermark($strThumbfolder.$filename.'.'.$strExtension);
+					}
+					
 					$strLocalPreviewImage = $filename.'.'.$strExtension;
 				}
 				
@@ -158,6 +163,11 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				$this->pfh->copy($strFileFolder.$strLocalfile, $strThumbfolder.$filename.'.'.$strExtension);
 				$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.64.'.$strExtension, 64);
 				$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.240.'.$strExtension, 240);
+				
+				//Watermark
+				if ((int)$this->config->get('watermark_enabled', 'mediacenter')){
+					$this->create_watermark($strThumbfolder.$filename.'.'.$strExtension);
+				}
 				
 				$strLocalPreviewImage = $filename.'.'.$strExtension;
 			}
@@ -498,6 +508,12 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				//Preview Image
 				$filename = md5(rand().unique_id());
 				$this->pfh->copy($strFileFolder.$strLocalfile, $strThumbfolder.$filename.'.'.$strExtension);
+				
+				//Watermark
+				if ((int)$this->config->get('watermark_enabled', 'mediacenter')){
+					$this->create_watermark($strThumbfolder.$filename.'.'.$strExtension);
+				}
+				
 				$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.64.'.$strExtension, 64);
 				$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.240.'.$strExtension, 240);
 				
@@ -846,6 +862,71 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				$arrExtensionsFile[] = utf8_strtolower(str_replace(".", "", $val));
 			}
 			return $arrExtensionsFile;
+		}
+		
+		private function create_watermark($image){
+			
+			//Image
+			$imageInfo		= GetImageSize($image);
+			if (!$imageInfo) {
+				return false;
+			}
+			
+			switch($imageInfo[2]){
+				case 1:	$imgOld = ImageCreateFromGIF($image);	break;	// GIF
+				case 2:	$imgOld = ImageCreateFromJPEG($image);	break;	// JPG
+				case 3:
+					$imgOld = ImageCreateFromPNG($image);
+					imageAlphaBlending($imgOld, false);
+					imageSaveAlpha($imgOld, true);
+					break;	// PNG
+			}
+			
+			//Watermark Logo
+			$strWatermarkImage = $this->root_path.$this->config->get('watermark_logo', 'mediacenter');
+			$logoInfo = getimagesize($strWatermarkImage);
+			if (!$logoInfo) return false;
+			
+			switch($logoInfo[2]){
+				case 1:	$imgLogo = ImageCreateFromGIF($strWatermarkImage);	break;	// GIF
+				case 2:	$imgLogo = ImageCreateFromJPEG($strWatermarkImage);	break;	// JPG
+				case 3:
+					$imgLogo = ImageCreateFromPNG($strWatermarkImage);
+					imageAlphaBlending($imgLogo, false);
+					imageSaveAlpha($imgLogo, true);
+					break;	// PNG
+			}
+			
+			$margin = 10;
+			$sx = imagesx($imgLogo);
+			$sy = imagesy($imgLogo);
+			
+			switch($this->config->get('watermark_position', 'mediacenter')){
+				case 'rt': $dst_x = imagesx($imgOld) - $sx - $margin; $dst_y = 10;
+					break;
+				case 'rb': $dst_x = imagesx($imgOld) - $sx - $margin; $dst_y = imagesy($imgOld) - $sy - $margin;
+					break;
+				case 'lb': $dst_x = 10; $dst_y = imagesy($imgOld) - $sy - $margin;
+					break;
+				case 'lt': $dst_x = $margin; $dst_y = $margin;
+					break;
+			}
+			
+			$intTransparency = (100 - $this->config->get('watermark_transparency', 'mediacenter'));
+			if ($intTransparency > 100 || $intTransparency < 0) $intTransparency = 100;
+						
+			$result = imagecopymerge($imgOld, $imgLogo, $dst_x, $dst_y, 0, 0, $sx, $sy, $intTransparency);
+
+			switch($imageInfo[2]){
+				case 1:	ImageGIF($imgOld,	$image);	break;	// GIF
+				case 2:	ImageJPEG($imgOld,	$image, 100);	break;	// JPG
+				case 3:	ImagePNG($imgOld,	$image, 0);	break;	// PNG
+			}
+			
+			imagedestroy($imgOld);
+			imagedestroy($imgLogo);
+			
+			return true;
 		}
 
 	}//end class

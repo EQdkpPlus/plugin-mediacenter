@@ -298,7 +298,7 @@ class editmedia_pageobject extends pageobject {
   public function ajax_reload_albums(){
   	header('content-type: text/html; charset=UTF-8');
   	
-  	echo '<select onchange="load_mediatypes();" class="input" id="album_id" name="album_id" size="1">'.$this->pdh->geth('mediacenter_albums', 'album_tree').'</select>',
+  	echo '<select onchange="load_mediatypes();" class="input" id="album_id" name="album_id" size="1">'.$this->pdh->geth('mediacenter_albums', 'album_tree', array()).'</select>',
 
   	exit;
   }

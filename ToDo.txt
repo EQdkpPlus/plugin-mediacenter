@@ -3,11 +3,7 @@ ToDo:
 	
 
 - Admin/Settings
-	- erlaubte Dateitypen für Typ "Datei", "Video" und "Image"
-	- Wasserzeichen für Bilder
-		- Bild
-		- Position
-		- Transparenz
+
 
 - Pageobjects
 	- EditMedia

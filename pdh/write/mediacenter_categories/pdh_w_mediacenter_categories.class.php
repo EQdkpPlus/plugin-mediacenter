@@ -43,6 +43,13 @@ if(!class_exists('pdh_w_mediacenter_categories')) {
 		);
 
 		public function delete($id) {
+			$arrMedia = $this->pdh->get('mediacenter_media', 'id_list_for_category', array($id));
+			if (isset($arrMedia[0]) && count($arrMedia)){
+				foreach($arrMedia[0] as $intMediaID){
+					$this->pdh->put('mediacenter_media', 'delete', array($intMediaID));
+				}
+			}
+			
 			$this->delete_recursiv(intval($id));
 			
 			$this->pdh->enqueue_hook('articles_update');
@@ -59,8 +66,7 @@ if(!class_exists('pdh_w_mediacenter_categories')) {
 					$arrAlbums = $this->pdh->get('mediacenter_albums', 'albums_for_category', array($intChildID));
 					foreach($arrAlbums as $intAlbumID){
 						$this->pdh->put('mediacenter_albums', 'delete_album', array($intAlbumID));
-					}
-										
+					}					
 					$log_action = $this->logs->diff(false, $arrOldData, $this->arrLogLang);
 					$this->log_insert("action_category_deleted", $log_action, $intChildID, $arrOldData['name'], 1, 'mediacenter');
 				}
