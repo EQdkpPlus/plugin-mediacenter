@@ -300,6 +300,7 @@
 	        },
 	        fail: function (e, data) {
 	        	data.context.find('.loading').html('<i class="fa fa-lg fa-remove"></i>');
+	        	data.context.find('.progress-bar').addClass('error');
 	        },
 	        progressall: function (e, data) {
 	            var progress = parseInt(data.loaded / data.total * 100, 10);
@@ -429,6 +430,9 @@
     animation: animate-glow 1s ease-out infinite;
 }
 
+#files .progress-bar.error {
+	background-color: #d00000;
+}
 
 option.category { font-weight:bold; }
 option.category:before { 
@@ -566,6 +570,8 @@ option.filevideoimage:after {
 			</p>
 			</div>
 		</div>
+		<br />
+		{L_mc_max_uploadsize}: {MAX_UPLOADSIZE}
 		</form>
 		
 		<!-- The container for the uploaded files -->

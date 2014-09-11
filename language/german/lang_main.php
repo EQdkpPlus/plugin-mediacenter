@@ -118,6 +118,7 @@ $lang = array(
 	'mc_watermark_transparency' => 'Transparenz',
 	'mc_f_per_page'				=> 'Einträge pro Seite',
 	'mc_fs_defaults'			=> 'Standardeinstellungen',
+	'mc_max_uploadsize'			=> 'Maximale Dateigröße für Uploads'
  );
 
 ?>

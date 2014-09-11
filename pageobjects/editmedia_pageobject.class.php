@@ -541,6 +541,7 @@ class editmedia_pageobject extends pageobject {
   	$this->tpl->assign_vars(array(
   		'DD_ALBUMS' => $this->pdh->geth('mediacenter_albums', 'album_tree', array($this->in->get('aid', 0))),
   		'ADMINMODE'	=> $this->blnAdminMode,
+  		'MAX_UPLOADSIZE' => $this->formatBytes($this->detectMaxUploadFileSize()),
   	));
   	
 	//Output, with Values
@@ -697,5 +698,53 @@ class editmedia_pageobject extends pageobject {
   	}
   	return $arrExtensionsFile;
   }
+  
+
+  private function detectMaxUploadFileSize(){
+		/**
+		* Converts shorthands like “2M” or “512K” to bytes
+		*
+		* @param $size
+		* @return mixed
+		*/
+		$normalize = function($size) {
+		if (preg_match('/^([\d\.]+)([KMG])$/i', $size, $match)) {
+			$pos = array_search($match[2], array("K", "M", "G"));
+			if ($pos !== false) {
+				$size = $match[1] * pow(1024, $pos + 1);
+			}
+		}
+		return $size;
+		};
+		$max_upload = $normalize(ini_get('upload_max_filesize'));
+		
+		$max_post = (ini_get('post_max_size') == 0) ? 0 : $normalize(ini_get('post_max_size'));
+		
+		$memory_limit = (ini_get('memory_limit') == -1) ?
+		$max_post : $normalize(ini_get('memory_limit'));
+		
+		if($memory_limit < $max_post || $memory_limit < $max_upload)
+		return $memory_limit;
+		
+		if($max_post < $max_upload)
+		return $max_post;
+		
+		$maxFileSize = min($max_upload, $max_post, $memory_limit);
+		return $maxFileSize;
+	}
+	
+	private function formatBytes($bytes, $precision = 2) {
+		$units = array('B', 'KB', 'MB', 'GB', 'TB');
+	
+		$bytes = max($bytes, 0);
+		$pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+		$pow = min($pow, count($units) - 1);
+	
+		// Uncomment one of the following alternatives
+		$bytes /= pow(1024, $pow);
+		// $bytes /= (1 << (10 * $pow));
+	
+		return round($bytes, $precision) . ' ' . $units[$pow];
+	}
 }
 ?>
