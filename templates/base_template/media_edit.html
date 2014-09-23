@@ -172,21 +172,9 @@
 	function set_albums(value){
 		$('#album_id').val(value);
 	}
-		
-	$(document).ready(function(){
-		handle_type($("#type").val());
-		
-		load_mediatypes();
-				
-		$('#drag-drop-area-single').on('dragover', function(evt){
-		  evt.preventDefault();
-		});
-
-		$('#drag-drop-area-single').on('drop', function(evt){
-		  evt.preventDefault();
-		  var file = evt.originalEvent.dataTransfer.files[0];
-		  
-		  var fd = new FormData();
+	
+	function upload_singlefile(file){
+		 var fd = new FormData();
 	      fd.append('file', file);
 	      
 	      $("#nl_progressbar_label").html(file.name);
@@ -259,13 +247,39 @@
 	          	}
 	          }
 	      });
-	 	
+	}
+		
+	$(document).ready(function(){
+		handle_type($("#type").val());
+		
+		load_mediatypes();
+				
+		$('#drag-drop-area-single').on('dragover', function(evt){
+		  evt.preventDefault();
+		});
+		
+		$('#singlefileupload').on('change', function(evt){
+			var file = evt.originalEvent.originalTarget.files[0];
+			upload_singlefile(file);
+			
+		});
+		
+
+		$('#drag-drop-area-single').on('drop', function(evt){
+		  evt.preventDefault();
+		  var file = evt.originalEvent.dataTransfer.files[0];
+		  upload_singlefile(file);
 		});
 		
 	})
 	
 	 $(document).ready(function(){
-
+		
+		$('#fileupload').bind('fileuploadsubmit', function (e, data) {
+			data.formData = {album_id: $('#albums_massupload').val()};
+		});
+		
+		
 	    $('#fileupload').fileupload({
 	    	dropZone: $('#drag-drop-area'),
 	        url: '{EQDKP_CONTROLLER_PATH}EditMedia{SEO_EXTENSION}{SID}&massupload=true',
@@ -394,6 +408,7 @@
 	float: right;
 	width: 200px;
 	margin-top: 4px;
+	text-align:left;
 }
 
 #files {
@@ -528,9 +543,9 @@ option.filevideoimage:after {
 		<div class="drag-drop-inside">
 		<p class="drag-drop-info">{L_mc_drop_file}</p>
 		<p>{L_mc_or}</p>
-		<p class="drag-drop-buttons"><input type="button" class="button" value="{L_mc_select_file}" id="plupload-browse-button" style="position: relative; z-index: 1;" onclick="$('#fileupload').trigger('click')">
+		<p class="drag-drop-buttons"><input type="button" class="button" value="{L_mc_select_file}" id="plupload-browse-button" style="position: relative; z-index: 1;" onclick="$('#singlefileupload').trigger('click')">
 		
-		<input id="fileupload" type="file" name="file" class="upload" style="display:none;">
+		<input id="singlefileupload" type="file" name="file" class="upload" style="display:none;">
 		</p>
 		</div>
 	</div>

@@ -223,8 +223,10 @@ if ( !class_exists( "pdh_r_mediacenter_albums" ) ) {
 		
 		public function get_albums_for_category($intCategoryID){
 			$arrAlbums = array();
-			foreach($this->mediacenter_albums as $intAlbumID => $arrValue){
-				if ($arrValue['category_id'] == $intCategoryID) $arrAlbums[] = $intAlbumID;
+			if (is_array($this->mediacenter_albums)){
+				foreach($this->mediacenter_albums as $intAlbumID => $arrValue){
+					if ($arrValue['category_id'] == $intCategoryID) $arrAlbums[] = $intAlbumID;
+				}
 			}
 			return $arrAlbums;
 		}
