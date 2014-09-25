@@ -358,9 +358,9 @@ class editmedia_pageobject extends pageobject {
   	$folder = $this->pfh->FolderPath('files', 'mediacenter');
   	$this->pfh->secure_folder('files', 'mediacenter');
 
-  	$tempname		= $_FILES['files']['tmp_name'][0];
-  	$filename		= $_FILES['files']['name'][0];
-  	$filetype		= $_FILES['files']['type'][0];
+  	$tempname		= $_FILES['file']['tmp_name'];
+  	$filename		= $_FILES['file']['name'];
+  	$filetype		= $_FILES['file']['type'];
   	if ($tempname == '') {
   		echo "error tempname";
   		exit();
@@ -376,7 +376,7 @@ class editmedia_pageobject extends pageobject {
   	}
   	
   	$this->pdh->process_hook_queue();
-  	die('{"jsonrpc" : "2.0", "result" : null, "id" : "id"}');
+  	die('ok');
   	exit;
   }
   

@@ -8,13 +8,6 @@
 </div>
 <!-- ENDIF -->
 
-
-<!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
-<script src="{EQDKP_ROOT_PATH}plugins/mediacenter/includes/uploader/js/jquery.iframe-transport.js"></script>
-<!-- The basic File Upload plugin -->
-<script src="{EQDKP_ROOT_PATH}plugins/mediacenter/includes/uploader/js/jquery.fileupload.js"></script>
-
-
 <!-- IF S_TYPE_IMAGE -->
 <script src="{EQDKP_ROOT_PATH}plugins/mediacenter/includes/jcrop/js/jquery.Jcrop.min.js"></script>
 <link rel="stylesheet" href="{EQDKP_ROOT_PATH}plugins/mediacenter/includes/jcrop/css/jquery.Jcrop.css" type="text/css" />
@@ -273,60 +266,126 @@
 		
 	})
 	
-	 $(document).ready(function(){
-		
-		$('#fileupload').bind('fileuploadsubmit', function (e, data) {
-			data.formData = {album_id: $('#albums_massupload').val()};
-		});
-		
-		
-	    $('#fileupload').fileupload({
-	    	dropZone: $('#drag-drop-area'),
-	        url: '{EQDKP_CONTROLLER_PATH}EditMedia{SEO_EXTENSION}{SID}&massupload=true',
-	        dataType: 'json',
-	        add: function (e, data) {
-	        	if (data.files[0].type == "image/jpeg" || data.files[0].type == "image/png" || data.files[0].type == "image/gif"){
+	
+	//Massupload
+	var storedFiles = [];
+	
+	$(document).ready(function(){
+		function massupload_add_files(files){
+			console.log("addfiles");
+			var filesArr = Array.prototype.slice.call(files);
+			console.log(filesArr);
+			filesArr.forEach(function(f) {			
+				storedFiles.push(f);
+
+				if (f.type == "image/jpeg" || f.type == "image/png" || f.type == "image/gif"){
 	            	var oFReader = new FileReader();
-	    			oFReader.readAsDataURL(data.files[0]);
+	    			oFReader.readAsDataURL(f);
 	    			oFReader.onload = function (oFREvent) {
-	    				var bla = $( '<div class="filecontainer"><img src="'+oFREvent.target.result+'" class="uploadPreview" /> <div class="filename">'+data.files[0].name+' <span class="loading"><i class="fa fa-spin fa-spinner fa-lg"></i></span></div><div class="fileprogress"><div class="progress-bar progress-bar-success" style="width:0%;"></div></div><div class="clear"></div></div>' );
-	    				data.context = bla;
+	    				var bla = $( '<div class="filecontainer"><img src="'+oFREvent.target.result+'" class="uploadPreview" /> <div class="filename">'+f.name+' <span class="loading"><i class="fa fa-trash-o hand" data-file="'+f.name+'" onclick="removeFile(this)"></i></span> </div><div class="fileprogress"><div class="progress-bar progress-bar-success" style="width:0%;"></div></div><div class="clear"></div></div>' );
 	    				$( "#files" ).prepend(bla);
-	    				data.submit();
 	    			};
 	        		
 	        	} else {
-	        		var bla = $( '<div style="clear:both;"><div class="filename">'+data.files[0].name+' <span class="loading"><i class="fa fa-spin fa-spinner fa-lg"></i></span></div><div class="fileprogress"><div class="progress-bar progress-bar-success" style="width:0%;"></div></div><div class="clear"></div></div>' );
-	        		data.context = bla;
-    				$( "#files" ).prepend(bla);
-	        		data.submit();
+	        		var bla = $( '<div style="clear:both;"><div class="filename">'+f.name+' <span class="loading"><i class="fa fa-trash-o hand" data-file="'+f.name+'" onclick="removeFile(this)"></i></span> </div><div class="fileprogress"><div class="progress-bar progress-bar-success" style="width:0%;"></div></div><div class="clear"></div></div>' );
+					$( "#files" ).prepend(bla);
 	        	}
-	        },
-	        progress: function (e, data) {
-	            var progress = parseInt(data.loaded / data.total * 100, 10);
-	            data.context.find('.progress-bar').css(
-	                    'width',
-	                    progress + '%'
-	                );
-	        },
-	        done: function (e, data) {
-	        	data.context.find('.loading').html('<i class="fa fa-lg fa-check"></i>');
-	        },
-	        fail: function (e, data) {
-	        	data.context.find('.loading').html('<i class="fa fa-lg fa-remove"></i>');
-	        	data.context.find('.progress-bar').addClass('error');
-	        },
-	        progressall: function (e, data) {
-	            var progress = parseInt(data.loaded / data.total * 100, 10);
-	            $('#progress .progress-bar').css(
-	                'width',
-	                progress + '%'
-	            );
-	        }
-	    }).prop('disabled', !$.support.fileInput)
-	        .parent().addClass($.support.fileInput ? undefined : 'disabled');
+				
+			});		
+		}
 		
+		$('#drag-drop-area').on('dragover', function(evt){
+		  evt.preventDefault();
+		});
+		
+		$('#drag-drop-area').on('drop', function(evt){
+		  evt.preventDefault();
+		  var files = evt.originalEvent.dataTransfer.files;
+		  massupload_add_files(files);
+		});
+		
+		$('#fileupload').on('change', function(evt){
+			var files = evt.originalEvent.originalTarget.files;
+			massupload_add_files(files);
+		});
+		
+		$('#massupload_reset').on('click', function(evt){
+			storedFiles = [];
+			$('#files').html("");
+		});
+		
+		$('#massupload_start').on('click', function(evt){
+			for(var i=0, len=storedFiles.length; i<len; i++) {
+				var data = new FormData();
+				data.append('file', storedFiles[i]);
+				data.append('album_id', $('#albums_massupload').val());
+				
+				var uploadURL = '{EQDKP_CONTROLLER_PATH}EditMedia{SEO_EXTENSION}{SID}&massupload=true';//Upload URL
+			    var context = $('i[data-file="'+storedFiles[i].name+'"]').parent().parent().parent();
+			    context.find('.loading').html('<i class="fa fa-spin fa-spinner"></i>');
+				var jqXHR=$.ajax({
+			              xhr: function() {
+			              var xhrobj = $.ajaxSettings.xhr();
+	
+			              if (xhrobj.upload) {
+			            	  xhrobj.upload.mycontext = context;
+			                      xhrobj.upload.addEventListener('progress', function(event) {
+									console.log(this);
+			                    	  var context = this.mycontext;
+			                          var percent = 0;
+			                          var position = event.loaded || event.position;
+			                          var total = event.total;
+			                          if (event.lengthComputable) {
+			                              percent = Math.ceil(position / total * 100);
+			                          }
+										context.find('.progress-bar').css(
+						                    'width',
+						                    percent + '%'
+						                );
+			                      }, false);
+			                  }
+			              return xhrobj;
+			          },
+			          url: uploadURL,
+			          context: context,
+			          type: "POST",
+			          contentType:false,
+			          processData: false,
+			          cache: false,
+			          data: data,
+			          success: function(data, e, xhr){
+						  context = $(this);
+			        	  if ($.trim(data) == "ok"){
+			        		  context.find('.loading').html('<i class="fa fa-lg fa-check"></i>');
+			        	  } else {
+			        		  context.find('.loading').html('<i class="fa fa-lg fa-remove"></i>');
+			  	        	  context.find('.progress-bar').addClass('error');
+			        	  }      	  
+			          },
+			          error: function(data, e, xhr){
+			        	  context = $(this);
+			        	  context.find('.loading').html('<i class="fa fa-lg fa-remove"></i>');
+		  	        	  context.find('.progress-bar').addClass('error');
+			          }
+			      });
+				
+			}
+
+		});
 	});
+	
+	function removeFile(obj) {
+		console.log("remove");
+		var file = $(obj).data("file");
+		for(var i=0;i<storedFiles.length;i++) {
+			if(storedFiles[i].name === file) {
+				storedFiles.splice(i,1);
+				break;
+			}
+		}
+
+		$(obj).parent().parent().parent().remove();
+	}
 </script>
 <style>
 #drag-drop-area-single {
@@ -586,6 +645,15 @@ option.filevideoimage:after {
 			</div>
 		</div>
 		<br />
+		<button type="button" id="massupload_start">
+            <i class="fa fa-upload"></i>
+            {L_mc_start_massupload}
+        </button>
+        
+        <button type="button" id="massupload_reset">
+             <i class="fa fa-trash-o"></i>
+             {L_reset}
+        </button>
 		{L_mc_max_uploadsize}: {MAX_UPLOADSIZE}
 		</form>
 		
