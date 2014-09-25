@@ -95,7 +95,7 @@
   
   function reload_image(){
 	  $('.loadingIE').hide();
-	  var image = "{LOCAL_IMAGE}?_t="+(new Date().getTime());
+	  var image = "{EDIT_FILE}?_t="+(new Date().getTime());
 	  $('.jcrop').attr('src', image);	  
 	  jcrop_api.setImage(image);
   }
@@ -665,6 +665,7 @@ option.filevideoimage:after {
 	
 	<!-- IF S_TYPE_IMAGE -->
 	<div id="edit">
+		<form action="" method="post">
 		<div class="icon-container">
 			<div onclick="image_resize()" title="{L_mc_ei_resize}"><i class="fa fa-cut"></i></div>
 			<div onclick="image_rotate_l()" title="{L_mc_ei_rotate_l}"><i class="fa fa-rotate-left"></i></div>
@@ -676,13 +677,16 @@ option.filevideoimage:after {
 		</div>
 		
 		<div class="">
-			<img src="{LOCAL_IMAGE}" class="jcrop"/>
+			<img src="{EDIT_FILE}" class="jcrop"/>
 		</div>
 		
 		<input type="hidden" id="x" name="x" />
 		<input type="hidden" id="y" name="y" />
 		<input type="hidden" id="w" name="w" />
 		<input type="hidden" id="h" name="h" />
+		<button type="submit" name="save_edit_image"><i class="fa fa-check"></i>{L_save}</button>
+		{CSRF_TOKEN}
+		</form>
 	</div>
 	<!-- ENDIF -->
 </div>

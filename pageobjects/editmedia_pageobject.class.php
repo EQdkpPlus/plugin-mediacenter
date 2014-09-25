@@ -48,6 +48,7 @@ class editmedia_pageobject extends pageobject {
     
     $handler = array(
       'save' => array('process' => 'save', 'csrf' => true),
+      'save_edit_image'=> array('process' => 'save_edit_image', 'csrf' => true),
       'reload_albums' => array('process' => 'ajax_reload_albums'),
       'media_types' => array('process' => 'ajax_media_types'),
       'upload' => array('process' => 'upload_file'),
@@ -67,6 +68,48 @@ class editmedia_pageobject extends pageobject {
   }
   
   private $arrData = array();
+  
+  public function save_edit_image(){
+  	$intMediaID = $this->url_id;
+  	
+  	//Check Permissions
+  	$intCategoryID = $this->pdh->get('mediacenter_media', 'category_id', array($intMediaID));
+  	$arrPermissions = $this->pdh->get('mediacenter_categories', 'user_permissions', array($intCategoryID, $this->user->id));
+  	if ((!$arrPermissions || !$arrPermissions['update']) && !$this->user->check_auth('a_mediacenter_manage', false)){
+  		$this->user->check_auth('u_mediacenter_something');
+  	}
+  	 
+  	//Move File
+  	$previewimage = $this->pdh->get('mediacenter_media', 'previewimage', array($intMediaID));
+  	$strExtension = pathinfo($previewimage, PATHINFO_EXTENSION);
+  	$strFilename = pathinfo($previewimage, PATHINFO_FILENAME);
+  	
+  	$src = $this->pfh->FolderPath('thumbs', 'mediacenter').$strFilename.'_edited.'.$strExtension;
+  	$dest = $this->pfh->FolderPath('thumbs', 'mediacenter').$this->pdh->get('mediacenter_media', 'previewimage', array($intMediaID));
+  	$this->pfh->copy($src, $dest);
+  	
+  	//Create new Thumbnails
+  	$this->pfh->thumbnail($dest, $this->pfh->FolderPath('thumbs', 'mediacenter'), $strFilename.'.64.'.$strExtension, 64);
+  	$this->pfh->thumbnail($dest, $this->pfh->FolderPath('thumbs', 'mediacenter'), $strFilename.'.240.'.$strExtension, 240);
+
+  }
+  
+  private function create_edit_image($intMediaID, $blnForce=false){
+  	$previewimage = $this->pdh->get('mediacenter_media', 'previewimage', array($intMediaID));
+  	
+  	$strExtension = pathinfo($previewimage, PATHINFO_EXTENSION);
+  	$strFilename = pathinfo($previewimage, PATHINFO_FILENAME);
+  	
+  	$dest = $this->pfh->FolderPath('thumbs', 'mediacenter').$strFilename.'_edited.'.$strExtension;
+  	$src = $this->pfh->FolderPath('thumbs', 'mediacenter').$previewimage;
+  	
+  	if ($blnForce || !file_exists($dest)){
+  		$this->pfh->copy($src, $dest);
+   	}
+  	
+  	return $dest;
+  }
+
   
   public function delete_comments(){
   	$intMediaID = $this->url_id;
@@ -113,7 +156,7 @@ class editmedia_pageobject extends pageobject {
   		echo "error";
   		return false;
   	}
-  	$image = $this->pfh->FolderPath('thumbs', 'mediacenter').$this->pdh->get('mediacenter_media', 'previewimage', array($intMediaID));
+  	$image = $this->create_edit_image($intMediaID);
   	 
   	$imageInfo		= GetImageSize($image);
   	if (!$imageInfo) {
@@ -142,13 +185,7 @@ class editmedia_pageobject extends pageobject {
   	}
   	
   	imagedestroy($rotation);
-  	imagedestroy($imgOld);
-  	
-  	//Create new Thumbnails
-  	$strExtension = pathinfo($this->pdh->get('mediacenter_media', 'previewimage', array($intMediaID)), PATHINFO_EXTENSION);
-  	$filename = pathinfo($this->pdh->get('mediacenter_media', 'previewimage', array($intMediaID)), PATHINFO_FILENAME);
-  	$this->pfh->thumbnail($image, $this->pfh->FolderPath('thumbs', 'mediacenter'), $filename.'.64.'.$strExtension, 64);
-  	$this->pfh->thumbnail($image, $this->pfh->FolderPath('thumbs', 'mediacenter'), $filename.'.240.'.$strExtension, 240);		
+  	imagedestroy($imgOld);	
   	
   	echo $image;
   	exit;
@@ -165,15 +202,7 @@ class editmedia_pageobject extends pageobject {
   		return false;
   	}
   	
-  	$src = $this->pfh->FolderPath('files', 'mediacenter').$this->pdh->get('mediacenter_media', 'localfile', array($intMediaID));
-  	$dest = $this->pfh->FolderPath('thumbs', 'mediacenter').$this->pdh->get('mediacenter_media', 'previewimage', array($intMediaID));
-  	$this->pfh->copy($src, $dest);
-  	
-  	//Create new Thumbnails
-  	$strExtension = pathinfo($this->pdh->get('mediacenter_media', 'previewimage', array($intMediaID)), PATHINFO_EXTENSION);
-  	$filename = pathinfo($this->pdh->get('mediacenter_media', 'previewimage', array($intMediaID)), PATHINFO_FILENAME);
-  	$this->pfh->thumbnail($image, $this->pfh->FolderPath('thumbs', 'mediacenter'), $filename.'.64.'.$strExtension, 64);
-  	$this->pfh->thumbnail($image, $this->pfh->FolderPath('thumbs', 'mediacenter'), $filename.'.240.'.$strExtension, 240);
+  	$this->create_edit_image($intMediaID, true);
   	
   	echo "true";
   	exit;
@@ -199,7 +228,7 @@ class editmedia_pageobject extends pageobject {
   		echo "error";
   		return false;
   	}
-  	$image = $this->pfh->FolderPath('thumbs', 'mediacenter').$this->pdh->get('mediacenter_media', 'previewimage', array($intMediaID));
+  	$image = $this->create_edit_image($intMediaID);
   	
   	$imageInfo		= GetImageSize($image);
   	if (!$imageInfo) {
@@ -229,13 +258,7 @@ class editmedia_pageobject extends pageobject {
   	}
   	imagedestroy($imgOld);
   	imagedestroy($dst);
-  	
-  	//Create new Thumbnails
-  	$strExtension = pathinfo($this->pdh->get('mediacenter_media', 'previewimage', array($intMediaID)), PATHINFO_EXTENSION);
-  	$filename = pathinfo($this->pdh->get('mediacenter_media', 'previewimage', array($intMediaID)), PATHINFO_FILENAME);
-  	$this->pfh->thumbnail($image, $this->pfh->FolderPath('thumbs', 'mediacenter'), $filename.'.64.'.$strExtension, 64);
-  	$this->pfh->thumbnail($image, $this->pfh->FolderPath('thumbs', 'mediacenter'), $filename.'.240.'.$strExtension, 240);
-  	
+
   	echo $image;
   	exit;
   }
@@ -257,7 +280,7 @@ class editmedia_pageobject extends pageobject {
   		echo "error";
   		return false;
   	}
-  	$image = $this->pfh->FolderPath('thumbs', 'mediacenter').$this->pdh->get('mediacenter_media', 'previewimage', array($intMediaID));
+  	$image = $this->create_edit_image($intMediaID);
   	
   	$imageInfo		= GetImageSize($image);
   	if (!$imageInfo) {
@@ -284,12 +307,6 @@ class editmedia_pageobject extends pageobject {
   		case 3:	ImagePNG($imgOld,	$image, 0);	break;	// PNG
   	}
   	imagedestroy($imgOld);
-  	
-  	//Create new Thumbnails
-  	$strExtension = pathinfo($this->pdh->get('mediacenter_media', 'previewimage', array($intMediaID)), PATHINFO_EXTENSION);
-  	$filename = pathinfo($this->pdh->get('mediacenter_media', 'previewimage', array($intMediaID)), PATHINFO_FILENAME);
-  	$this->pfh->thumbnail($image, $this->pfh->FolderPath('thumbs', 'mediacenter'), $filename.'.64.'.$strExtension, 64);
-  	$this->pfh->thumbnail($image, $this->pfh->FolderPath('thumbs', 'mediacenter'), $filename.'.240.'.$strExtension, 240);
   	
   	echo $image;
   	exit;
@@ -538,13 +555,19 @@ class editmedia_pageobject extends pageobject {
   		$arrValues['tags'] = implode(", ", unserialize($arrValues['tags']));
   		$arrValues['previewimage'] = (strlen($arrValues['previewimage'])) ? $this->pfh->FolderPath('thumbs', 'mediacenter', 'absolute').$arrValues['previewimage'] : false;
   		
+  		if ($arrValues['type'] == 2){
+  			$editfile = str_replace($this->root_path, $this->server_path, $this->create_edit_image($this->url_id, true));
+  		} else $editfile = "";
+  		
   		$this->tpl->assign_vars(array(
   			'S_EDIT'		=> true,
   			'LOCALFILE'		=> $arrValues['filename'],
   			'S_TYPE_IMAGE'	=> ($arrValues['type'] == 2 && ($arrPermissions['update'] || $this->user->check_auth('a_mediacenter_manage', false))) ? true : false,
   			'LOCAL_IMAGE'	=> $arrValues['previewimage'],
   			'IMAGE_ID'		=> $this->url_id,
+  			'EDIT_FILE'		=> $editfile,
   		));
+  		
   	}
 
   	$this->jquery->Tab_header('editmedia_tab');
