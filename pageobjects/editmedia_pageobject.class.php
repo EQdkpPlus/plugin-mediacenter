@@ -322,10 +322,17 @@ class editmedia_pageobject extends pageobject {
   
   public function ajax_media_types(){
   	header('content-type: text/html; charset=UTF-8');
-  	$intAlbumID = $this->in->get('album', 0);
-  	$intCategoryID = $this->pdh->get('mediacenter_albums', 'category_id', array($intAlbumID));
+  	$strAlbumID = $this->in->get('album');
+  	if(substr($strAlbumID, 0, 1) == 'c'){
+  		$intCategoryID = (int)substr($strAlbumID, 1);
+  		$intAlbumID = 0;
+  	} else {
+  		$intAlbumID = intval($strAlbumID);
+  		$intCategoryID = $this->pdh->get('mediacenter_albums', 'category_id', array($intAlbumID));
+  	}
   	$arrTypes = $this->pdh->get('mediacenter_categories', 'types', array($intCategoryID));
   	$myArray = $this->user->lang('mc_types');
+
   	if (count($arrTypes) == 1){
   		$tmp = array();
   		$tmp[$arrTypes[0]] = $myArray[$arrTypes[0]];
