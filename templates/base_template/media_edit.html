@@ -252,15 +252,15 @@
 		});
 		
 		$('#singlefileupload').on('change', function(evt){
-			var file = evt.originalEvent.originalTarget.files[0];
-			upload_singlefile(file);
-			
+			evt.preventDefault();
+			var file = evt.target.files[0];
+			upload_singlefile(file);		
 		});
 		
 
 		$('#drag-drop-area-single').on('drop', function(evt){
 		  evt.preventDefault();
-		  var file = evt.originalEvent.dataTransfer.files[0];
+		  var file = evt.target.files[0];
 		  upload_singlefile(file);
 		});
 		
@@ -272,9 +272,7 @@
 	
 	$(document).ready(function(){
 		function massupload_add_files(files){
-			console.log("addfiles");
 			var filesArr = Array.prototype.slice.call(files);
-			console.log(filesArr);
 			filesArr.forEach(function(f) {			
 				storedFiles.push(f);
 
@@ -305,7 +303,8 @@
 		});
 		
 		$('#fileupload').on('change', function(evt){
-			var files = evt.originalEvent.originalTarget.files;
+			evt.preventDefault();
+			var files = evt.target.files;
 			massupload_add_files(files);
 		});
 		
@@ -330,7 +329,7 @@
 			              if (xhrobj.upload) {
 			            	  xhrobj.upload.mycontext = context;
 			                      xhrobj.upload.addEventListener('progress', function(event) {
-									console.log(this);
+
 			                    	  var context = this.mycontext;
 			                          var percent = 0;
 			                          var position = event.loaded || event.position;
@@ -375,7 +374,6 @@
 	});
 	
 	function removeFile(obj) {
-		console.log("remove");
 		var file = $(obj).data("file");
 		for(var i=0;i<storedFiles.length;i++) {
 			if(storedFiles[i].name === file) {
