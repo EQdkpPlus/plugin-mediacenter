@@ -38,7 +38,7 @@ class views_pageobject extends pageobject {
       message_die($this->user->lang('mc_plugin_not_installed'));
     
     $handler = array(
-    	'myvideos'	=> array('process' => 'view_myvideos'),
+    	'mymedia'	=> array('process' => 'view_mymedia'),
     	'myalbums' 	=> array('process' => 'view_myalbums'),
     	'tags' 		=> array('process' => 'view_tags'),
     	'a'			=> array('process' => 'view_album'),
@@ -48,21 +48,47 @@ class views_pageobject extends pageobject {
     $this->process();
   }
   
-  //For URL: index.php/MediaCenter/MyVideos/
-  public function view_myvideos(){
-  	echo "View MyVideos";
+  //For URL: index.php/MediaCenter/MyMedia/
+  public function view_mymedia(){
+
+  	
+  	
+  	// -- EQDKP ---------------------------------------------------------------
+  	$this->core->set_vars(array (
+  			'page_title'    => $this->user->lang('mediacenter'),
+  			'template_path' => $this->pm->get_data('mediacenter', 'template_path'),
+  			'template_file' => 'mymedia.html',
+  			'display'       => true
+  	));
   }
   
+  //For URL: index.php/MediaCenter/Tags/
   public function view_tags(){
-  	echo "View Tags";
+
+  	
+  	// -- EQDKP ---------------------------------------------------------------
+  	$this->core->set_vars(array (
+  			'page_title'    => $this->user->lang('mediacenter'),
+  			'template_path' => $this->pm->get_data('mediacenter', 'template_path'),
+  			'template_file' => 'tags.html',
+  			'display'       => true
+  	));
   }
   
   //For URL: index.php/MediaCenter/Downloads/MyAlbumname-a1/
   public function view_album(){
-  	echo "view album";
+
   	$intAlbumID = $this->in->get('a');
   	
-  	d($this->pdh->get('mediacenter_album', 'data', array($intAlbumID)));
+  	//d($this->pdh->get('mediacenter_album', 'data', array($intAlbumID)));
+  	
+  	// -- EQDKP ---------------------------------------------------------------
+  	$this->core->set_vars(array (
+  			'page_title'    => $this->user->lang('mediacenter'),
+  			'template_path' => $this->pm->get_data('mediacenter', 'template_path'),
+  			'template_file' => 'album.html',
+  			'display'       => true
+  	));
   	
   }
   
@@ -70,20 +96,27 @@ class views_pageobject extends pageobject {
   	
   	
   	if (is_numeric($this->url_id)){
-  		
   		//For URL: index.php/MediaCenter/Downloads/MyFileName-17.html
-  		echo "View Media in Category. MediaID: ".$this->url_id;
+  		
   		$arrMediaData = $this->pdh->get('mediacenter_media', 'data', array($this->url_id));
   		d($arrMediaData);
   		
+  		// -- EQDKP ---------------------------------------------------------------
+  		$this->core->set_vars(array (
+  				'page_title'    => $this->user->lang('mediacenter'),
+  				'template_path' => $this->pm->get_data('mediacenter', 'template_path'),
+  				'template_file' => 'media.html',
+  				'display'       => true
+  		));
+  		
   	} elseif (strlen($this->url_id)) {
-  		$arrPathParts = registry::get_const('patharray');
-  		
-  		
-  		//For Kategory-View: index.php/MediaCenter/Downloads/
+  		//For Category-View: index.php/MediaCenter/Downloads/
   		//Also Subcategories possible:
   		// index.php/MediaCenter/Blablupp/Sowieso/Downloads/
-  		$strCategoryAlias = $this->url_id;
+
+  		
+  		$arrPathParts = registry::get_const('patharray');
+  	  		$strCategoryAlias = $this->url_id;
   		if ($strCategoryAlias != $arrPathParts[0]){
   			$strCategoryAlias = $this->url_id = $arrPathParts[0];
   		}
@@ -99,24 +132,32 @@ class views_pageobject extends pageobject {
   			echo 'Category not found';
   		}
   		
+  		// -- EQDKP ---------------------------------------------------------------
+  		$this->core->set_vars(array (
+  				'page_title'    => $this->user->lang('mediacenter'),
+  				'template_path' => $this->pm->get_data('mediacenter', 'template_path'),
+  				'template_file' => 'category.html',
+  				'display'       => true
+  		));
+  		
+  		
   	} else {
-  		echo "Startpage of MediaCenter";
+  		// -- EQDKP ---------------------------------------------------------------
+	  	$this->core->set_vars(array (
+	  			'page_title'    => $this->user->lang('mediacenter'),
+	  			'template_path' => $this->pm->get_data('mediacenter', 'template_path'),
+	  			'template_file' => 'index.html',
+	  			'display'       => true
+	  	));
   	}
   	
   	
-  	
+  	/*
   	d($this->url_id);
   	d($this->page);
   	d($this->page_path);
   	d(registry::get_const('patharray'));
-  	
-  	// -- EQDKP ---------------------------------------------------------------
-  	$this->core->set_vars(array (
-  			'page_title'    => $this->user->lang('mc_edit_media'),
-  			'template_path' => $this->pm->get_data('mediacenter', 'template_path'),
-  			'template_file' => 'insert_media_editor.html',
-  			'display'       => true
-  	));
+  	*/
   }
 }
 ?>

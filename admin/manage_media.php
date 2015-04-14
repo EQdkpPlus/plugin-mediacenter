@@ -209,10 +209,10 @@ class Manage_Media extends page_generic {
 		
 		$this->confirm_delete($this->user->lang('mc_confirm_delete_media'));
 
-		$this->jquery->Dialog('addmedia', $this->user->lang('mc_add_media'), array('withid' => 'albumid', 'url'=> $this->controller_path.'AddMedia/'.$this->SID.'&admin=1&simple_head=1&aid=\'+albumid+\'', 'width'=>'900', 'height'=>'780', 'onclose' => $this->root_path.'plugins/mediacenter/admin/manage_media.php'.$this->SID.'&cid='.$intCategoryID));
-		$this->jquery->Dialog('editmedia', $this->user->lang('mc_edit_media'), array('withid' => 'mediaid', 'url'=> $this->controller_path.'EditMedia/Media-\'+mediaid+\'/'.$this->SID.'&simple_head=1&admin=1', 'width'=>'900', 'height'=>'780', 'onclose' => $this->root_path.'plugins/mediacenter/admin/manage_media.php'.$this->SID.'&cid='.$intCategoryID));
-		$this->jquery->Dialog('editalbum', $this->user->lang('mc_edit_album'), array('withid' => 'albumid', 'url'=> $this->controller_path.'EditAlbum/Album-\'+albumid+\'/'.$this->SID.'&simple_head=1&admin=1', 'width'=>'640', 'height'=>'520', 'onclose' => $this->root_path.'plugins/mediacenter/admin/manage_media.php'.$this->SID.'&cid='.$intCategoryID));
-		$this->jquery->Dialog('addalbum', $this->user->lang('mc_new_album'), array('url'=> $this->controller_path.'AddAlbum/'.$this->SID.'&simple_head=1&admin=1&cid='.$intCategoryID, 'width'=>'640', 'height'=>'520', 'onclose' => $this->root_path.'plugins/mediacenter/admin/manage_media.php'.$this->SID.'&cid='.$intCategoryID));
+		$this->jquery->Dialog('addmedia', $this->user->lang('mc_add_media'), array('withid' => 'albumid', 'url'=> $this->controller_path.'AddMedia/'.$this->SID.'&admin=1&simple_head=1&aid=\'+albumid+\'', 'width'=>'900', 'height'=>'780', 'onclose' => $this->env->buildlink().'plugins/mediacenter/admin/manage_media.php'.$this->SID.'&cid='.$intCategoryID));
+		$this->jquery->Dialog('editmedia', $this->user->lang('mc_edit_media'), array('withid' => 'mediaid', 'url'=> $this->controller_path.'EditMedia/Media-\'+mediaid+\'/'.$this->SID.'&simple_head=1&admin=1', 'width'=>'900', 'height'=>'780', 'onclose' => $this->env->buildlink().'plugins/mediacenter/admin/manage_media.php'.$this->SID.'&cid='.$intCategoryID));
+		$this->jquery->Dialog('editalbum', $this->user->lang('mc_edit_album'), array('withid' => 'albumid', 'url'=> $this->controller_path.'EditAlbum/Album-\'+albumid+\'/'.$this->SID.'&simple_head=1&admin=1', 'width'=>'640', 'height'=>'520', 'onclose' => $this->env->buildlink().'plugins/mediacenter/admin/manage_media.php'.$this->SID.'&cid='.$intCategoryID));
+		$this->jquery->Dialog('addalbum', $this->user->lang('mc_new_album'), array('url'=> $this->controller_path.'AddAlbum/'.$this->SID.'&simple_head=1&admin=1&cid='.$intCategoryID, 'width'=>'640', 'height'=>'520', 'onclose' => $this->env->buildlink().'plugins/mediacenter/admin/manage_media.php'.$this->SID.'&cid='.$intCategoryID));
 		
 		$this->tpl->assign_vars(array(
 			'CID' 			=> $intCategoryID,

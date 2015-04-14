@@ -75,30 +75,33 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 					//No Local and External File
 					return false;
 				} elseif($strFile != "") {
+					$strFileFolder = $this->pfh->FolderPath('files', 'mediacenter');
 					$strLocalfile = register('encrypt')->decrypt($strFile);
 					if(file_exists($strFileFolder.$strLocalfile)) $arrAdditionalData['size'] = filesize($strFileFolder.$strLocalfile);
 					
 					//Check Extension
 					$strExtension = strtolower(pathinfo($strFilename, PATHINFO_EXTENSION));
 					if (!in_array($strExtension, $this->extensions_file())) return false;
+
 				}
 				
 				//If it's a image, we have a preview image
 				if ($strPreviewimage == ""){
 					$strExtension = strtolower(pathinfo($strFilename, PATHINFO_EXTENSION));
-					if (!in_array($strExtension, array('jpg', 'jpeg', 'png', 'gif'))) return false;
-					$filename = md5(rand().unique_id());
-					$strFileFolder = $this->pfh->FolderPath('files', 'mediacenter');
-					$this->pfh->copy($strFileFolder.$strLocalfile, $strThumbfolder.$filename.'.'.$strExtension);
-					$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.64.'.$strExtension, 64);
-					$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.240.'.$strExtension, 240);
-					
-					//Watermark
-					if ((int)$this->config->get('watermark_enabled', 'mediacenter')){
-						$this->create_watermark($strThumbfolder.$filename.'.'.$strExtension);
+					if (in_array($strExtension, array('jpg', 'jpeg', 'png', 'gif'))) {
+						$filename = md5(rand().unique_id());
+						$strFileFolder = $this->pfh->FolderPath('files', 'mediacenter');
+						$this->pfh->copy($strFileFolder.$strLocalfile, $strThumbfolder.$filename.'.'.$strExtension);
+						$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.64.'.$strExtension, 64);
+						$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.240.'.$strExtension, 240);
+						
+						//Watermark
+						if ((int)$this->config->get('watermark_enabled', 'mediacenter')){
+							$this->create_watermark($strThumbfolder.$filename.'.'.$strExtension);
+						}
+						
+						$strLocalPreviewImage = $filename.'.'.$strExtension;
 					}
-					
-					$strLocalPreviewImage = $filename.'.'.$strExtension;
 				}
 				
 			}elseif($intType == 1){
@@ -123,7 +126,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 						$binImage = register('urlfetcher')->fetch($arrEmbedlyDetails[0]->thumbnail_url);
 						$strExtension = strtolower(pathinfo($arrEmbedlyDetails[0]->thumbnail_url, PATHINFO_EXTENSION));
 						$filename = md5(rand().unique_id());
-						$this->pfh->putContent($strThumbfolder.$filename, $binImage);
+						$this->pfh->putContent($strThumbfolder.$filename.'.'.$strExtension, $binImage);
 						
 						$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.64.'.$strExtension, 64);
 						$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.240.'.$strExtension, 240);
@@ -191,6 +194,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			$schluesselwoerter = preg_split("/[\s,]+/", $strTags);
 			$arrTags = array();
 			foreach($schluesselwoerter as $val){
+				if(trim($val) == "") continue;
 				$arrTags[] = utf8_strtolower(str_replace("-", "", $val));
 			}
 			

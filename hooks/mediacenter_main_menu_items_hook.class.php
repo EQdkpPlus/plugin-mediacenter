@@ -42,6 +42,14 @@ if (!class_exists('mediacenter_main_menu_items_hook'))
 		
 		$arrCategories = $this->pdh->get('mediacenter_categories', 'category_tree', array(true, false));
 		
+		$main_menu[] = array(
+				'link'  		=> $this->routing->build('MediaCenter', false, false, true, true),
+				'text'  		=> $this->user->lang('mediacenter'),
+				'check' 		=> 'u_mediacenter_view',
+				'default_hide'	=> 1,
+				'link_category' => 'mc_mediacenter',
+		);
+		
 		foreach($arrCategories as $intCategoryID => $strCategoryName){
 			$main_menu[] = array(
 				'link'  		=> $this->pdh->get('mediacenter_categories', 'path', array($intCategoryID)),

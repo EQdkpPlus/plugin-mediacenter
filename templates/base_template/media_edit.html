@@ -260,8 +260,8 @@
 
 		$('#drag-drop-area-single').on('drop', function(evt){
 		  evt.preventDefault();
-		  var file = evt.target.files[0];
-		  upload_singlefile(file);
+		  var files = evt.originalEvent.dataTransfer.files;
+		  upload_singlefile(files[0]);
 		});
 		
 	})

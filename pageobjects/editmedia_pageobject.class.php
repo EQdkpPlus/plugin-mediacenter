@@ -675,6 +675,7 @@ class editmedia_pageobject extends pageobject {
   		$arrFields['published'] = array(
   				'type'		=> 'radio',
   				'lang'		=> 'mc_f_published',
+  				'default'	=> 1,
   		);
   		$arrFields['featured'] = array(
   				'type'		=> 'radio',
