@@ -114,6 +114,10 @@ class mediacenter extends plugin_generic
 	// -- Menu --------------------------------------------
     $this->add_menu('admin', $this->gen_admin_menu());
 	$this->add_menu('main', $this->gen_main_menu());
+	
+	
+	//Add Mediacenter Stylesheets
+	$this->tpl->css_file($this->root_path.'plugins/mediacenter/templates/base_template/mediacenter.css');
   }
 
   /**
@@ -142,7 +146,7 @@ class mediacenter extends plugin_generic
   		'per_page' => 25,
   		'extensions_image' => 'png, jpeg, jpg, gif',
   		'extensions_file'	=> 'png, jpeg, jpg, gif, txt, zip, mp3',
-  		'extensions_video'	=> 'mp4, m4v, f4v, flv, webm',
+  		'extensions_video'	=> 'mp4, webm, ogg',
   	);
   	
   	$this->config->set($arrSave, '', 'mediacenter');

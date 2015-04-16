@@ -380,7 +380,7 @@ class editmedia_pageobject extends pageobject {
   	}
   	  	 
   	$folder = $this->pfh->FolderPath('files', 'mediacenter');
-  	$this->pfh->secure_folder('files', 'mediacenter');
+  	//$this->pfh->secure_folder('files', 'mediacenter');
 
   	$tempname		= $_FILES['file']['tmp_name'];
   	$filename		= $_FILES['file']['name'];
@@ -406,7 +406,7 @@ class editmedia_pageobject extends pageobject {
   
   public function upload_file(){  	
   	$folder = $this->pfh->FolderPath('files', 'mediacenter');
-  	$this->pfh->secure_folder('files', 'mediacenter');
+  	//$this->pfh->secure_folder('files', 'mediacenter');
   	
   	$tempname		= $_FILES['file']['tmp_name'];
   	$filename		= $_FILES['file']['name'];
@@ -575,6 +575,8 @@ class editmedia_pageobject extends pageobject {
   			'EDIT_FILE'		=> $editfile,
   		));
   		
+  	} else {
+  		$arrValues['user_id'] = $this->user->id;
   	}
 
   	$this->jquery->Tab_header('editmedia_tab');

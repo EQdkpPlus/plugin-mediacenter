@@ -57,7 +57,8 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 		'mediacenter_media_views' => array('views', array('%intMediaID%'), array()),
 		'mediacenter_media_user_id' => array('user_id', array('%intMediaID%'), array()),
 		'mediacenter_media_editicon' => array('editicon', array('%intMediaID%'), array()),
-		'mediacenter_media_downloads' => array('downloads', array('%intMediaID%'), array()),		
+		'mediacenter_media_downloads' => array('downloads', array('%intMediaID%'), array()),	
+		'mediacenter_media_frontendlist' => array('frontendlist', array('%intMediaID%'), array()),
 	);
 		
 	public function reset(){
@@ -128,7 +129,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 		 * @param boolean $blnPublishedOnly
 		 * @return array  Array: albumid => array with all Media in Category. Albumid 0 = only in category
 		 */
-		public function get_id_list_for_category($intCategoryID, $blnPublishedOnly=false){
+		public function get_id_list_for_category($intCategoryID, $blnPublishedOnly=false, $blnWithAlbums=false){
 			if ($this->mediacenter_media === null) return array();
 			$arrOut = array();
 			
@@ -136,9 +137,13 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 				if ($blnPublishedOnly && !$this->get_published($intMediaID)) continue;
 				
 				if ($this->get_category_id($intMediaID) == $intCategoryID){
-					if (!isset($arrOut[$this->get_album_id($intMediaID)])) $arrOut[$this->get_album_id($intMediaID)] = array();
-					
-					$arrOut[$this->get_album_id($intMediaID)][] = $intMediaID;
+					if($blnWithAlbums){
+						$arrOut[] = $intMediaID;
+					} else {
+						if (!isset($arrOut[$this->get_album_id($intMediaID)])) $arrOut[$this->get_album_id($intMediaID)] = array();
+							
+						$arrOut[$this->get_album_id($intMediaID)][] = $intMediaID;
+					}
 				}
 			}
 			
@@ -180,6 +185,14 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 			return false;
 		}
 		
+		public function get_html_album_id($intMediaID){
+			$intAlbumID = $this->get_album_id($intMediaID);
+			if($intAlbumID){
+				return '<a href="'.$this->controller_path.$this->pdh->get('mediacenter_albums', 'path', array($intAlbumID)).'">'.$this->pdh->get('mediacenter_albums', 'name', array($intAlbumID)).'</a>';
+			}
+			return '';
+		}
+		
 		
 		/**
 		 * Returns category_id for $intMediaID
@@ -197,6 +210,14 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 				}
 			}
 			return false;
+		}
+		
+		public function get_html_category_id($intMediaID, $blnWithIcon=false){
+			$intCategoryID = $this->get_category_id($intMediaID);
+			if($intCategoryID){
+				return $this->pdh->geth('mediacenter_categories', 'name', array($intCategoryID, '', '', true, $blnWithIcon));
+			}
+			return '';
 		}
 
 		/**
@@ -295,7 +316,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 		}
 		
 		//Types: 1: small 64px, 2: big 240px, 3: orig
-		public function get_html_previewimage($intMediaID, $intType=1){
+		public function get_html_previewimage($intMediaID, $intType=1, $blnURLonly=false){
 			if ($this->get_previewimage($intMediaID) && strlen($this->get_previewimage($intMediaID))){
 				$image = $this->get_previewimage($intMediaID);
 				
@@ -307,10 +328,17 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 					default: $icon = $image;
 						
 				}
-				return '<img src="'.$this->pfh->FolderPath('thumbs', 'mediacenter', 'absolute').$icon.'?_t='.$this->time->time.'" />';
+				return ($blnURLonly) ? $this->pfh->FolderPath('thumbs', 'mediacenter', 'absolute').$icon.'?_t='.$this->time->time : '<img src="'.$this->pfh->FolderPath('thumbs', 'mediacenter', 'absolute').$icon.'?_t='.$this->time->time.'" />';
 			}
-
-			return '<img src="'.$this->server_path.'images/global/default-image.svg" height="40"/>';
+			switch($intType){
+				case 1: $intSize = 64;
+				break;
+				case 2: $intSize = 240;
+				break;
+				default: $intSize = 40;
+			
+			}
+			return ($blnURLonly) ? $this->server_path.'images/global/default-image.svg' : '<img src="'.$this->server_path.'images/global/default-image.svg" height="'.$intSize.'"/>';
 		}
 
 		/**
@@ -504,6 +532,85 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 		
 		public function get_checkbox_check($intMediaID){
 			return true;
+		}
+		
+		public function get_path($intMediaID, $url_id=false, $arrPath=array()){
+			$strPath = $this->add_path($this->get_category_id($intMediaID));
+				
+			$strAlias = ucfirst($this->get_name($intMediaID)).'-'.$intMediaID;
+			$strPath .= $strAlias;
+			
+			if(substr($strPath, -1) == "/") $strPath = substr($strPath, 0, -1);
+			$strPath .= $this->routing->getSeoExtension();
+		
+			return "MediaCenter/".$strPath.(($this->SID == "?s=") ? '?' : $this->SID);
+		}
+		
+		private function add_path($intCategoryID, $strPath=''){
+			$strAlias = ucfirst($this->pdh->get('mediacenter_categories', 'alias', array($intCategoryID)));
+			if ($strAlias != ''){
+				$strPath = $strAlias.'/'.$strPath;
+			}
+			if ($this->pdh->get('mediacenter_categories', 'parent', array($intCategoryID))){
+				$strPath = $this->add_path($this->pdh->get('mediacenter_categories', 'parent', array($intCategoryID)), $strPath);
+			}
+				
+			return $strPath;
+		}
+		
+		/**
+		 * Checks Permissions 
+		 */
+		public function get_featured_media(){
+			$arrOut = array();
+			$intUserID = $this->user->id;
+			foreach($this->mediacenter_media as $intMediaID => $arrData){
+				if(!$this->get_published($intMediaID)) continue;
+				
+				if($this->get_featured($intMediaID)){
+					$intCategoryID = $this->get_category_id($intMediaID);
+					if(!$this->pdh->get('mediacenter_categories', 'published', array($intCategoryID))) continue;
+
+					//Check cat permission
+					$arrPermissions = $this->pdh->get('mediacenter_categories','user_permissions', array($intCategoryID, $intUserID));
+					if (!$arrPermissions['read']) continue;
+					$arrOut[] = $intMediaID;
+				}
+			}
+			return $arrOut;
+		}
+		
+
+		/**
+		 * Checks Permissions
+		 */
+		public function get_newest_media($limit=20){
+			$arrOut = array();
+			$intUserID = $this->user->id;
+			foreach($this->mediacenter_media as $intMediaID => $arrData){
+				if(!$this->get_published($intMediaID)) continue;
+				$intCategoryID = $this->get_category_id($intMediaID);
+				if(!$this->pdh->get('mediacenter_categories', 'published', array($intCategoryID))) continue;
+					
+				//Check cat permission
+				$arrPermissions = $this->pdh->get('mediacenter_categories','user_permissions', array($intCategoryID, $intUserID));
+				if (!$arrPermissions['read']) continue;
+				$arrOut[] = $intMediaID;
+			}
+			
+			$arrOut = $this->pdh->sort($arrOut, 'mediacenter_media', 'date', 'desc');
+			$arrOut = $this->pdh->limit($arrOut, 0, $limit);
+			return $arrOut;
+		}
+		
+		public function get_frontendlist($intMediaID){
+			$out = '<a href="'.$this->controller_path.$this->get_path($intMediaID).'"><h3>'.$this->get_name($intMediaID).'</h3></a>';
+			$strUsertime = $this->get_html_date($intMediaID);
+			$intTimestamp = $this->get_date($intMediaID);
+			$out .= $this->get_html_type($intMediaID).' &bull; '.$this->time->createTimeTag($intTimestamp, $strUsertime).' &bull; '.$this->pdh->geth('user', 'name', array($this->get_user_id($intMediaID),'', '', true));
+			$out .= ((strlen($this->pdh->geth('mediacenter_media', 'album_id', array($intMediaID, true)))) ? ' &bull; '.$this->pdh->geth('mediacenter_media', 'album_id', array($intMediaID, true)): '');
+			$out .= '<br />'.truncate($this->bbcode->remove_bbcode($this->get_description($intMediaID)), 200);
+			return $out;
 		}
 
 	}//end class

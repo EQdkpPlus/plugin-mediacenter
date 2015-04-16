@@ -52,7 +52,7 @@ if (!class_exists('mediacenter_main_menu_items_hook'))
 		
 		foreach($arrCategories as $intCategoryID => $strCategoryName){
 			$main_menu[] = array(
-				'link'  		=> $this->pdh->get('mediacenter_categories', 'path', array($intCategoryID)),
+				'link'  		=> $this->controller_path_plain.$this->pdh->get('mediacenter_categories', 'path', array($intCategoryID)),
 				'text'  		=> $strCategoryName,
 				'check' 		=> 'u_mediacenter_view',
 				'default_hide'	=> 1,

@@ -111,7 +111,8 @@ class Manage_Media extends page_generic {
 		$intCategoryID = $this->in->get('cid', 0);
 		if (!$intCategoryID) redirect('plugins/mediacenter/admin/manage_categories.php'.$this->SID);
 				
-		$arrAlbums = $this->pdh->get('mediacenter_albums', 'albums_for_category', array($intCategoryID));$view_list = $this->pdh->get('mediacenter_categories', 'id_list', array());
+		$arrAlbums = $this->pdh->get('mediacenter_albums', 'albums_for_category', array($intCategoryID));
+		$view_list = $this->pdh->get('mediacenter_categories', 'id_list', array());
 		
 		$hptt_page_settings = array(
 			'name'				=> 'hptt_mc_admin_manage_media_categorylist',

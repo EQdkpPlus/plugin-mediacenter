@@ -114,7 +114,7 @@ class Manage_Categories extends page_generic {
 		} else {
 			$this->core->message($this->user->lang('mc_save_category'), $this->user->lang('error'), 'red');
 		}
-		
+
 		$this->display();
 	}
 	

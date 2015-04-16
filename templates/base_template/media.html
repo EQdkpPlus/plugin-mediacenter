@@ -2,12 +2,37 @@
 	<ul class="breamcrumb">
 		<li><a href="{EQDKP_CONTROLLER_PATH}{SID}" title="{L_home}"><i class="fa fa-home"></i></a></li>
 		<li class="current"><a href="{EQDKP_CONTROLLER_PATH}MediaCenter{SEO_EXTENSION}{SID}">{L_mediacenter}</a></li>
+		{MC_BREADCRUMB}
 	</ul>
 	<div class="clear"></div>
 </div>
 
+
 <div>
-	<div>
-		<h2>Media</h2>
+	<h2>{MC_MEDIA_NAME}</h2>
+</div>
+<div class="grid mcSidebar">
+	<div class="col10">
+		<!-- IF MC_MEDIA_TYPE == 0 -->
+		File
+		<!-- ELSEIF MC_MEDIA_TYPE == 1 -->
+		<div>{MC_VIDEO}</div>
+		<!-- ELSE -->
+		<div><img src="{MC_IMAGE}" /></div>
+		<!-- ENDIF -->
+		
+		
+	</div>
+	
+	<div class="col2 last">
+		<h3>Tags</h3>
+		<!-- IF S_MC_TAGS -->
+		 <ul class="tags">
+			<!-- BEGIN tag_row -->
+			<li><a href="{tag_row.U_TAG}">{tag_row.TAG}</a></li>
+			<!-- END tag_row -->
+		</ul>
+		<!-- ENDIF -->
+		<div class="clear"></div>
 	</div>
 </div>

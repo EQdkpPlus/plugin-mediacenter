@@ -280,6 +280,31 @@ if ( !class_exists( "pdh_r_mediacenter_albums" ) ) {
 			}
 			return $strOut;
 		}
+		
+		public function get_path($intAlbumID, $url_id=false, $arrPath=array()){
+			$strPath = "";
+			$strPath .= $this->add_path($this->get_category_id($intAlbumID));
+		
+			$strAlias = ucfirst($this->get_name($intAlbumID)).'-a'.$intAlbumID;
+			$strPath .= $strAlias;
+				
+			if(substr($strPath, -1) == "/") $strPath = substr($strPath, 0, -1);
+			$strPath .= $this->routing->getSeoExtension();
+		
+			return 'MediaCenter/'.$strPath.(($this->SID == "?s=") ? '?' : $this->SID);
+		}
+		
+		private function add_path($intCategoryID, $strPath=''){
+			$strAlias = ucfirst($this->pdh->get('mediacenter_categories', 'alias', array($intCategoryID)));
+			if ($strAlias != ''){
+				$strPath = $strAlias.'/'.$strPath;
+			}
+			if ($this->pdh->get('mediacenter_categories', 'parent', array($intCategoryID))){
+				$strPath = $this->add_path($this->pdh->get('mediacenter_categories', 'parent', array($intCategoryID)), $strPath);
+			}
+		
+			return $strPath;
+		}
 
 	}//end class
 }//end if

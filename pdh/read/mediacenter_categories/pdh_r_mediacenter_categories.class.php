@@ -207,8 +207,15 @@ if ( !class_exists( "pdh_r_mediacenter_categories" ) ) {
 			return false;
 		}
 		
-		public function get_html_name($intCategoryID, $strLink, $strSuffix){
-			return $this->get_name_prefix($intCategoryID).'<a href="'.$strLink.$this->SID.'&cid='.$intCategoryID.((strlen($strSuffix)) ? $strSuffix : '').'">'.$this->get_name($intCategoryID).'</a>';
+		public function get_html_name($intCategoryID, $strLink, $strSuffix, $intUseController=false, $blnWithIcon=false){
+			if($blnWithIcon){
+				$icon = (count($this->get_childs($intCategoryID))) ? '<i class="fa fa-folder-open-o"></i> ' : '<i class="fa fa-folder-o"></i> ';
+			} else $icon = "";
+			
+			if($intUseController){
+				return '<a href="'.$this->controller_path.$this->get_path($intCategoryID).'">'.$icon.$this->get_name($intCategoryID).'</a>';
+			}
+			return $this->get_name_prefix($intCategoryID).'<a href="'.$strLink.$this->SID.'&cid='.$intCategoryID.((strlen($strSuffix)) ? $strSuffix : '').'">'.$icon.$this->get_name($intCategoryID).'</a>';
 		}
 
 		/**
@@ -521,7 +528,6 @@ if ( !class_exists( "pdh_r_mediacenter_categories" ) ) {
 		}
 		
 		public function get_path($intCategoryID){
-			$strPath = "";
 			$strPath = $this->add_path($intCategoryID);
 				
 			switch((int)$this->config->get('seo_extension')){
@@ -535,7 +541,7 @@ if ( !class_exists( "pdh_r_mediacenter_categories" ) ) {
 				default: $strPath .= '/';
 			}
 				
-			return $this->controller_path_plain.'MediaCenter/'.$strPath.$this->SID;
+			return 'MediaCenter/'.$strPath.$this->SID;
 		}
 		
 		private function add_path($intCategoryID, $strPath=''){
@@ -577,20 +583,17 @@ if ( !class_exists( "pdh_r_mediacenter_categories" ) ) {
 		}
 		
 		public function get_breadcrumb($intCategoryID){
-			if ($intCategoryID == 1) return "";
 			$strBreadcrumb = ($this->get_parent($intCategoryID)) ? $this->add_breadcrumb($this->get_parent($intCategoryID)) : '';
-		
-			$strBreadcrumb .=  '<li class="current"><a href="'.$this->controller_path.'MediaCenter/'.$this->get_path($intCategoryID).'">'.$this->get_name($intCategoryID).'</a></li>';
+			$strBreadcrumb .=  '<li class="current"><a href="'.$this->controller_path.$this->get_path($intCategoryID).'">'.$this->get_name($intCategoryID).'</a></li>';
 			return $strBreadcrumb;
 		}
 		
 		private function add_breadcrumb($intCategoryID, $strBreadcrumb=''){
-			if ($intCategoryID == 1) return $strBreadcrumb;
 			$strName = $this->get_name($intCategoryID);
 			$strPath = $this->get_path($intCategoryID);
-			$strBreadcrumb = '<li><a href="'.$this->controller_path.'MediaCenter/'.$strPath.'">'.$strName.'</a></li>'.$strBreadcrumb;
+			$strBreadcrumb = '<li><a href="'.$this->controller_path.$strPath.'">'.$strName.'</a></li>'.$strBreadcrumb;
 				
-			if ($this->get_path($intCategoryID)){
+			if ($this->get_parent($intCategoryID)){
 				$strBreadcrumb = $this->add_breadcrumb($this->get_parent($intCategoryID), $strBreadcrumb);
 			}
 				
