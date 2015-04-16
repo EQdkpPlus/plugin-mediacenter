@@ -465,7 +465,7 @@ class views_pageobject extends pageobject {
 	  	$this->core->set_vars(array (
 	  			'page_title'    => $this->user->lang('mediacenter'),
 	  			'template_path' => $this->pm->get_data('mediacenter', 'template_path'),
-	  			'template_file' => 'index.html',
+	  			'template_file' => 'mediacenter_index.html',
 	  			'display'       => true
 	  	));
   	}
