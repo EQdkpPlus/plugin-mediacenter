@@ -200,8 +200,14 @@ class mediacenter extends plugin_generic
     */
   private function gen_main_menu()
   {
-
-	$main_menu = array();
+  	$main_menu = array();
+	$main_menu[] = array(
+		'link'  		=> $this->routing->build('MediaCenter', false, false, true, true),
+		'text'  		=> $this->user->lang('mediacenter'),
+		'check' 		=> 'u_mediacenter_view',
+		//'default_hide'	=> 1,
+		'link_category' => 'mc_mediacenter',
+	);
 
     return $main_menu;
   }

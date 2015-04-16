@@ -1,0 +1,45 @@
+<div class="grid mcSidebar">
+	<div class="col10">
+		<div class="mcImageContainer">
+			<img src="{MC_IMAGE}" />
+			<br />Vorheriges Bild - Nächstes Bild
+			<br />Beschreibung
+		</div>
+		Social Share, Rating
+		<br /><br />
+		Comments
+	</div>
+	
+	<div class="col2 last">		
+		<h3>Bild-Informationen</h3>
+		<ul>
+		<li>Author</li>
+		<li>Hochgeladen</li>
+		<li>Views</li>
+		<li>Dateiname</li>
+		<li>Bildmaße</li>
+		<!-- BEGIN mc_more_image_details -->
+		<li><div>{mc_more_image_details.LABEL}: <span>{mc_more_image_details.VALUE}</span></div></li>
+		<!-- END mc_more_image_details -->
+		</ul>
+		<br />
+		
+		<h3>Tags</h3>
+		<!-- IF S_MC_TAGS -->
+		 <ul class="tags">
+			<!-- BEGIN tag_row -->
+			<li><a href="{tag_row.U_TAG}">{tag_row.TAG}</a></li>
+			<!-- END tag_row -->
+		</ul>
+		<!-- ENDIF -->
+		<div class="clear"></div>
+		<br />
+		
+		<h3>Weitere Aktionen</h3>
+		<ul>
+		<li>Bild melden</li>
+		<li>Bild einbetten</li>
+		</ul>
+		<br />
+	</div>
+</div>

@@ -253,6 +253,7 @@
   
 .mcSidebar {
 	display: flex;
+	overflow: hidden !important;
 }
 
 .mcSidebar > .col2.last {
@@ -319,5 +320,11 @@
   word-wrap: normal;
 }
 
-  background-size: cover;
-  background-position: center;
+.mcImageContainer {
+	text-align: center;
+}
+
+.mcImageContainer img {
+	max-width: 100%;
+}
+

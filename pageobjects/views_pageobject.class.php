@@ -112,12 +112,12 @@ class views_pageobject extends pageobject {
   			$intType = $this->pdh->get('mediacenter_media', 'type', array($intMediaID));
   			$strExtension = strtolower(pathinfo($arrMediaData['filename'], PATHINFO_EXTENSION));
   			$arrPlayableVideos = array('mp4', 'webm', 'ogg');
+  			$arrAdditionalData = unserialize($arrMediaData['additionaldata']);
   			
   			if($intType === 0){
   				//File
   			} elseif($intType === 1){
   				//Video
-  				$arrAdditionalData = unserialize($arrMediaData['additionaldata']);
   				if(isset($arrAdditionalData['html'])){
   					//Is embedly Video
   					$strVideo = $arrAdditionalData['html'];
@@ -182,9 +182,15 @@ class views_pageobject extends pageobject {
   					'MC_IMAGE'	=> $strImage,
   				));
   				
+  				foreach($arrAdditionalData as $key => $val){
+  					$this->tpl->assign_block_vars('mc_more_image_details', array(
+  						'LABEL' => $key,
+  						'VALUE'	=> $val,	
+  					));
+  				}
+  				
   			}
-  			
-  			
+
   			$this->tpl->assign_vars(array(
   					'MC_MEDIA_PREVIEW_IMAGE' 		=> $this->pdh->geth('mediacenter_media', 'previewimage', array($intMediaID, 2)),
   					'MC_MEDIA_PREVIEW_IMAGE_URL' 	=> $this->pdh->geth('mediacenter_media', 'previewimage', array($intMediaID, 2, true)),
