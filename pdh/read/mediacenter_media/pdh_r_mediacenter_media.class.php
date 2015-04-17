@@ -529,6 +529,21 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 		public function get_editicon($intMediaID){
 			return '<a href="javascript:editmedia('.$intMediaID.')"><i class="fa fa-pencil fa-lg" title="'.$this->user->lang('edit').'"></i></a>';
 		}
+
+		public function get_comment_count($intMediaID){
+			$intCommentsCount = $this->pdh->get('comment', 'count', array('mediacenter', $intMediaID));
+			return $intCommentsCount;
+		}
+		
+		public function get_last_comment($intMediaID){
+			$arrComments = $this->pdh->get('comment', 'filtered_list', array('mediacenter', $intMediaID));
+			$arrKeys = array_keys($arrComments);
+			if(is_array($arrKeys) && isset($arrKeys[0])){
+				$intLastComment = $arrComments[$arrKeys[0]]['date'];
+				return $intLastComment;
+			}
+			return 0;
+		}
 		
 		public function get_checkbox_check($intMediaID){
 			return true;
@@ -611,6 +626,128 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 			$out .= ((strlen($this->pdh->geth('mediacenter_media', 'album_id', array($intMediaID, true)))) ? ' &bull; '.$this->pdh->geth('mediacenter_media', 'album_id', array($intMediaID, true)): '');
 			$out .= '<br />'.truncate($this->bbcode->remove_bbcode($this->get_description($intMediaID)), 200);
 			return $out;
+		}
+		
+		/**
+		 * Checks Permissions
+		 */
+		public function get_next_media($intMediaID){
+			$intUserID = $this->user->id;
+			$intCategoryID = $this->get_category_id($intMediaID);
+			if(!$this->pdh->get('mediacenter_categories', 'published', array($intCategoryID))) continue;
+			$arrPermissions = $this->pdh->get('mediacenter_categories','user_permissions', array($intCategoryID, $intUserID));
+			if (!$arrPermissions['read']) return false;
+			
+			$intAlbumID = $this->get_album_id($intMediaID);
+			if($intAlbumID){
+				$arrArticleIDs = $this->get_id_list($intAlbumID, true);
+			} else {
+				$arrArticleIDs = $this->get_id_list_for_category($this->get_category_id($intMediaID), true, true);
+			}
+			
+			//Next and Previous Article
+			if (count($arrArticleIDs)){
+				$arrSortedArticleIDs = $this->pdh->sort($arrArticleIDs, 'mediacenter_media', 'date', 'desc');
+				$arrFlippedArticles = array_flip($arrSortedArticleIDs);
+				$intRecentArticlePosition = $arrFlippedArticles[$intMediaID];
+			
+				$nextID = (isset($arrSortedArticleIDs[$intRecentArticlePosition-1])) ? $arrSortedArticleIDs[$intRecentArticlePosition-1] : false;
+				return $nextID;
+			}
+			
+			return false;
+		}
+		
+		/**
+		 * Checks Permissions
+		 */
+		public function get_prev_media($intMediaID){
+			$intUserID = $this->user->id;
+			$intCategoryID = $this->get_category_id($intMediaID);
+			if(!$this->pdh->get('mediacenter_categories', 'published', array($intCategoryID))) continue;
+			$arrPermissions = $this->pdh->get('mediacenter_categories','user_permissions', array($intCategoryID, $intUserID));
+			if (!$arrPermissions['read']) return false;
+			
+			$intAlbumID = $this->get_album_id($intMediaID);
+			if($intAlbumID){
+				$arrArticleIDs = $this->get_id_list($intAlbumID, true);
+			} else {
+				$arrArticleIDs = $this->get_id_list_for_category($this->get_category_id($intMediaID), true, true);
+			}
+				
+			//Next and Previous Article
+			if (count($arrArticleIDs)){
+				$arrSortedArticleIDs = $this->pdh->sort($arrArticleIDs, 'mediacenter_media', 'date', 'desc');
+				$arrFlippedArticles = array_flip($arrSortedArticleIDs);
+				$intRecentArticlePosition = $arrFlippedArticles[$intMediaID];
+					
+				$prevID = (isset($arrSortedArticleIDs[$intRecentArticlePosition+1])) ? $arrSortedArticleIDs[$intRecentArticlePosition+1] : false;
+				return $prevID;
+			}
+				
+			return false;
+		}
+		
+		/**
+		 * Checks Permissions
+		 */
+		public function get_other_ids($intMediaID){
+			$intUserID = $this->user->id;
+			$intCategoryID = $this->get_category_id($intMediaID);
+			if(!$this->pdh->get('mediacenter_categories', 'published', array($intCategoryID))) continue;
+			$arrPermissions = $this->pdh->get('mediacenter_categories','user_permissions', array($intCategoryID, $intUserID));
+			if (!$arrPermissions['read']) return false;
+			
+			$intAlbumID = $this->get_album_id($intMediaID);
+			if($intAlbumID){
+				$arrArticleIDs = $this->get_id_list($intAlbumID, true);
+			} else {
+				$arrArticleIDs = $this->get_id_list_for_category($this->get_category_id($intMediaID), true);
+			}
+			$arrSortedArticleIDs = $this->pdh->sort($arrArticleIDs, 'mediacenter_media', 'date', 'desc');
+			return $arrSortedArticleIDs;
+		}
+		
+		/**
+		 * Checks Permissions
+		 */
+		public function get_most_viewed($limit=20){
+			$arrOut = array();
+			$intUserID = $this->user->id;
+			foreach($this->mediacenter_media as $intMediaID => $arrData){
+				if(!$this->get_published($intMediaID)) continue;
+				$intCategoryID = $this->get_category_id($intMediaID);
+				if(!$this->pdh->get('mediacenter_categories', 'published', array($intCategoryID))) continue;
+					
+				//Check cat permission
+				
+				$arrOut[] = $intMediaID;
+			}
+				
+			$arrOut = $this->pdh->sort($arrOut, 'mediacenter_media', 'views', 'desc');
+			$arrOut = $this->pdh->limit($arrOut, 0, $limit);
+			return $arrOut;
+		}
+		
+		/**
+		 * Checks Permissions
+		 */
+		public function get_last_comments($limit=20){
+			$arrOut = array();
+			$intUserID = $this->user->id;
+			foreach($this->mediacenter_media as $intMediaID => $arrData){
+				if(!$this->get_published($intMediaID)) continue;
+				$intCategoryID = $this->get_category_id($intMediaID);
+				if(!$this->pdh->get('mediacenter_categories', 'published', array($intCategoryID))) continue;
+					
+				//Check cat permission
+		
+				$arrOut[] = $intMediaID;
+			}
+			$arrOut = $this->pdh->sort($arrOut, 'mediacenter_media', 'last_comment', 'desc');
+
+			$arrOut = $this->pdh->limit($arrOut, 0, $limit);
+			return $arrOut;
 		}
 
 	}//end class

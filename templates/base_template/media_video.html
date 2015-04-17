@@ -1,25 +1,59 @@
 <div class="grid mcSidebar">
 	<div class="col10">
-		<div class="mcImageContainer">
+		<div class="mcVideoContainer">
+			<nav>
+				<!-- IF S_PREV_MEDIA -->
+				<a href="{U_PREV_MEDIA}" title="{MEDIA_PREV_TITLE}" class="floatLeft"><i class="fa fa-chevron-left"></i> {MEDIA_PREV_TITLE}</a>
+				<!-- ENDIF -->
+		
+				<!-- IF S_NEXT_MEDIA -->
+				<a href="{U_NEXT_MEDIA}" title="{MEDIA_NEXT_TITLE}" class="floatRight">{MEDIA_NEXT_TITLE} <i class="fa fa-chevron-right"></i></a>
+				<!-- ENDIF -->
+				<div class="clear"></div>
+				<br />
+			</nav>
+			
 			{MC_VIDEO}
-			<br />Vorherige Datei - Nächste Datei
 		</div>
-		Social Share, Rating
+		<div class="mcSocialShare">
+			<div class="mcSocialButtons floatLeft">
+				{MC_MEDIA_SOCIAL_BUTTONS}
+			</div>
+			<div class="mcRating floatRight">
+				{MC_MEDIA_RATING}
+			</div>
+			<div class="clear"></div>
+		</div>
+		
+		<!-- IF MC_MEDIA_DESCRIPTION != "" -->
+		<div class="mcDescription">
+			<h3>{L_mc_f_description}</h3>
+			{MC_MEDIA_DESCRIPTION}
+			<br />
+		</div>
+		<!-- ENDIF -->
+		
 		<br /><br />
-		Comments
+		<!-- IF S_MC_COMMENTS -->
+		<span id="comments"></span>
+		{MC_COMMENTS}
+		<!-- ENDIF -->
 	</div>
 	
-	<div class="col2 last">		
-		<h3>Video-Informationen</h3>
-		<ul>
-			<li>Author</li>
-			<li>Hochgeladen</li>
-			<li>Views</li>
-			<li>Album</li>
-		</ul>
+	<div class="col2 last mcSidebarRight">		
+		<h3>{L_mc_video_info}</h3>
+		<dl>
+			<dt>{L_mc_author}:</dt> <dd>{MC_MEDIA_AUTHOR}</dd>
+			<dt>{L_mc_date}:</dt> <dd>{MC_MEDIA_DATE}</dd>
+			<!-- IF MC_ALBUM != "" -->
+			<dt>{L_mc_f_album}:</dt> <dd>{MC_MEDIA_ALBUM}</dd>
+			<!-- ENDIF -->
+			<dt>{L_mc_f_views}:</dt> <dd>{MC_MEDIA_VIEWS}</dd>
+		</dl>
+		<div class="clear"></div>
 		<br />
 		
-		<h3>Tags</h3>
+		<h3>{L_tags}</h3>
 		<!-- IF S_MC_TAGS -->
 		 <ul class="tags">
 			<!-- BEGIN tag_row -->
@@ -30,18 +64,11 @@
 		<div class="clear"></div>
 		<br />
 		
-		<h3>Weitere Aktionen</h3>
+		<h3>{L_mc_more_actions}</h3>
 		<ul>
-		<li>Video melden</li>
-		<li>Video einbetten</li>
+		<li><a href=""><i class="fa fa-chain fa-lg"></i> {L_mc_embedd_video}</a></li>
 		</ul>
 		<br />
-		
-		<h3>Weitere Videos aus dieser Kategorie</h3>
-		<ul>
-		<li>Video 1</li>
-		<li>Video 2</li>
-		</ul>
-		<br />
+
 	</div>
 </div>

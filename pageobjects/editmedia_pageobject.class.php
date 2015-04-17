@@ -601,6 +601,7 @@ class editmedia_pageobject extends pageobject {
       'page_title'    => $this->user->lang('mc_edit_media'),
       'template_path' => $this->pm->get_data('mediacenter', 'template_path'),
       'template_file' => 'media_edit.html',
+      'header_format' => 'simple',
       'display'       => true
     ));	
   }

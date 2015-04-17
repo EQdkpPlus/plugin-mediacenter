@@ -720,6 +720,42 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			return false;
 		}
 		
+		public function vote($intMediaID, $intVoting){
+			$intMediaID = intval($intMediaID);
+			$intVoting = intval($intVoting);
+			
+			$intSum = $this->pdh->get('mediacenter_media', 'votes_sum', array($intMediaID));
+			$intCount = $this->pdh->get('mediacenter_media', 'votes_count', array($intMediaID));
+			$arrVotedUsers = $this->pdh->get('mediacenter_media', 'votes_users', array($intMediaID));
+			$arrVotedUsers[] = $this->user->id;
+			$intSum += $intVoting;
+			$intCount++;
+				
+			$objQuery = $this->db->prepare("UPDATE __mediacenter_media :p WHERE id=?")->set(array(
+					'votes_count' 		=> $intCount,
+					'votes_sum'			=> $intSum,
+					'votes_users'		=> serialize($arrVotedUsers),
+			))->execute($intMediaID);
+				
+			if ($objQuery) {
+				$this->pdh->enqueue_hook('mediacenter_media_update');
+				return true;
+			}
+				
+			return false;
+		}
+		
+		public function update_view($intMediaID){
+			$objQuery = $this->db->prepare("UPDATE __mediacenter_media SET views=views+1 WHERE id=?")->execute($intMediaID);
+			
+			if ($objQuery) {
+				$this->pdh->enqueue_hook('mediacenter_media_update');
+				return true;
+			}
+			
+			return false;
+		}
+		
 		private function exif_data($strFilename){
 			$arrOut = array();
 			if (function_exists('exif_read_data')) {

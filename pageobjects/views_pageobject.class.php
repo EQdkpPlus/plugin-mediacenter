@@ -24,7 +24,7 @@ class views_pageobject extends pageobject {
    */
   public static function __shortcuts()
   {
-    $shortcuts = array();
+    $shortcuts = array('social' => 'socialplugins');
    	return array_merge(parent::__shortcuts(), $shortcuts);
   }  
   
@@ -78,7 +78,19 @@ class views_pageobject extends pageobject {
   	
   }
   
+  public function saveRating(){
+  	$this->pdh->put('mediacenter_media', 'vote', array($this->in->get('name'), $this->in->get('score')));
+  	$this->pdh->process_hook_queue();
+  	die('done');
+  }
+  
   public function display(){
+  	if ($this->in->exists('mcsavevote')){
+  		$this->saveRating();
+  	}
+  	
+  	$this->tpl->js_file($this->root_path.'plugins/mediacenter/includes/js/modernizr.custom.17475.js');
+  	$this->tpl->js_file($this->root_path.'plugins/mediacenter/includes/js/jquery.elastislide.js');
   	/*
   	d($this->url_id);
   	d($this->page);
@@ -178,18 +190,86 @@ class views_pageobject extends pageobject {
   					$strImage = $this->pfh->FolderPath('files', 'mediacenter', 'absolute').$arrMediaData['localfile'];
   				}
   				
+  				$arrImageDimesions = getimagesize($strImage);
+  				
   				$this->tpl->assign_vars(array(
-  					'MC_IMAGE'	=> $strImage,
+  					'MC_IMAGE'			=> $strImage,
+  					'MC_MEDIA_FILENAME'	=> $arrMediaData['filename'],
+  					'MC_MEDIA_IMAGEDIMENSIONS' => $arrImageDimesions[0].' x '.$arrImageDimesions[1],
   				));
   				
   				foreach($arrAdditionalData as $key => $val){
+  					if($key === 'size'){
+  						$val = human_filesize($val);
+  					} elseif($key === 'CreationTime'){
+  						$val = $this->time->createTimeTag((int)$val, $this->time->user_date($val, true));
+  					} elseif($key === 'FNumber'){
+  						$val = 'f/'.$val;
+  					}
+  					
   					$this->tpl->assign_block_vars('mc_more_image_details', array(
-  						'LABEL' => $key,
-  						'VALUE'	=> $val,	
+  						'LABEL' => $this->user->lang('mc_'.$key),
+  						'VALUE'	=> sanitize($val),	
   					));
   				}
   				
   			}
+  			
+  			$nextID = $this->pdh->get('mediacenter_media', 'next_media', array($intMediaID));
+  			$prevID = $this->pdh->get('mediacenter_media', 'prev_media', array($intMediaID));
+  			
+  			$this->comments->SetVars(array(
+  					'attach_id'		=> $intMediaID,
+  					'page'			=> 'mediacenter',
+  					'auth'			=> 'a_mediacenter_man',
+  					'ntfy_type' 	=> 'comment_new_mediacenter',
+  					'ntfy_title'	=> $this->pdh->get('mediacenter_media', 'name', array($intMediaID)),
+  					'ntfy_link' 	=> $this->controller_path_plain.$this->pdh->get('mediacenter_media', 'path', array($intMediaID)),
+  			));
+  				
+  			$intCommentsCount = $this->comments->Count();
+  			
+  			$arrToolbarItems = array();
+  			if ($arrPermissions['create'] || $this->user->check_auth('a_mediacenter_man', false)) {
+  				$arrToolbarItems[] = array(
+  						'icon'	=> 'fa-plus',
+  						'js'	=> 'onclick="editMedia(0)"',
+  						'title'	=> $this->user->lang('mc_add_media'),
+  				);
+  			}
+  			
+  			if ($arrPermissions['update']  || $this->user->check_auth('a_mediacenter_man', false)) {
+  				$arrToolbarItems[] = array(
+  						'icon'	=> 'fa-pencil-square-o',
+  						'js'	=> 'onclick="editMedia('.$intMediaID.')"',
+  						'title'	=> $this->user->lang('mc_edit_media'),
+  				);
+  			}
+  			
+  			if ($arrPermissions['delete']) {
+  				$arrToolbarItems[] = array(
+  						'icon'	=> 'fa-trash-o',
+  						'js'	=> 'onclick="deleteMedia('.$intMediaID.')"',
+  						'title'	=> $this->user->lang('mc_delete_media'),
+  				);
+  			}
+  			if ($arrPermissions['change_state']) {
+  				if ($intPublished){
+  					$arrToolbarItems[] = array(
+  							'icon'	=> 'fa-eye-slash',
+  							'js'	=> 'onclick="window.location=\''.$this->env->link.$this->controller_path_plain.$this->page_path.$this->SID.'&mcunpublish&link_hash='.$this->CSRFGetToken('unpublish').'&mid='.$intMediaID.'\'"',
+  							'title'	=> $this->user->lang('article_unpublish'),
+  					);
+  				} else {
+  					$arrToolbarItems[] = array(
+  							'icon'	=> 'fa-eye',
+  							'js'	=> 'onclick="window.location=\''.$this->env->link.$this->controller_path_plain.$this->page_path.$this->SID.'&mcpublish&link_hash='.$this->CSRFGetToken('publish').'&mid='.$intMediaID.'\'"',
+  							'title'	=> $this->user->lang('article_publish'),
+  					);
+  				}
+  			}
+  			
+  			$jqToolbar = $this->jquery->toolbar('pages', $arrToolbarItems, array('position' => 'bottom'));
 
   			$this->tpl->assign_vars(array(
   					'MC_MEDIA_PREVIEW_IMAGE' 		=> $this->pdh->geth('mediacenter_media', 'previewimage', array($intMediaID, 2)),
@@ -197,16 +277,28 @@ class views_pageobject extends pageobject {
   					'MC_MEDIA_NAME'					=> $this->pdh->get('mediacenter_media', 'name', array($intMediaID)),
   					'MC_MEDIA_LINK'					=> $this->controller_path.$this->pdh->get('mediacenter_media', 'path', array($intMediaID)),
   					'MC_MEDIA_VIEWS'				=> $this->pdh->get('mediacenter_media', 'views', array($intMediaID)),
-  					'MC_MEDIA_AUTHOR'				=> $this->core->icon_font('fa-user').' '.$this->pdh->geth('user', 'name', array($this->pdh->get('mediacenter_media', 'user_id', array($intMediaID)),'', '', true)),
+  					'MC_MEDIA_AUTHOR'				=> $this->pdh->geth('user', 'name', array($this->pdh->get('mediacenter_media', 'user_id', array($intMediaID)),'', '', true)),
   					'MC_MEDIA_DATE'					=> $this->time->createTimeTag($this->pdh->get('mediacenter_media', 'date', array($intMediaID)), $this->pdh->geth('mediacenter_media', 'date', array($intMediaID))),
-  					'MC_MEDIA_CATEGORY_AND_ALBUM'	=> ((strlen($this->pdh->geth('mediacenter_media', 'album_id', array($intMediaID, true)))) ? ' &bull; '.$this->pdh->geth('mediacenter_media', 'album_id', array($intMediaID, true)): ''),
-  					'MC_MEDIA_DESCRIPTION'			=> $this->bbcode->remove_bbcode($this->pdh->get('mediacenter_media', 'description', array($intMediaID))),
+  					'MC_MEDIA_ALBUM'				=> ((strlen($this->pdh->geth('mediacenter_media', 'album_id', array($intMediaID, true)))) ? $this->pdh->geth('mediacenter_media', 'album_id', array($intMediaID, true)): ''),
+  					'MC_MEDIA_DESCRIPTION'			=> $this->bbcode->toHTML($this->pdh->get('mediacenter_media', 'description', array($intMediaID))),
   					'MC_MEDIA_TYPE'					=> $intType,
   					'MC_BREADCRUMB'					=> $this->pdh->get('mediacenter_categories', 'breadcrumb', array($intCategoryId)),
   					'S_MC_TAGS'						=> (count($arrTags)) ? true : false,
+  					'S_NEXT_MEDIA'					=> ($nextID !== false) ? true : false,
+  					'S_PREV_MEDIA'					=> ($prevID !== false) ? true : false,
+  					'U_NEXT_MEDIA'					=> ($nextID) ? $this->controller_path.$this->pdh->get('mediacenter_media', 'path', array($nextID)) : '',
+  					'U_PREV_MEDIA'					=> ($prevID) ? $this->controller_path.$this->pdh->get('mediacenter_media', 'path', array($prevID)) : '',
+  					'MEDIA_NEXT_TITLE'				=> ($nextID) ? $this->pdh->get('mediacenter_media', 'name', array($nextID)) : '',
+  					'MEDIA_PREV_TITLE'				=> ($prevID) ? $this->pdh->get('mediacenter_media', 'name', array($prevID)) : '',
+  					'MC_MEDIA_SOCIAL_BUTTONS'		=> $this->social->createSocialButtons($this->env->link.$strPath, strip_tags($this->pdh->get('mediacenter_media', 'name', array($intMediaID)))),
+  					'MC_MEDIA_RATING'				=> ($arrCategoryData['allow_voting']) ? $this->jquery->starrating($intMediaID, $this->controller_path.'MediaCenter/'.$this->SID.'&mcsavevote&link_hash='.$this->CSRFGetToken('savevote'), array('score' => (($arrArticle['votes_count']) ? round($arrMediaData['votes_sum'] / $arrMediaData['votes_count']): 0), 'number' => 10)) : '',
+  					'MC_MEDIA_COMMENTS_COUNTER'		=> ($intCommentsCount == 1 ) ? $intCommentsCount.' '.$this->user->lang('comment') : $intCommentsCount.' '.$this->user->lang('comments'),
+  					'S_MC_COMMENTS'					=> ($arrCategoryData['allow_comments']) ? true : false,
+  					'MC_COMMENTS'					=> $this->comments->Show(),
+  					'MC_TOOLBAR'					=> $jqToolbar['id'],
+  					'S_MC_TOOLBAR'					=> ($arrPermissions['create'] || $arrPermissions['update'] || $arrPermissions['delete'] || $arrPermissions['change_state']),
+  					
   			));
-  			
-  			
   			
   			
   			if (count($arrTags) && $arrTags[0] != ""){
@@ -216,6 +308,24 @@ class views_pageobject extends pageobject {
   							'U_TAG'	=> $this->controller_path.'MediaCenter/Tags/'.$tag,
   					));
   				}
+  			}
+  			
+  			//Update Views
+  			if(!$this->env->is_bot($this->user->data['session_browser'])){
+  				$this->pdh->put('mediacenter_media', 'update_view', array($intMediaID));
+  			}
+  			
+  			if ($arrPermissions['create'] || $arrPermissions['update']) {
+  				$this->jquery->dialog('editMedia', $this->user->lang('mc_edit_media'), array('url' => $this->controller_path."EditMedia/".$this->SID."&aid='+id+'&cid=".$intCategoryID, 'withid' => 'id', 'width' => 920, 'height' => 740, 'onclose'=> $this->env->link.$this->controller_path_plain.$this->page_path.$this->SID));
+  			}
+  				
+  			if ($arrPermissions['delete'] || $arrPermissions['change_state']){
+  				$this->jquery->dialog('deleteMedia', $this->user->lang('mc_delete_media'), array('custom_js' => 'deleteMediaSubmit(aid);', 'confirm', 'withid' => 'aid', 'message' => $this->user->lang('mc_confirm_delete_media')), 'confirm');
+  				$this->tpl->add_js(
+  						"function deleteArticleSubmit(aid){
+					window.location='".$this->controller_path.$this->page_path.$this->SID.'&mcdelete&link_hash='.$this->CSRFGetToken('delete')."&aid='+aid;
+				}"
+  				);
   			}
   			
 	  		// -- EQDKP ---------------------------------------------------------------
@@ -228,7 +338,7 @@ class views_pageobject extends pageobject {
   		} else {
   			message_die($this->user->lang('article_not_found'));
   		}
-  	} elseif($arrPathArray[1] === 'tags'){
+  	} elseif(isset($arrPathArray[1]) && $arrPathArray[1] === 'tags'){
   		
   		
   		
@@ -456,10 +566,46 @@ class views_pageobject extends pageobject {
   		}
   		
   		//Get most viewed files
+  		$arrMostViewedMedia = $this->pdh->get('mediacenter_media', 'most_viewed', array(6));
+  		foreach($arrMostViewedMedia as $intMediaID){
+  			$this->tpl->assign_block_vars('mc_mostviewed_row', array(
+  					'PREVIEW_IMAGE' => 	$this->pdh->geth('mediacenter_media', 'previewimage', array($intMediaID, 1)),
+  					'PREVIEW_IMAGE_URL' => 	$this->pdh->geth('mediacenter_media', 'previewimage', array($intMediaID, 1, true)),
+  					'NAME'			=> $this->pdh->get('mediacenter_media', 'name', array($intMediaID)),
+  					'LINK'			=> $this->controller_path.$this->pdh->get('mediacenter_media', 'path', array($intMediaID)),
+  					'VIEWS'			=> $this->pdh->get('mediacenter_media', 'views', array($intMediaID)),
+  					'AUTHOR'		=> $this->core->icon_font('fa-user').' '.$this->pdh->geth('user', 'name', array($this->pdh->get('mediacenter_media', 'user_id', array($intMediaID)),'', '', true)),
+  					'DATE'			=> $this->time->createTimeTag($this->pdh->get('mediacenter_media', 'date', array($intMediaID)), $this->pdh->geth('mediacenter_media', 'date', array($intMediaID))),
+  					'CATEGORY_AND_ALBUM' => $this->pdh->geth('mediacenter_media', 'category_id', array($intMediaID, true)).((strlen($this->pdh->geth('mediacenter_media', 'album_id', array($intMediaID, true)))) ? ' &bull; '.$this->pdh->geth('mediacenter_media', 'album_id', array($intMediaID, true)): ''),
+  					'DESCRIPTION'	=> $this->bbcode->remove_bbcode($this->pdh->get('mediacenter_media', 'description', array($intMediaID))),
+  					'TYPE'			=> $this->pdh->geth('mediacenter_media', 'type', array($intMediaID)),
+  			));
+  		}
   		
   		//Get last commented files
+  		$arrLatestCommentMedia = $this->pdh->get('mediacenter_media', 'last_comments', array(6));
+  		foreach($arrLatestCommentMedia as $intMediaID){
+  			$this->tpl->assign_block_vars('mc_lastcomments_row', array(
+  					'PREVIEW_IMAGE' => 	$this->pdh->geth('mediacenter_media', 'previewimage', array($intMediaID, 1)),
+  					'PREVIEW_IMAGE_URL' => 	$this->pdh->geth('mediacenter_media', 'previewimage', array($intMediaID, 1, true)),
+  					'NAME'			=> $this->pdh->get('mediacenter_media', 'name', array($intMediaID)),
+  					'LINK'			=> $this->controller_path.$this->pdh->get('mediacenter_media', 'path', array($intMediaID)),
+  					'VIEWS'			=> $this->pdh->get('mediacenter_media', 'views', array($intMediaID)),
+  					'AUTHOR'		=> $this->core->icon_font('fa-user').' '.$this->pdh->geth('user', 'name', array($this->pdh->get('mediacenter_media', 'user_id', array($intMediaID)),'', '', true)),
+  					'DATE'			=> $this->time->createTimeTag($this->pdh->get('mediacenter_media', 'date', array($intMediaID)), $this->pdh->geth('mediacenter_media', 'date', array($intMediaID))),
+  					'CATEGORY_AND_ALBUM' => $this->pdh->geth('mediacenter_media', 'category_id', array($intMediaID, true)).((strlen($this->pdh->geth('mediacenter_media', 'album_id', array($intMediaID, true)))) ? ' &bull; '.$this->pdh->geth('mediacenter_media', 'album_id', array($intMediaID, true)): ''),
+  					'DESCRIPTION'	=> $this->bbcode->remove_bbcode($this->pdh->get('mediacenter_media', 'description', array($intMediaID))),
+  					'TYPE'			=> $this->pdh->geth('mediacenter_media', 'type', array($intMediaID)),
+  			));
+  		}
   		
-  		
+  		$this->tpl->assign_vars(array(
+  			'S_MC_SHOW_FEATURED' => intval($this->config->get('show_featured', 'mediacenter')) && count($arrFeaturedFiles),
+  			'S_MC_SHOW_NEWEST' => intval($this->config->get('show_newest', 'mediacenter')) && count($arrNewestMedia),
+  			'S_MC_SHOW_CATEGORIES' => intval($this->config->get('show_featured', 'mediacenter')),
+  			'S_MC_SHOW_MOSTVIEWED' => intval($this->config->get('show_mostviewed', 'mediacenter')) && count($arrMostViewedMedia),
+  			'S_MC_SHOW_LATESTCOMMENTS' => intval($this->config->get('show_latestcomments', 'mediacenter')) && count($arrLatestCommentMedia),
+  		));
   		
   		// -- EQDKP ---------------------------------------------------------------
 	  	$this->core->set_vars(array (

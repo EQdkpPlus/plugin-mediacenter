@@ -147,6 +147,11 @@ class mediacenter extends plugin_generic
   		'extensions_image' => 'png, jpeg, jpg, gif',
   		'extensions_file'	=> 'png, jpeg, jpg, gif, txt, zip, mp3',
   		'extensions_video'	=> 'mp4, webm, ogg',
+  		'show_featured'	=> 1,
+  		'show_newest'	=> 1,
+  		'show_categories' => 1,
+  		'show_mostviewed' => 1,
+  		'show_latestcomments' => 1,
   	);
   	
   	$this->config->set($arrSave, '', 'mediacenter');

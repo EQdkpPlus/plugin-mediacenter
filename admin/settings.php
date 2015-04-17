@@ -101,8 +101,24 @@ class MediaCenterSettings extends page_generic
   				'step' => 5,
   				'onlyinteger' => true,
   				'default' => 25,
+  			),	
+  		),
+  		'index_page' => array(
+  			'show_featured' => array(
+  				'type' => 'radio',
   			),
-  				
+  			'show_newest' => array(
+  				'type' => 'radio',
+  			),
+  			'show_categories' => array(
+  				'type' => 'radio',
+  			),
+  			'show_mostviewed' => array(
+  				'type' => 'radio',
+  			),
+  			'show_latestcomments' => array(
+  				'type' => 'radio',
+  			),
   		),
   		'extensions' => array(
 	  		'extensions_image' => array(
