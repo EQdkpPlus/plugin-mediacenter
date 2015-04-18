@@ -50,6 +50,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			
 			if(substr($intAlbumID, 0, 1) == 'c'){
 				$intCategoryID = (int)substr($intAlbumID, 1);
+				$intAlbumID = 0;
 			} else {
 				$intCategoryID = $this->pdh->get('mediacenter_albums', 'category_id', array($intAlbumID));
 			}
@@ -199,8 +200,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			}
 			
 			//Default Publish State
-			$intCategoryID  = $this->pdh->get('mediacenter_albums', 'category_id', array($intAlbumID));
-			$blnDefaultPublishState = $this->pdh->get('mediacenter_categories', 'default_publish_state', array($intCategoryID));
+			$blnDefaultPublishState = $this->pdh->get('mediacenter_categories', 'default_published_state', array($intCategoryID));
 			$intDefaultPublished = ($this->user->check_auth('a_mediacenter_manage', false)) ? 1 : $blnDefaultPublishState;
 			
 			//Admin Things
@@ -209,10 +209,9 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			$intViews = ($intViews !== false) ? $intViews : 0;
 			$intUserID = ($intUserID !== false) ? $intUserID : $this->user->id;
 			
-			if(substr($intAlbumID, 0, 1) == 'c'){
-				$intCategoryID = (int)substr($intAlbumID, 1);
-				$intAlbumID = 0;
-			} else $intCategoryID = 0;
+			if($intAlbumID > 0){
+				$intCategoryID = 0;
+			}
 			
 			$arrQuery = array(
 					'album_id'		=> $intAlbumID,
@@ -260,9 +259,11 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			
 			if(substr($intAlbumID, 0, 1) == 'c'){
 				$intCategoryID = (int)substr($intAlbumID, 1);
+				$intAlbumID = 0;
 			} else {
 				$intCategoryID = $this->pdh->get('mediacenter_albums', 'category_id', array($intAlbumID));
 			}
+
 				
 			//Check Type
 			$arrTypes = $this->pdh->get('mediacenter_categories', 'types', array($intCategoryID));
@@ -402,12 +403,11 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			}
 			
 			//Default Publish State
-			$intCategoryID  = $this->pdh->get('mediacenter_albums', 'category_id', array($intAlbumID));
-			$blnDefaultPublishState = $this->pdh->get('mediacenter_categories', 'default_publish_state', array($intCategoryID));
+			$blnDefaultPublishState = $this->pdh->get('mediacenter_categories', 'default_published_state', array($intCategoryID));
 			$intPublishedState = ($this->user->check_auth('a_mediacenter_manage', false)) ? 1 : $blnDefaultPublishState;
 			
 			//Admin Things
-			$intPublished = ($intPublished !== false) ? $intPublishedState : $intDefaultPublished;
+			$intPublished = ($intPublished !== false) ? $intPublishedState : (int)$blnDefaultPublishState;
 			$intFeatured = ($intFeatured !== false) ? $intFeatured : $this->pdh->get('mediacenter_media', 'featured', array($intMediaID));
 			$intViews = ($intViews !== false) ? $intViews : $this->pdh->get('mediacenter_media', 'views', array($intMediaID));
 			$intUserID = ($intUserID !== false) ? $intUserID : $this->pdh->get('mediacenter_media', 'user_id', array($intMediaID));
@@ -416,10 +416,9 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			
 			$arrOldData = $this->pdh->get('mediacenter_media', 'data', array($intMediaID));
 			
-			if(substr($intAlbumID, 0, 1) == 'c'){
-				$intCategoryID = (int)substr($intAlbumID, 1);
-				$intAlbumID = 0;
-			} else $intCategoryID = 0;
+			if($intAlbumID > 0){
+				$intCategoryID = 0;
+			}
 			
 			$arrQuery = array(
 					'album_id'		=> $intAlbumID,
@@ -432,7 +431,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 					'localfile'		=> $strLocalfile,
 					'externalfile'	=> $strExternalLink,
 					'previewimage'	=> $strLocalPreviewImage,
-					'published'		=> $intPublished,
+					'published'		=> $intPublishedState,
 					'additionaldata'=> serialize($arrAdditionalData),
 					'date'			=> $this->time->time,
 					'user_id'		=> $intUserID,
@@ -534,7 +533,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 
 			//Default Publish State
 			$intCategoryID  = $this->pdh->get('mediacenter_albums', 'category_id', array($intAlbumID));
-			$blnDefaultPublishState = $this->pdh->get('mediacenter_categories', 'default_publish_state', array($intCategoryID));
+			$blnDefaultPublishState = $this->pdh->get('mediacenter_categories', 'default_published_state', array($intCategoryID));
 			$intPublished = ($this->user->check_auth('a_mediacenter_manage', false)) ? 1 : $blnDefaultPublishState;
 			
 			if(substr($intAlbumID, 0, 1) == 'c'){
@@ -753,6 +752,17 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				return true;
 			}
 			
+			return false;
+		}
+		
+		public function update_download($intMediaID){
+			$objQuery = $this->db->prepare("UPDATE __mediacenter_media SET downloads=downloads+1 WHERE id=?")->execute($intMediaID);
+				
+			if ($objQuery) {
+				$this->pdh->enqueue_hook('mediacenter_media_update');
+				return true;
+			}
+				
 			return false;
 		}
 		

@@ -141,6 +141,21 @@ $lang = array(
 	'mc_ISOSpeedRatings'		=> 'ISO-Empfindlichkeit',
 	'mc_ShutterSpeedValue'		=> 'Verschlusszeit',
 	'mc_ApertureValue'			=> 'Blendenvorwahl',
+	'mc_downloads'				=> 'Downloads',
+	
+	'mc_f_show_featured'		=> 'Vorgestellte Medien',
+	'mc_f_show_newest'			=> 'Neueste Medien',
+	'mc_f_show_categories'		=> 'Kategorien',
+	'mc_f_show_mostviewed'		=> 'Am meisten angesehen',
+	'mc_f_show_latestcomments'	=> 'Neueste Kommentare',
+	'mc_fs_index_page'			=> 'Startseite',
+	'mc_coords'					=> 'Aufnahmeort',
+		
+	'mc_embedd_bbcode_big'		=> 'BBCode (groß)',
+	'mc_embedd_bbcode_small'	=> 'BBCode (klein)',
+	'mc_embedd_html_big'		=> 'HTML (groß)',
+	'mc_embedd_html_small'		=> 'HTML (klein)',
+	'mc_embedd_editor'			=> 'Editor-Code',
  );
 
 ?>

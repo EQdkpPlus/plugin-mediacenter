@@ -381,6 +381,9 @@ class editmedia_pageobject extends pageobject {
   	  	 
   	$folder = $this->pfh->FolderPath('files', 'mediacenter');
   	//$this->pfh->secure_folder('files', 'mediacenter');
+  	if(!is_file($folder.'index.html')){
+  		$this->pfh->putContent($folder.'index.html', "");
+  	}
 
   	$tempname		= $_FILES['file']['tmp_name'];
   	$filename		= $_FILES['file']['name'];
@@ -407,6 +410,9 @@ class editmedia_pageobject extends pageobject {
   public function upload_file(){  	
   	$folder = $this->pfh->FolderPath('files', 'mediacenter');
   	//$this->pfh->secure_folder('files', 'mediacenter');
+  	if(!is_file($folder.'index.html')){
+  		$this->pfh->putContent($folder.'index.html', "");
+  	}
   	
   	$tempname		= $_FILES['file']['tmp_name'];
   	$filename		= $_FILES['file']['name'];
@@ -583,7 +589,7 @@ class editmedia_pageobject extends pageobject {
   	$this->tpl->assign_vars(array(
   		'DD_ALBUMS' => $this->pdh->geth('mediacenter_albums', 'album_tree', array($this->in->get('aid', 0))),
   		'ADMINMODE'	=> $this->blnAdminMode,
-  		'MAX_UPLOADSIZE' => $this->formatBytes($this->detectMaxUploadFileSize()),
+  		'MAX_UPLOADSIZE' => human_filesize($this->detectMaxUploadFileSize()),
   	));
   	
 	//Output, with Values
@@ -776,19 +782,6 @@ class editmedia_pageobject extends pageobject {
 		$maxFileSize = min($max_upload, $max_post, $memory_limit);
 		return $maxFileSize;
 	}
-	
-	private function formatBytes($bytes, $precision = 2) {
-		$units = array('B', 'KB', 'MB', 'GB', 'TB');
-	
-		$bytes = max($bytes, 0);
-		$pow = floor(($bytes ? log($bytes) : 0) / log(1024));
-		$pow = min($pow, count($units) - 1);
-	
-		// Uncomment one of the following alternatives
-		$bytes /= pow(1024, $pow);
-		// $bytes /= (1 << (10 * $pow));
-	
-		return round($bytes, $precision) . ' ' . $units[$pow];
-	}
+
 }
 ?>

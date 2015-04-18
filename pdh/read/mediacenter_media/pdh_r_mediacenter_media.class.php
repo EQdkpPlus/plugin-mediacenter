@@ -316,7 +316,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 		}
 		
 		//Types: 1: small 64px, 2: big 240px, 3: orig
-		public function get_html_previewimage($intMediaID, $intType=1, $blnURLonly=false){
+		public function get_html_previewimage($intMediaID, $intType=1, $blnURLonly=false, $cssClass=''){
 			if ($this->get_previewimage($intMediaID) && strlen($this->get_previewimage($intMediaID))){
 				$image = $this->get_previewimage($intMediaID);
 				
@@ -328,7 +328,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 					default: $icon = $image;
 						
 				}
-				return ($blnURLonly) ? $this->pfh->FolderPath('thumbs', 'mediacenter', 'absolute').$icon.'?_t='.$this->time->time : '<img src="'.$this->pfh->FolderPath('thumbs', 'mediacenter', 'absolute').$icon.'?_t='.$this->time->time.'" />';
+				return ($blnURLonly) ? $this->pfh->FolderPath('thumbs', 'mediacenter', 'absolute').$icon.'?_t='.$this->time->time : '<img src="'.$this->pfh->FolderPath('thumbs', 'mediacenter', 'absolute').$icon.'?_t='.$this->time->time.'" class="'.$cssClass.'"/>';
 			}
 			switch($intType){
 				case 1: $intSize = 64;
@@ -338,7 +338,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 				default: $intSize = 40;
 			
 			}
-			return ($blnURLonly) ? $this->server_path.'images/global/default-image.svg' : '<img src="'.$this->server_path.'images/global/default-image.svg" height="'.$intSize.'"/>';
+			return ($blnURLonly) ? $this->server_path.'images/global/default-image.svg' : '<img src="'.$this->server_path.'images/global/default-image.svg" height="'.$intSize.'" class="'.$cssClass.'"/>';
 		}
 
 		/**
@@ -549,7 +549,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 			return true;
 		}
 		
-		public function get_path($intMediaID, $url_id=false, $arrPath=array()){
+		public function get_path($intMediaID, $url_id=false, $arrPath=array(), $withSID=true){
 			$strPath = $this->add_path($this->get_category_id($intMediaID));
 				
 			$strAlias = ucfirst($this->get_name($intMediaID)).'-'.$intMediaID;
@@ -558,7 +558,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 			if(substr($strPath, -1) == "/") $strPath = substr($strPath, 0, -1);
 			$strPath .= $this->routing->getSeoExtension();
 		
-			return "MediaCenter/".$strPath.(($this->SID == "?s=") ? '?' : $this->SID);
+			return "MediaCenter/".$strPath.(($withSID) ? (($this->SID == "?s=") ? '?' : $this->SID) : '');
 		}
 		
 		private function add_path($intCategoryID, $strPath=''){
@@ -703,6 +703,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 				$arrArticleIDs = $this->get_id_list($intAlbumID, true);
 			} else {
 				$arrArticleIDs = $this->get_id_list_for_category($this->get_category_id($intMediaID), true);
+				$arrArticleIDs = $arrArticleIDs[0];
 			}
 			$arrSortedArticleIDs = $this->pdh->sort($arrArticleIDs, 'mediacenter_media', 'date', 'desc');
 			return $arrSortedArticleIDs;
@@ -741,7 +742,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 				if(!$this->pdh->get('mediacenter_categories', 'published', array($intCategoryID))) continue;
 					
 				//Check cat permission
-		
+				if($this->get_comment_count($intMediaID) == 0) continue;
 				$arrOut[] = $intMediaID;
 			}
 			$arrOut = $this->pdh->sort($arrOut, 'mediacenter_media', 'last_comment', 'desc');

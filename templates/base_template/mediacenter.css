@@ -45,6 +45,26 @@
 	max-height: 144px;	
 }
 
+.mcFileContainer .mcPreviewImageBig {
+	background-color: #ffffff;
+	border: 1px solid #cccccc;
+	padding: 7px;
+	box-shadow: 0 2px 3px 0 rgba(0,0,0,0.15);
+	max-height: 144px;	
+}
+
+.mcDownloadButton {
+	text-align: center;
+}
+
+.mcDownloadButton .button {
+	font-size: 1.3em;
+}
+
+.mcDownloadButton .button .small {
+	font-size: 0.6em;
+}
+
 .mcNestedCategoryList, .mcCategoryList {
 	padding: 20px;
 }
@@ -448,12 +468,21 @@
   text-align: right;
 }
 
+.mcSidebarRight .tags {
+	margin-top: 0px;
+}
+
 .mcVideoContainer {
 	text-align: center;
 }
 .mcVideoContainer .video-js{
 	margin-right: auto;
 	margin-left: auto;
+}
+
+.mcSidebarGoogleMap {
+	width: 100%;
+	height: 200px;
 }
 
 /* Elastislide Style */
