@@ -67,6 +67,8 @@ $mediacenterSQL = array(
 	`votes_users` TEXT NULL COLLATE 'utf8_bin',
 	`featured` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
   	`reported` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+  	`reported_by` INT(11) UNSIGNED NOT NULL DEFAULT '0',
+  	`reported_text` TEXT NULL COLLATE 'utf8_bin',
 	`published` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
 	`additionaldata` TEXT NULL COLLATE 'utf8_bin',
 	`date` INT(10) UNSIGNED NOT NULL,

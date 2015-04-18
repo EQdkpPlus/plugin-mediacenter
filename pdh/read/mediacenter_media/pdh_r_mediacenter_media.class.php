@@ -29,6 +29,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 	
 	public $default_lang = 'english';
 	public $mediacenter_media = null;
+	public $tags = NULL;
 
 	public $hooks = array(
 		'mediacenter_media_update',
@@ -63,13 +64,14 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 		
 	public function reset(){
 			$this->pdc->del('pdh_mediacenter_media_table');
-			
+			$this->pdc->del('pdh_mediacenter_tags_table');
 			$this->mediacenter_media = NULL;
+			$this->tags = NULL;
 	}
 					
 	public function init(){
 			$this->mediacenter_media	= $this->pdc->get('pdh_mediacenter_media_table');				
-					
+			$this->tags 				= $this->pdc->get('pdh_mediacenter_tags_table');
 			if($this->mediacenter_media !== NULL){
 				return true;
 			}		
@@ -87,6 +89,8 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 						'localfile'			=> $drow['localfile'],
 						'externalfile'		=> $drow['externalfile'],
 						'reported'			=> (int)$drow['reported'],
+						'reported_by'		=> (int)$drow['reported_by'],
+						'reported_text'		=> $drow['reported_text'],
 						'previewimage'		=> $drow['previewimage'],
 						'type'				=> (int)$drow['type'],
 						'tags'				=> $drow['tags'],
@@ -101,9 +105,17 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 						'downloads'			=> (int)$drow['downloads'],
 						'user_id'			=> (int)$drow['user_id'],			
 					);
+					
+					if ($drow['tags'] != ''){
+						$arrTags = unserialize($drow['tags']);
+						foreach($arrTags as $elem){
+							$this->tags[$elem][] = (int)$drow['id'];
+						}
+					}
 				}
 				
 				$this->pdc->put('pdh_mediacenter_media_table', $this->mediacenter_media, null);
+				$this->pdc->put('pdh_mediacenter_tags_table', $this->tags, null);
 			}
 
 		}	//end init function
@@ -147,6 +159,29 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 				}
 			}
 			
+			return $arrOut;
+		}
+		
+		/**
+		 * Checks Permissions
+		 */
+		public function get_id_list_for_tags($strTag){
+			$strTag = utf8_strtolower($strTag);
+			$arrOut = array();
+			$intUserID = $this->user->id;
+			if(isset($this->tags[$strTag])){
+				foreach($this->tags[$strTag] as $intMediaID){
+					if(!$this->get_published($intMediaID)) continue;
+					$intCategoryID = $this->get_category_id($intMediaID);
+					if(!$this->pdh->get('mediacenter_categories', 'published', array($intCategoryID))) continue;
+						
+					//Check cat permission
+					$arrPermissions = $this->pdh->get('mediacenter_categories','user_permissions', array($intCategoryID, $intUserID));
+					if (!$arrPermissions['read']) continue;
+					
+					$arrOut[] = $intMediaID;
+				}
+			}
 			return $arrOut;
 		}
 		
@@ -283,6 +318,20 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 			}
 			return false;
 		}
+		
+		public function get_reported_by($intMediaID){
+			if (isset($this->mediacenter_media[$intMediaID])){
+				return $this->mediacenter_media[$intMediaID]['reported_by'];
+			}
+			return false;
+		}
+		
+		public function get_reported_text($intMediaID){
+			if (isset($this->mediacenter_media[$intMediaID])){
+				return $this->mediacenter_media[$intMediaID]['reported_text'];
+			}
+			return false;
+		}
 
 		/**
 		 * Returns reported for $intMediaID				
@@ -298,7 +347,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 		
 		public function get_html_reported($intMediaID){
 			if ($this->get_reported($intMediaID)){
-				return $this->core->icon_font('fa fa-warning icon-red fa-lg');
+				return '<div onclick="get_report_media('.$intMediaID.')" id="reported_'.$intMediaID.'" data-user="'.$this->pdh->get('user', 'name', array($this->get_reported_by($intMediaID))).'" data-reason="'.$this->get_reported_text($intMediaID).'">'.$this->core->icon_font('fa fa-warning icon-red fa-lg');
 			}
 			return "";
 		}
@@ -721,6 +770,8 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 				if(!$this->pdh->get('mediacenter_categories', 'published', array($intCategoryID))) continue;
 					
 				//Check cat permission
+				$arrPermissions = $this->pdh->get('mediacenter_categories','user_permissions', array($intCategoryID, $intUserID));
+				if (!$arrPermissions['read']) continue;
 				
 				$arrOut[] = $intMediaID;
 			}
@@ -742,6 +793,9 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 				if(!$this->pdh->get('mediacenter_categories', 'published', array($intCategoryID))) continue;
 					
 				//Check cat permission
+				$arrPermissions = $this->pdh->get('mediacenter_categories','user_permissions', array($intCategoryID, $intUserID));
+				if (!$arrPermissions['read']) continue;
+				
 				if($this->get_comment_count($intMediaID) == 0) continue;
 				$arrOut[] = $intMediaID;
 			}
@@ -749,6 +803,10 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 
 			$arrOut = $this->pdh->limit($arrOut, 0, $limit);
 			return $arrOut;
+		}
+		
+		public function comp_frontendlist($params1, $params2){
+			return ($this->get_name($params1[0]) < $this->get_name($params2[0])) ? -1  : 1 ;
 		}
 
 	}//end class

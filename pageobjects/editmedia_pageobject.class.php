@@ -380,7 +380,7 @@ class editmedia_pageobject extends pageobject {
   	}
   	  	 
   	$folder = $this->pfh->FolderPath('files', 'mediacenter');
-  	//$this->pfh->secure_folder('files', 'mediacenter');
+
   	if(!is_file($folder.'index.html')){
   		$this->pfh->putContent($folder.'index.html', "");
   	}
@@ -409,7 +409,7 @@ class editmedia_pageobject extends pageobject {
   
   public function upload_file(){  	
   	$folder = $this->pfh->FolderPath('files', 'mediacenter');
-  	//$this->pfh->secure_folder('files', 'mediacenter');
+
   	if(!is_file($folder.'index.html')){
   		$this->pfh->putContent($folder.'index.html', "");
   	}

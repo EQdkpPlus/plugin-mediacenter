@@ -156,6 +156,23 @@ $lang = array(
 	'mc_embedd_html_big'		=> 'HTML (groß)',
 	'mc_embedd_html_small'		=> 'HTML (klein)',
 	'mc_embedd_editor'			=> 'Editor-Code',
+	'mc_embedd'					=> 'Medien teilen',
+	'mc_report_media'			=> 'Inhalt melden',
+	'mc_report_reason'			=> 'Grund der Meldung',
+	'mc_report_success'			=> 'Der Inhalt wurde erfolgreich gemeldet',
+	'mc_delete_report'			=> 'Meldung löschen',
+		
+	'mc_sort_options'			=> array(
+  				'1|asc' => 'Name aufsteigend',
+  				'1|desc'=> 'Name absteigend',
+  				'2|asc' => 'Typ aufsteigend',
+  				'2|desc'=> 'Typ absteigend',
+  				'3|asc' => 'Datum aufsteigend',
+  				'3|desc'=> 'Datum absteigend',
+  				'4|asc' => 'Views aufsteigend',
+  				'4|desc'=> 'Views absteigend',
+  			),
+	'mc_albums'					=> 'Alben',
  );
 
 ?>

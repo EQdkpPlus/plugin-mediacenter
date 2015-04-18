@@ -28,3 +28,29 @@
 <!-- ELSE -->
 	<!-- INCLUDE media_image.html -->
 <!-- ENDIF -->
+
+<div class="mcReportDialog" style="display:none;" title="{L_mc_report_media}">
+	<form method="post" action="{MC_MEDIA_LINK}&report">
+	<fieldset class="settings mediumsettings">
+		<div style="font-weight: bold;">{L_mc_report_reason}:</div>
+		<textarea name="reason" style="width:95%" rows="7" required="required"></textarea>		
+	</fieldset>
+	<button type="submit" onclick="$('.mcReportDialog').dialog('close');"><i class="fa fa-check fa-lg"></i> {L_submit}</button>
+	{CSRF_TOKEN}
+	</form>
+</div>
+
+<script>
+$(document).ready(function() {
+	$( ".mcReportDialog" ).dialog({
+		height: 380,
+		width: 500,
+		modal: true,
+		autoOpen: false,
+	});
+});
+
+function report_media(){
+	$( ".mcReportDialog" ).dialog('open');
+}
+</script>

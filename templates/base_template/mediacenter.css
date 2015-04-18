@@ -29,6 +29,11 @@
 	margin-right: 6px;
 }
 
+.mcSwitcherBar .dropdown {
+	float: right;
+	margin-left: 10px;
+}
+
 .mcPreviewImageSmall img {
 	background-color: #ffffff;
 	border: 1px solid #cccccc;
@@ -470,6 +475,10 @@
 
 .mcSidebarRight .tags {
 	margin-top: 0px;
+}
+
+.mcSidebarRight li {
+	margin-bottom: 4px;
 }
 
 .mcVideoContainer {

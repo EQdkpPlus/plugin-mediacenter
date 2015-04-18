@@ -527,7 +527,7 @@ if ( !class_exists( "pdh_r_mediacenter_categories" ) ) {
 			return false;
 		}
 		
-		public function get_path($intCategoryID){
+		public function get_path($intCategoryID,$blnWithSID=true){
 			$strPath = $this->add_path($intCategoryID);
 				
 			switch((int)$this->config->get('seo_extension')){
@@ -541,7 +541,7 @@ if ( !class_exists( "pdh_r_mediacenter_categories" ) ) {
 				default: $strPath .= '/';
 			}
 				
-			return 'MediaCenter/'.$strPath.$this->SID;
+			return 'MediaCenter/'.$strPath.(($blnWithSID) ? $this->SID : '');
 		}
 		
 		private function add_path($intCategoryID, $strPath=''){

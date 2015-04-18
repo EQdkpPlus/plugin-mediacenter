@@ -108,3 +108,47 @@
 	</div>
 {CSRF_TOKEN}	
 </form>
+
+<div class="mcReportDialog" style="display:none;" title="{L_mc_report_media}">
+	<form method="post" action="{ACTION}&cid={CID}&unreport">
+	<fieldset class="settings mediumsettings">
+		<dl>
+			<dt><label>{L_user}:</label></dt>
+			<dd id="mcReportDialogUser">
+				
+			</dd>
+		</dl>
+		<dl>
+			<dt><label>{L_mc_report_reason}:</label></dt>
+			<dd id="mcReportDialogReason">
+				
+			</dd>
+		</dl>	
+	</fieldset>
+	<input type="hidden" name="id" value="" id="mcReportDialogID" />
+	<button type="submit" onclick="$('.mcReportDialog').dialog('close');"><i class="fa fa-trash fa-lg"></i> {L_mc_delete_report}</button>
+	{CSRF_TOKEN}
+	</form>
+</div>
+
+<script>
+$(document).ready(function() {
+	$( ".mcReportDialog" ).dialog({
+		height: 380,
+		width: 500,
+		modal: true,
+		autoOpen: false,
+	});
+});
+
+function get_report_media(mediaID){
+	var container = $("#reported_"+mediaID);
+	var user = container.data('user');
+	var reason = container.data('reason');
+	$('#mcReportDialogUser').html(user);
+	$('#mcReportDialogReason').html(reason);
+	$('#mcReportDialogID').val(mediaID);
+	
+	$( ".mcReportDialog" ).dialog('open');
+}
+</script>

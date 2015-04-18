@@ -1,13 +1,122 @@
 <div class="breadcrumb-container">
 	<ul class="breamcrumb">
 		<li><a href="{EQDKP_CONTROLLER_PATH}{SID}" title="{L_home}"><i class="fa fa-home"></i></a></li>
-		<li class="current"><a href="{EQDKP_CONTROLLER_PATH}MediaCenter{SEO_EXTENSION}{SID}">{L_mediacenter}</a></li>
+		<li><a href="{EQDKP_CONTROLLER_PATH}MediaCenter{SEO_EXTENSION}{SID}">{L_mediacenter}</a></li>
+		{MC_BREADCRUMB}
 	</ul>
 	<div class="clear"></div>
 </div>
 
+
 <div>
-	<div>
-		<h2>Album</h2>
+	<h2>{MC_CATEGORY_NAME} <span class="badge">{MC_CATEGORY_MEDIA_COUNT}</span></h2>
+</div>
+<div class="grid mcSidebar">
+	<div class="col10">
+		<div class="mcSwitcherBar floatRight">
+			<!-- IF not S_LAYOUT_LIST -->{MC_SORT_DD}<!-- ENDIF --> {MC_LAYOUT_DD}
+		</div>
+		{MC_CATEGORY_DESCRIPTION}
+		<div class="mcCategoryList DoubleColumn">
+				<ul>
+				<!-- BEGIN child_row -->
+					<li><a href="{child_row.CATEGORY_LINK}"><!-- IF child_row.S_HAS_CHILDS --><i class="fa fa-folder-open-o fa-lg"></i><!-- ELSE --><i class="fa fa-folder-o fa-lg"></i><!-- ENDIF -->  {child_row.CATEGORY_NAME}</a><span class="badge">{child_row.MEDIA_COUNT}</span></li>
+				<!-- END child_row -->
+				</ul>
+		</div>
+		<div class="clear"></div>
+		
+		<!-- IF S_IN_CATEGORY -->
+		<!-- IF S_LAYOUT_LIST -->
+		<table width="100%" border="0" cellspacing="1" cellpadding="2" class="table colorswitch mcFrontendList">
+			{MEDIA_LIST}
+		</table>
+		<!-- ELSE -->
+		<div>
+			<ul class="mcGridList">
+			<!-- BEGIN mc_media_row -->
+			<li style="background-image:url('{mc_media_row.PREVIEW_IMAGE_URL}');">
+				<a href="{mc_media_row.LINK}"></a>
+				<div>
+					<p>{mc_media_row.NAME}</p>
+					<div>{mc_media_row.TYPE} &nbsp; {mc_media_row.DATE} &bull; {mc_media_row.AUTHOR} {mc_media_row.CATEGORY_AND_ALBUM}<br />
+					<i class="fa fa-eye"></i> {mc_media_row.VIEWS} &nbsp;&nbsp; <i class="fa fa-comment"></i> {mc_media_row.COMMENTS}
+					</div>
+				</div>
+			</li>
+			<!-- END mc_media_row -->
+			</ul>
+		</div>
+		<!-- ENDIF -->
+		<!-- ENDIF -->
+		
+		<div class="center pagination_wrapper">
+			{PAGINATION}
+		</div>
+	</div>
+	
+	<div class="col2 last mcSidebarRight">
+		<h3>{L_mc_more_actions}</h3>
+		<ul>
+		<li><a href="javascript:embedd_media();"><i class="fa fa-chain fa-lg"></i> {L_mc_embedd}</a></li>
+		</ul>
+		<br />
 	</div>
 </div>
+<script>
+$(document).ready(function() {
+	$('#selectsort').change(function() {
+		var base_sort_url = '{MC_BASEURL_SORT}';
+		window.location=base_sort_url+$(this).val();
+	});
+	
+	$('#selectlayout').change(function() {
+		var base_layout_url = '{MC_BASEURL_LAYOUT}';
+		window.location=base_layout_url+$(this).val();
+	});
+});
+</script>
+
+<div class="mcEmbeddDialog" style="display:none;" title="{L_mc_embedd_image}">
+	<fieldset class="settings mediumsettings">
+		<dl>
+			<dt><label>{L_permalink}:</label></dt>
+			<dd>
+				<input type="text" style="width:90%" class="editlink-name" readonly="readonly" onclick="this.select()" value="{MC_PERMALINK}"/>
+			</dd>
+		</dl>
+		<dl>
+			<dt><label>BBCode:</label></dt>
+			<dd>
+				<input type="text" style="width:90%" class="editlink-name" readonly="readonly" onclick="this.select()" value="{MC_EMBEDD_BBCODE}"/>
+			</dd>
+		</dl>
+		<dl>
+			<dt><label>HTML:</label></dt>
+			<dd>
+				<input type="text" style="width:90%" class="editlink-name" readonly="readonly" onclick="this.select()" value="{MC_EMBEDD_HTML}"/>
+			</dd>
+		</dl>
+		<dl>
+			<dt><label>{L_mc_embedd_editor}:</label></dt>
+			<dd>
+				<input type="text" style="width:90%" class="editlink-name" readonly="readonly" onclick="this.select()" value="[album]{MC_CATEGORY_ID}[/album]"/>
+			</dd>
+		</dl>
+	</fieldset>
+</div>
+
+<script>
+$(document).ready(function() {
+	$( ".mcEmbeddDialog" ).dialog({
+		height: 380,
+		width: 500,
+		modal: true,
+		autoOpen: false,
+	});
+});
+
+function embedd_media(){
+	$( ".mcEmbeddDialog" ).dialog('open');
+}
+</script>

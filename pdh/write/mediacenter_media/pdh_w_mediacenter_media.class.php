@@ -766,6 +766,38 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			return false;
 		}
 		
+		public function report($intMediaID, $strReason, $intUserID){
+			$arrSet = array(
+				'reported'		=> 1,
+				'reported_by'	=> $intUserID,
+				'reported_text' => $strReason,	
+			);
+			$objQuery = $this->db->prepare("UPDATE __mediacenter_media :p WHERE id=?")->set($arrSet)->execute($intMediaID);
+		
+			if ($objQuery) {
+				$this->pdh->enqueue_hook('mediacenter_media_update');
+				return true;
+			}
+		
+			return false;
+		}
+		
+		public function unreport($intMediaID){
+			$arrSet = array(
+					'reported'		=> 0,
+					'reported_by'	=> 0,
+					'reported_text' => '',
+			);
+			$objQuery = $this->db->prepare("UPDATE __mediacenter_media :p WHERE id=?")->set($arrSet)->execute($intMediaID);
+			
+			if ($objQuery) {
+				$this->pdh->enqueue_hook('mediacenter_media_update');
+				return true;
+			}
+			
+			return false;
+		}
+		
 		private function exif_data($strFilename){
 			$arrOut = array();
 			if (function_exists('exif_read_data')) {

@@ -30,6 +30,8 @@ $module_lang = array(
 	'previewimage'			=> 'Vorschau',
 	'reported'				=> 'Gemeldet',
 	'user_id'				=> 'Benutzer',
+	'frontendlist'			=> 'Medium',
+	'views'					=> 'Views',
 );
 
 

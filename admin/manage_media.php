@@ -36,9 +36,15 @@ class Manage_Media extends page_generic {
 			'set_published'		=> array('process' => 'set_published', 'csrf' => true),
 			'set_unpublished'	=> array('process' => 'set_unpublished', 'csrf' => true),
 			'delete_album'		=> array('process' => 'delete_album', 'csrf' => true),
+			'unreport'			=> array('process' => 'unreport', 'csrf' => true),
 		);
 		parent::__construct(false, $handler, array('mediacenter_media', 'name'), null, 'selected_ids[]');
 		$this->process();
+	}
+	
+	public function unreport(){
+		$this->pdh->put('mediacenter_media', 'unreport', array($this->in->get('id', 0)));
+		$this->pdh->process_hook_queue();
 	}
 	
 	public function set_unpublished(){
