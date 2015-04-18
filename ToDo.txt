@@ -1,43 +1,20 @@
 ToDo:
-- Admin/Manage Media
+- Notifications
+- Editor Integration
+- Media: Löschen, Veröffentlichen, Unveröffentlichen
+- MyMedia
+- MyAlbums
+- Frontend: Buttons um Medien hinzuzufügen, Löschen etc. --> Useralbum berücksichtigen
 	
-
-- Admin/Settings
-
-
-- Pageobjects
-	- EditMedia
-	
-	- EditAlbum
-
-	- TagsView
 		
-	- MixedView
-		
-	- ImageView
-	
-	- VideoView
-		- auch beachten, dass es sich um lokale Videos handeln kann (fwplayer, ... nutzen)
-	
-	- FileView
-	
-	- MyMediaView
-	
-	- MyAlbumsView
-		
-		
-- Portal
+- Portalmodule
 	- Latest Files Module
 	- Random Media Module
 	- Interesting Media Module (enthält die Favoriten)
 	- Top Media Module (am meisten angesehen)
+	
 	- Jedes Modul soll klonbar sein, und Auswahl für die verschiedenen Medientypen haben
 
-- Hooks
-	- Editor Integration
-		- Ausgabe und Design der Medien (benötigt noch URLs zum Download etc.)
-		
-	- Search Hook
-	- Benachrichtigungen: Gemeldete; Unveröffentlichte;
-	
-- Plugin Klasse:
+- Search Hook
+
+- Responsive Design
