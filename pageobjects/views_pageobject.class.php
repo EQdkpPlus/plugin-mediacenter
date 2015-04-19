@@ -43,7 +43,6 @@ class views_pageobject extends pageobject {
     $this->user->check_auth('u_mediacenter_view');
     
     $handler = array(
-    	'mymedia'	=> array('process' => 'view_mymedia'),
     	'myalbums' 	=> array('process' => 'view_myalbums'),
     	'a'			=> array('process' => 'view_album'),
     	'download'	=> array('process' => 'download'),
@@ -172,21 +171,7 @@ class views_pageobject extends pageobject {
   	}
   	$this->core->message($this->user->lang('mc_report_success'), $this->user->lang('success'), 'green');
   }
-  
-  
-  //For URL: index.php/MediaCenter/MyMedia/
-  public function view_mymedia(){
 
-  	
-  	
-  	// -- EQDKP ---------------------------------------------------------------
-  	$this->core->set_vars(array (
-  			'page_title'    => $this->user->lang('mediacenter'),
-  			'template_path' => $this->pm->get_data('mediacenter', 'template_path'),
-  			'template_file' => 'mymedia.html',
-  			'display'       => true
-  	));
-  }
   
   //For URL: index.php/MediaCenter/Downloads/MyAlbumname-a1/
   public function view_album(){
@@ -290,7 +275,7 @@ class views_pageobject extends pageobject {
 
   	// -- EQDKP ---------------------------------------------------------------
   	$this->core->set_vars(array (
-  			'page_title'    => $this->user->lang('mediacenter'),
+  			'page_title'    => $arrAlbumData['name'].' - '.$this->user->lang('mediacenter'),
   			'template_path' => $this->pm->get_data('mediacenter', 'template_path'),
   			'template_file' => 'album.html',
   			'display'       => true
@@ -298,7 +283,7 @@ class views_pageobject extends pageobject {
   	
   }
   
-  public function saveRating(){
+  private function saveRating(){
   	$this->pdh->put('mediacenter_media', 'vote', array($this->in->get('name'), $this->in->get('score')));
   	$this->pdh->process_hook_queue();
   	die('done');
@@ -308,10 +293,6 @@ class views_pageobject extends pageobject {
   	if ($this->in->exists('mcsavevote')){
   		$this->saveRating();
   	}
-  	
-  	$this->tpl->js_file($this->root_path.'plugins/mediacenter/includes/js/modernizr.custom.17475.js');
-  	$this->tpl->js_file($this->root_path.'plugins/mediacenter/includes/js/jquery.elastislide.js');
-
   	
   	$arrPathArray = registry::get_const('patharray');
   	
@@ -699,7 +680,7 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   		
   		// -- EQDKP ---------------------------------------------------------------
   		$this->core->set_vars(array (
-  				'page_title'    => $this->user->lang('mediacenter'),
+  				'page_title'    => ucfirst(sanitize($strTag)).' - '.$this->user->lang('mediacenter'),
   				'template_path' => $this->pm->get_data('mediacenter', 'template_path'),
   				'template_file' => 'tags.html',
   				'display'       => true

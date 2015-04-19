@@ -79,7 +79,7 @@ class inserteditor_pageobject extends pageobject {
   		$sort_suffix = '?sort='.$this->in->get('sort');
   		
   		
-  		$arrMediaInCategory = $this->pdh->get('mediacenter_media', 'id_list_for_category', array($intCategoryID));
+  		$arrMediaInCategory = $this->pdh->get('mediacenter_media', 'id_list_for_category', array($intCategoryID, true));
   		if (isset($arrMediaInCategory[0]) && count($arrMediaInCategory[0])){
   			$view_list = $arrMediaInCategory[0];
   			$hptt = $this->get_hptt($hptt_page_settings, $view_list, $view_list, array('%link_url%' => 'manage_media.php', '%link_url_suffix%' => '&amp;upd=true'), $intCategoryID.'.0');
@@ -107,6 +107,7 @@ class inserteditor_pageobject extends pageobject {
   		
   		$this->tpl->assign_vars(array(
   			'S_MEDIA'		=> true,
+  			'CATEGORY_NAME'	=> $this->pdh->get('mediacenter_categories', 'name', array($intCategoryID)),
   		));
   	} else {
   		

@@ -68,12 +68,12 @@ class mediacenter extends plugin_generic
       'long_description'  => $this->user->lang('mediacenter_long_desc'),
       'homepage'          => EQDKP_PROJECT_URL,
       'manuallink'        => false,
-      'plus_version'      => '2.0',
+      'plus_version'      => '2.1',
       'build'             => $this->build,
     ));
 
     $this->add_dependency(array(
-      'plus_version'      => '2.0'
+      'plus_version'      => '2.1'
     ));
 
     // -- Register our permissions ------------------------
@@ -109,12 +109,11 @@ class mediacenter extends plugin_generic
 	$this->routing->addRoute('EditMedia', 'editmedia', 'plugins/mediacenter/pageobjects');
 	$this->routing->addRoute('MediaCenter', 'views', 'plugins/mediacenter/pageobjects');
 	$this->routing->addRoute('InsertMediaEditor', 'inserteditor', 'plugins/mediacenter/pageobjects');
+	$this->routing->addRoute('MyMedia', 'mymedia', 'plugins/mediacenter/pageobjects');
 
-	
 	// -- Menu --------------------------------------------
     $this->add_menu('admin', $this->gen_admin_menu());
 	$this->add_menu('main', $this->gen_main_menu());
-	
 	
 	//Add Mediacenter Stylesheets
 	$this->tpl->css_file($this->root_path.'plugins/mediacenter/templates/base_template/mediacenter.css');

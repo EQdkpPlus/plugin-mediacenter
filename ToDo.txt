@@ -1,5 +1,4 @@
 ToDo:
-- Editor Integration
 - Media: Löschen, Veröffentlichen, Unveröffentlichen
 - MyMedia: listet alle Medien auf, in Seitenleiste die persönlichen Alben
 - Frontend: Buttons um Medien hinzuzufügen, Löschen etc. --> Useralbum berücksichtigen
@@ -9,11 +8,9 @@ ToDo:
 	- Random Media Module
 	- Interesting Media Module (enthält die Favoriten)
 	- Top Media Module (am meisten angesehen)
-	
 	- Jedes Modul soll klonbar sein, und Auswahl für die verschiedenen Medientypen haben
 
 - Responsive Design
-
 
 
 ------------------
