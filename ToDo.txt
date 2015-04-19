@@ -1,12 +1,9 @@
 ToDo:
-- Notifications
 - Editor Integration
 - Media: Löschen, Veröffentlichen, Unveröffentlichen
-- MyMedia
-- MyAlbums
+- MyMedia: listet alle Medien auf, in Seitenleiste die persönlichen Alben
 - Frontend: Buttons um Medien hinzuzufügen, Löschen etc. --> Useralbum berücksichtigen
-	
-		
+
 - Portalmodule
 	- Latest Files Module
 	- Random Media Module
@@ -15,6 +12,13 @@ ToDo:
 	
 	- Jedes Modul soll klonbar sein, und Auswahl für die verschiedenen Medientypen haben
 
-- Search Hook
-
 - Responsive Design
+
+
+
+------------------
+Zukünftig:
+- Karte
+- Karten abschaltbar machen
+- Ähnliche Medien bzw. mehr aus Kategorie
+- Dateien neu indexieren, evtl. mit finfo_file() oder sowas

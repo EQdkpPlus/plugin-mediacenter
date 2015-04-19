@@ -18,10 +18,14 @@
 				{MC_MEDIA_DESCRIPTION}
 				<div class="mcDownloadButton">
 					<br />
+					<!-- IF not S_MC_EXTERNALFILEONLY -->
 					<a href="{MC_MEDIA_LINK}&download" class="button" rel="nofollow"><i class="fa fa-lg fa-download"></i> {MC_MEDIA_FILENAME}<br /><i class="small">({MC_MEDIA_SIZE}, {MC_MEDIA_EXTENSION})</i></a>
+					<!-- ELSE -->
+					<a href="{MC_MEDIA_LINK}&download" class="button" rel="nofollow"><i class="fa fa-lg fa-download"></i> {L_mc_download}<br /><i class="small">({L_mc_external})</i></a>
+					<!-- ENDIF -->
 				</div>
 			</div>
-			
+			<div class="clear"></div>
 		</div>
 		<div class="mcSocialShare">
 			<div class="mcSocialButtons floatLeft">
@@ -51,8 +55,10 @@
 			<dt>{L_mc_f_views}:</dt> <dd>{MC_MEDIA_VIEWS}</dd>
 			<dt>{L_mc_downloads}:</dt> <dd>{MC_MEDIA_DOWNLOADS}</dd>
 			<dt>&nbsp;</dt> <dd>&nbsp;</dd>
+			<!-- IF not S_MC_EXTERNALFILEONLY -->
 			<dt>{L_mc_f_filename}:</dt> <dd>{MC_MEDIA_FILENAME}</dd>
 			<dt>{L_mc_size}:</dt> <dd>{MC_MEDIA_SIZE}</dd>
+			<!-- ENDIF -->
 		</dl>
 		<div class="clear"></div>
 		<br />

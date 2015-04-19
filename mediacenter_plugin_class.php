@@ -1,19 +1,22 @@
 <?php
-/*
- * Project:     EQdkp mediacenter
- * License:     Creative Commons - Attribution-Noncommercial-Share Alike 3.0 Unported
- * Link:        http://creativecommons.org/licenses/by-nc-sa/3.0/
- * -----------------------------------------------------------------------
- * Began:       2008
- * Date:        $Date: 2012-11-11 13:32:45 +0100 (So, 11. Nov 2012) $
- * -----------------------------------------------------------------------
- * @author      $Author: godmod $
- * @copyright   2008-2011 Aderyn
- * @link        http://eqdkp-plus.com
- * @package     mediacenter
- * @version     $Rev: 12426 $
+/*	Project:	EQdkp-Plus
+ *	Package:	MediaCenter Plugin
+ *	Link:		http://eqdkp-plus.eu
  *
- * $Id: mediacenter_plugin_class.php 12426 2012-11-11 12:32:45Z godmod $
+ *	Copyright (C) 2006-2015 EQdkp-Plus Developer Team
+ *
+ *	This program is free software: you can redistribute it and/or modify
+ *	it under the terms of the GNU Affero General Public License as published
+ *	by the Free Software Foundation, either version 3 of the License, or
+ *	(at your option) any later version.
+ *
+ *	This program is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	GNU Affero General Public License for more details.
+ *
+ *	You should have received a copy of the GNU Affero General Public License
+ *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 if (!defined('EQDKP_INC'))
@@ -93,23 +96,20 @@ class mediacenter extends plugin_generic
 	$this->add_pdh_write_module('mediacenter_categories');
 
 	// -- Hooks -------------------------------------------
-    //$this->add_hook('search', 'mediacenter_search_hook', 'search');
-	//$this->add_hook('portal', 'mediacenter_portal_hook', 'portal');
-    
-    //Routing
-	$this->routing->addRoute('AddAlbum', 'editalbum', 'plugins/mediacenter/pageobjects');
-	$this->routing->addRoute('EditAlbum', 'editalbum', 'plugins/mediacenter/pageobjects');
-	
-	$this->routing->addRoute('AddMedia', 'editmedia', 'plugins/mediacenter/pageobjects');
-	$this->routing->addRoute('EditMedia', 'editmedia', 'plugins/mediacenter/pageobjects');
-	
-	$this->routing->addRoute('MediaCenter', 'views', 'plugins/mediacenter/pageobjects');
-	
-	$this->routing->addRoute('InsertMediaEditor', 'inserteditor', 'plugins/mediacenter/pageobjects');
-	
+	$this->add_hook('portal', 'mediacenter_portal_hook', 'portal');
 	$this->add_hook('tinymce_normal_setup', 'mediacenter_tinymce_normal_setup_hook', 'tinymce_normal_setup');
 	$this->add_hook('main_menu_items', 'mediacenter_main_menu_items_hook', 'main_menu_items');
 	$this->add_hook('article_parse', 'mediacenter_article_parse_hook', 'article_parse');
+	$this->add_hook('search', 'mediacenter_search_hook', 'search');
+	
+    //Routing
+	$this->routing->addRoute('AddAlbum', 'editalbum', 'plugins/mediacenter/pageobjects');
+	$this->routing->addRoute('EditAlbum', 'editalbum', 'plugins/mediacenter/pageobjects');
+	$this->routing->addRoute('AddMedia', 'editmedia', 'plugins/mediacenter/pageobjects');
+	$this->routing->addRoute('EditMedia', 'editmedia', 'plugins/mediacenter/pageobjects');
+	$this->routing->addRoute('MediaCenter', 'views', 'plugins/mediacenter/pageobjects');
+	$this->routing->addRoute('InsertMediaEditor', 'inserteditor', 'plugins/mediacenter/pageobjects');
+
 	
 	// -- Menu --------------------------------------------
     $this->add_menu('admin', $this->gen_admin_menu());
@@ -155,6 +155,11 @@ class mediacenter extends plugin_generic
   	);
   	
   	$this->config->set($arrSave, '', 'mediacenter');
+  	
+  	$this->ntfy->addNotificationType('mediacenter_media_unpublished', 'mc_notify_unpublished_media', 'mediacenter', 1, 1);
+  	$this->ntfy->addNotificationType('mediacenter_media_new', 'mc_notify_new_media', 'mediacenter', 0, 0, true, 'mc_notify_new_media_grouped', 3, 'fa-picture-o');
+  	$this->ntfy->addNotificationType('mediacenter_media_comment_new', 'mc_notify_new_comment', 'mediacenter', 0, 1, true, 'mc_notify_new_comment_grouped', 3, 'fa-comment');
+  	$this->ntfy->addNotificationType('mediacenter_media_reported', 'mc_notify_reported_media', 'mediacenter', 1, 1, false, '', 0, 'fa-warning');
   }
 
   /**
@@ -168,6 +173,11 @@ class mediacenter extends plugin_generic
 
     for ($i = 1; $i <= count($mediacenterSQL['uninstall']); $i++)
       $this->add_sql(SQL_UNINSTALL, $mediacenterSQL['uninstall'][$i]);
+    
+    $this->ntfy->deleteNotificationType('mediacenter_media_unpublished');
+    $this->ntfy->deleteNotificationType('mediacenter_media_new');
+    $this->ntfy->deleteNotificationType('mediacenter_media_comment_new');
+    $this->ntfy->deleteNotificationType('mediacenter_media_reported');
   }
 
 

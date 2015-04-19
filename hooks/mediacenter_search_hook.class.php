@@ -19,24 +19,34 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-if ( !defined('EQDKP_INC') ){
+if (!defined('EQDKP_INC')){
 	header('HTTP/1.0 404 Not Found');exit;
 }
 
-$module_lang = array(
-	'editicon'				=> '',
-	'published'				=> '',
-	'featured'				=> '',
-	'name'					=> 'Name',
-	'type'					=> 'Typ',
-	'date'					=> 'Datum',
-	'previewimage'			=> 'Vorschau',
-	'reported'				=> 'Gemeldet',
-	'user_id'				=> 'Benutzer',
-	'frontendlist'			=> 'Medium',
-	'views'					=> 'Views',
-);
+/*+----------------------------------------------------------------------------
+  | mediacenter_search_hook
+  +--------------------------------------------------------------------------*/
+if (!class_exists('mediacenter_search_hook')){
+	class mediacenter_search_hook extends gen_class{
 
-
-
+		/**
+		* hook_search
+		* Do the hook 'search'
+		*
+		* @return array
+		*/
+		public function search(){
+			// build search array
+			$search = array(
+				'mediacenter' => array(
+					'category'		=> $this->user->lang('mediacenter'),
+					'module'		=> 'mediacenter_media',
+					'method'		=> 'search',
+					'permissions'	=> array('u_mediacenter_view'),
+				),
+			);
+			return $search;
+		}
+	}
+}
 ?>

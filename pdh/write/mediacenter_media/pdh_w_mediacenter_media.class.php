@@ -1,21 +1,23 @@
 <?php
-/*
-* Project:		EQdkp-Plus
-* License:		Creative Commons - Attribution-Noncommercial-Share Alike 3.0 Unported
-* Link:			http://creativecommons.org/licenses/by-nc-sa/3.0/
-* -----------------------------------------------------------------------
-* Began:		2010
-* Date:			$Date: 2013-01-29 17:35:08 +0100 (Di, 29 Jan 2013) $
-* -----------------------------------------------------------------------
-* @author		$Author: wallenium $
-* @copyright	2006-2014 EQdkp-Plus Developer Team
-* @link			http://eqdkp-plus.eu
-* @package		eqdkpplus
-* @version		$Rev: 12937 $
-*
-* $Id: pdh_r_articles.class.php 12937 2013-01-29 16:35:08Z wallenium $
-*/
-
+/*	Project:	EQdkp-Plus
+ *	Package:	MediaCenter Plugin
+ *	Link:		http://eqdkp-plus.eu
+ *
+ *	Copyright (C) 2006-2015 EQdkp-Plus Developer Team
+ *
+ *	This program is free software: you can redistribute it and/or modify
+ *	it under the terms of the GNU Affero General Public License as published
+ *	by the Free Software Foundation, either version 3 of the License, or
+ *	(at your option) any later version.
+ *
+ *	This program is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	GNU Affero General Public License for more details.
+ *
+ *	You should have received a copy of the GNU Affero General Public License
+ *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 if ( !defined('EQDKP_INC') ){
 	die('Do not access this file directly.');
 }
@@ -238,6 +240,11 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			$this->pdh->enqueue_hook('mediacenter_categories_update');
 			if ($objQuery) {
 				$id = $objQuery->insertId;
+				//Dataset is here CategoryID for Grouping
+				$strLink = $this->controller_path_plain.$this->pdh->get('mediacenter_categories', 'path', array($intCategoryID));
+				$strCategoryName = $this->pdh->get('mediacenter_categories', 'name', array($intCategoryID));
+				$this->ntfy->add('mediacenter_media_new', $intCategoryID, $this->pdh->get('user', 'name', array($intUserID)), $strLink, false, $strCategoryName);
+				
 				$log_action = $this->logs->diff(false, $arrQuery, $this->arrLogLang);
 				$this->log_insert("action_media_added", $log_action, $id, $arrQuery["name"], 1, 'mediacenter');
 				
@@ -564,6 +571,12 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			$this->pdh->enqueue_hook('mediacenter_categories_update');
 			if ($objQuery) {
 				$id = $objQuery->insertId;
+				
+				//Dataset is here CategoryID for Grouping
+				$strLink = $this->controller_path_plain.$this->pdh->get('mediacenter_categories', 'path', array($intCategoryID));
+				$strCategoryName = $this->pdh->get('mediacenter_categories', 'name', array($intCategoryID));
+				$this->ntfy->add('mediacenter_media_new', $intCategoryID, $this->pdh->get('user', 'name', array($this->user->id)), $strLink, false, $strCategoryName);
+				
 				$log_action = $this->logs->diff(false, $arrQuery, $this->arrLogLang);
 				$this->log_insert("action_media_added", $log_action, $id, $arrQuery["name"], 1, 'mediacenter');
 				return $id;
@@ -694,6 +707,8 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			
 			//Logging
 			$arrChanges = $this->logs->diff(false, $arrOld, $this->arrLang);
+			
+			$this->ntfy->deleteNotification('mediacenter_media_reported', $id);
 			
 			if ($arrChanges){
 				$this->log_insert('action_media_deleted', $arrChanges, $id, $arrOldData["name"], 1, 'mediacenter');

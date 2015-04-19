@@ -19,44 +19,33 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-if (!defined('EQDKP_INC'))
-{
-  header('HTTP/1.0 404 Not Found');exit;
+if (!defined('EQDKP_INC')){
+	header('HTTP/1.0 404 Not Found');exit;
 }
 
-
 /*+----------------------------------------------------------------------------
-  | shoutbox_search_hook
+  | mediacenter_portal_hook
   +--------------------------------------------------------------------------*/
-if (!class_exists('mediacenter_main_menu_items_hook'))
-{
-  class mediacenter_main_menu_items_hook extends gen_class
-  {
+if (!class_exists('mediacenter_portal_hook')){
+	class mediacenter_portal_hook extends gen_class{
 
-	/**
-    * hook_search
-    * Do the hook 'search'
-    *
-    * @return array
-    */
-	public function main_menu_items()
-	{
-		$main_menu = array();
-		
-		$arrCategories = $this->pdh->get('mediacenter_categories', 'category_tree', array(true, false));
-		
-		foreach($arrCategories as $intCategoryID => $strCategoryName){
-			$main_menu[] = array(
-				'link'  		=> $this->controller_path_plain.$this->pdh->get('mediacenter_categories', 'path', array($intCategoryID)),
-				'text'  		=> $strCategoryName,
-				'check' 		=> 'u_mediacenter_view',
-				'default_hide'	=> 1,
-				'link_category' => 'mc_mediacenter',
-			);
+		public function portal(){
+			//Check for unpublished media
+			$arrCategories = $this->pdh->get('mediacenter_categories', 'unpublished_articles_notify', array());
+			if (count($arrCategories) > 0 && $this->user->check_auth('a_mediacenter_manage',false)){
+				foreach($arrCategories as $intCategoryID => $intUnpublishedCount){
+					$this->ntfy->add_persistent(
+							'mediacenter_media_unpublished',
+							sprintf($this->user->lang('mc_notify_unpublished_media'), $intUnpublishedCount, $this->pdh->get('mediacenter_categories', 'name', array($intCategoryID))),
+							$this->server_path.'plugins/mediacenter/admin/manage_media.php'.$this->SID.'&amp;cid='.$intCategoryID,
+							1,
+							'fa-picture-o'
+					);
+				}
+			}
+			
+			
 		}
-
-		return $main_menu;
 	}
-  }
 }
 ?>

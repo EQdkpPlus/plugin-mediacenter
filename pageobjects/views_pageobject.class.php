@@ -1,19 +1,22 @@
 <?php
-/*
- * Project:     EQdkp guildrequest
- * License:     Creative Commons - Attribution-Noncommercial-Share Alike 3.0 Unported
- * Link:        http://creativecommons.org/licenses/by-nc-sa/3.0/
- * -----------------------------------------------------------------------
- * Began:       2008
- * Date:        $Date: 2012-10-13 22:48:23 +0200 (Sa, 13. Okt 2012) $
- * -----------------------------------------------------------------------
- * @author      $Author: godmod $
- * @copyright   2008-2011 Aderyn
- * @link        http://eqdkp-plus.com
- * @package     guildrequest
- * @version     $Rev: 12273 $
+/*	Project:	EQdkp-Plus
+ *	Package:	MediaCenter Plugin
+ *	Link:		http://eqdkp-plus.eu
  *
- * $Id: archive.php 12273 2012-10-13 20:48:23Z godmod $
+ *	Copyright (C) 2006-2015 EQdkp-Plus Developer Team
+ *
+ *	This program is free software: you can redistribute it and/or modify
+ *	it under the terms of the GNU Affero General Public License as published
+ *	by the Free Software Foundation, either version 3 of the License, or
+ *	(at your option) any later version.
+ *
+ *	This program is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	GNU Affero General Public License for more details.
+ *
+ *	You should have received a copy of the GNU Affero General Public License
+ *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 
@@ -36,6 +39,8 @@ class views_pageobject extends pageobject {
     // plugin installed?
     if (!$this->pm->check('mediacenter', PLUGIN_INSTALLED))
       message_die($this->user->lang('mc_plugin_not_installed'));
+    
+    $this->user->check_auth('u_mediacenter_view');
     
     $handler = array(
     	'mymedia'	=> array('process' => 'view_mymedia'),
@@ -70,6 +75,13 @@ class views_pageobject extends pageobject {
   		
   		//It's a downloable file
   		if($arrMediaData['type'] === 0){
+  			$strExternalFile = $arrMediaData['externalfile'];
+  			//If there is an external file, redirect
+  			if($strExternalFile != ""){
+  				redirect($strExternalFile, false, true, false);
+  				exit;
+  			}
+  			
   			$file = $this->pfh->FolderPath('files', 'mediacenter', 'relative').$arrMediaData['localfile'];
   			$this->pdh->put('mediacenter_media', 'update_download', array($intMediaID));
   			$this->pdh->process_hook_queue();
@@ -147,6 +159,15 @@ class views_pageobject extends pageobject {
   	
   	if(!$this->pdh->get('mediacenter_media', 'reported', array($intMediaID))){
   		$this->pdh->put('mediacenter_media', 'report', array($intMediaID, $strReason, $intUserID));
+  		//Get all Admins to notify
+  		$arrAdmins = $this->pdh->get('user', 'users_with_permission', array('a_mediacenter_manage'));
+  		$intCategory = $this->pdh->get('mediacenter_media', 'category_id', array($intMediaID));
+  		$strName = $this->pdh->get('mediacenter_media', 'name', array($intMediaID));
+  		$strLink = 'plugins/mediacenter/admin/manage_media.php'.$this->SID.'&cid='.$intCategory;
+  		foreach($arrAdmins as $intUserID){
+  			$this->ntfy->add('mediacenter_media_reported', $intMediaID, $this->user->data['username'], $strLink, $intUserID, $strName);
+  		}
+
   		$this->pdh->process_hook_queue();
   	}
   	$this->core->message($this->user->lang('mc_report_success'), $this->user->lang('success'), 'green');
@@ -241,6 +262,7 @@ class views_pageobject extends pageobject {
   							'NAME'			=> $this->pdh->get('mediacenter_media', 'name', array($intMediaID)),
   							'LINK'			=> $this->controller_path.$this->pdh->get('mediacenter_media', 'path', array($intMediaID)),
   							'VIEWS'			=> $this->pdh->get('mediacenter_media', 'views', array($intMediaID)),
+  							'COMMENTS' 		=> $this->pdh->get('mediacenter_media', 'comment_count', array($intMediaID)),
   							'AUTHOR'		=> $this->core->icon_font('fa-user').' '.$this->pdh->geth('user', 'name', array($this->pdh->get('mediacenter_media', 'user_id', array($intMediaID)),'', '', true)),
   							'DATE'			=> $this->time->createTimeTag($this->pdh->get('mediacenter_media', 'date', array($intMediaID)), $this->pdh->geth('mediacenter_media', 'date', array($intMediaID))),
   							'CATEGORY_AND_ALBUM' => ((strlen($this->pdh->geth('mediacenter_media', 'album_id', array($intMediaID, true)))) ? ' &bull; '.$this->pdh->geth('mediacenter_media', 'album_id', array($intMediaID, true)): ''),
@@ -323,9 +345,10 @@ class views_pageobject extends pageobject {
   			$strPermalink = $this->user->removeSIDfromString($this->env->buildlink().$this->controller_path_plain.$this->pdh->get('mediacenter_media', 'path', array($intMediaID, false, array(), false)));
   			
   			if($intType === 0){
-  				$this->tpl->assign_vars(array(
+   				$this->tpl->assign_vars(array(
   						'MC_MEDIA_DOWNLOADS'=> $arrMediaData['downloads'],
   						'MC_MEDIA_FILENAME'	=> $arrMediaData['filename'],
+   						'S_MC_EXTERNALFILEONLY' => ($arrMediaData['filename'] == "" && $arrMediaData['externalfile'] != "") ? true : false,
   						'MC_MEDIA_EXTENSION' => pathinfo($arrMediaData['filename'], PATHINFO_EXTENSION),
   						'MC_MEDIA_SIZE' => human_filesize($arrAdditionalData['size']),
   						'MC_EMBEDD_HTML' => htmlspecialchars('<a href="'.$strPermalink.'">'.$this->pdh->get('mediacenter_media', 'name', array($intMediaID)).'</a>'),
@@ -467,13 +490,19 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   			$nextID = $this->pdh->get('mediacenter_media', 'next_media', array($intMediaID));
   			$prevID = $this->pdh->get('mediacenter_media', 'prev_media', array($intMediaID));
   			
+  			
+  			$arrInvolvedUser = $this->pdh->get('comment', 'involved_users', array('mediacenter', $intMediaID));
+  			$arrInvolvedUser[] = $this->pdh->get('mediacenter_media', 'user_id', array($intMediaID));
+  			$arrInvolvedUser = array_unique($arrInvolvedUser);
+  			
   			$this->comments->SetVars(array(
   					'attach_id'		=> $intMediaID,
   					'page'			=> 'mediacenter',
   					'auth'			=> 'a_mediacenter_manage',
-  					'ntfy_type' 	=> 'comment_new_mediacenter',
+  					'ntfy_type' 	=> 'mediacenter_media_comment_new',
   					'ntfy_title'	=> $this->pdh->get('mediacenter_media', 'name', array($intMediaID)),
   					'ntfy_link' 	=> $this->controller_path_plain.$this->pdh->get('mediacenter_media', 'path', array($intMediaID)),
+  					'ntfy_user'		=> $arrInvolvedUser,
   			));
   				
   			$intCommentsCount = $this->comments->Count();
@@ -649,6 +678,7 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   								'NAME'			=> $this->pdh->get('mediacenter_media', 'name', array($intMediaID)),
   								'LINK'			=> $this->controller_path.$this->pdh->get('mediacenter_media', 'path', array($intMediaID)),
   								'VIEWS'			=> $this->pdh->get('mediacenter_media', 'views', array($intMediaID)),
+  								'COMMENTS' 		=> $this->pdh->get('mediacenter_media', 'comment_count', array($intMediaID)),
   								'AUTHOR'		=> $this->core->icon_font('fa-user').' '.$this->pdh->geth('user', 'name', array($this->pdh->get('mediacenter_media', 'user_id', array($intMediaID)),'', '', true)),
   								'DATE'			=> $this->time->createTimeTag($this->pdh->get('mediacenter_media', 'date', array($intMediaID)), $this->pdh->geth('mediacenter_media', 'date', array($intMediaID))),
   								'CATEGORY_AND_ALBUM' => ((strlen($this->pdh->geth('mediacenter_media', 'album_id', array($intMediaID, true)))) ? ' &bull; '.$this->pdh->geth('mediacenter_media', 'album_id', array($intMediaID, true)): ''),
@@ -766,6 +796,7 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   							'NAME'			=> $this->pdh->get('mediacenter_media', 'name', array($intMediaID)),
   							'LINK'			=> $this->controller_path.$this->pdh->get('mediacenter_media', 'path', array($intMediaID)),
   							'VIEWS'			=> $this->pdh->get('mediacenter_media', 'views', array($intMediaID)),
+  							'COMMENTS' 		=> $this->pdh->get('mediacenter_media', 'comment_count', array($intMediaID)),
   							'AUTHOR'		=> $this->core->icon_font('fa-user').' '.$this->pdh->geth('user', 'name', array($this->pdh->get('mediacenter_media', 'user_id', array($intMediaID)),'', '', true)),
   							'DATE'			=> $this->time->createTimeTag($this->pdh->get('mediacenter_media', 'date', array($intMediaID)), $this->pdh->geth('mediacenter_media', 'date', array($intMediaID))),
   							'CATEGORY_AND_ALBUM' => ((strlen($this->pdh->geth('mediacenter_media', 'album_id', array($intMediaID, true)))) ? ' &bull; '.$this->pdh->geth('mediacenter_media', 'album_id', array($intMediaID, true)): ''),

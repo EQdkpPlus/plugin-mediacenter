@@ -1,21 +1,23 @@
 <?php
-/*
-* Project:		EQdkp-Plus
-* License:		Creative Commons - Attribution-Noncommercial-Share Alike 3.0 Unported
-* Link:			http://creativecommons.org/licenses/by-nc-sa/3.0/
-* -----------------------------------------------------------------------
-* Began:		2010
-* Date:			$Date: 2013-01-29 17:35:08 +0100 (Di, 29 Jan 2013) $
-* -----------------------------------------------------------------------
-* @author		$Author: wallenium $
-* @copyright	2006-2014 EQdkp-Plus Developer Team
-* @link			http://eqdkp-plus.eu
-* @package		eqdkpplus
-* @version		$Rev: 12937 $
-*
-* $Id: pdh_r_articles.class.php 12937 2013-01-29 16:35:08Z wallenium $
-*/
-
+/*	Project:	EQdkp-Plus
+ *	Package:	MediaCenter Plugin
+ *	Link:		http://eqdkp-plus.eu
+ *
+ *	Copyright (C) 2006-2015 EQdkp-Plus Developer Team
+ *
+ *	This program is free software: you can redistribute it and/or modify
+ *	it under the terms of the GNU Affero General Public License as published
+ *	by the Free Software Foundation, either version 3 of the License, or
+ *	(at your option) any later version.
+ *
+ *	This program is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	GNU Affero General Public License for more details.
+ *
+ *	You should have received a copy of the GNU Affero General Public License
+ *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 if ( !defined('EQDKP_INC') ){
 	die('Do not access this file directly.');
 }
@@ -76,7 +78,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 				return true;
 			}		
 
-			$objQuery = $this->db->query('SELECT * FROM __mediacenter_media');
+			$objQuery = $this->db->query('SELECT * FROM __mediacenter_media ORDER by date DESC');
 			if($objQuery){
 				while($drow = $objQuery->fetchAssoc()){
 					$this->mediacenter_media[(int)$drow['id']] = array(
@@ -807,6 +809,39 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 		
 		public function comp_frontendlist($params1, $params2){
 			return ($this->get_name($params1[0]) < $this->get_name($params2[0])) ? -1  : 1 ;
+		}
+		
+		public function get_search($search_value){
+			$arrSearchResults = array();
+			if (is_array($this->mediacenter_media)){
+				foreach($this->mediacenter_media as $id => $value) {
+					if (!$this->get_published($id)) continue;
+					$intCategoryID = $this->get_category_id($id);
+					if(!$this->pdh->get('mediacenter_categories', 'published', array($intCategoryID))) continue;
+						
+					$arrPermissions = $this->pdh->get('mediacenter_categories', 'user_permissions', array($intCategoryID, $this->user->id));
+					if(!$arrPermissions['read']) continue;
+						
+					$arrTags = $this->get_tags($id);
+					$blnTagSearch = false;
+					foreach($arrTags as $tag){
+						if (stripos($tag, $search_value) !== false){
+							$blnTagSearch = true;
+							break;
+						}
+					}
+						
+					if($blnTagSearch OR stripos($this->get_name($id), $search_value) !== false OR stripos($this->get_description($id), $search_value) !== false) {
+			
+						$arrSearchResults[] = array(
+								'id'	=> $this->get_html_previewimage($id),
+								'name'	=> $this->get_name($id).' - '.$this->get_html_type($id).' - '.$this->get_html_date($id).'<br />'.truncate($this->bbcode->remove_bbcode($this->get_description($id)), 200),
+								'link'	=> $this->controller_path.$this->get_path($id),
+						);
+					}
+				}
+			}
+			return $arrSearchResults;
 		}
 
 	}//end class

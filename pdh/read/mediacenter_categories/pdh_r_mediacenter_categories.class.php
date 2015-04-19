@@ -1,21 +1,23 @@
 <?php
-/*
-* Project:		EQdkp-Plus
-* License:		Creative Commons - Attribution-Noncommercial-Share Alike 3.0 Unported
-* Link:			http://creativecommons.org/licenses/by-nc-sa/3.0/
-* -----------------------------------------------------------------------
-* Began:		2010
-* Date:			$Date: 2013-01-29 17:35:08 +0100 (Di, 29 Jan 2013) $
-* -----------------------------------------------------------------------
-* @author		$Author: wallenium $
-* @copyright	2006-2014 EQdkp-Plus Developer Team
-* @link			http://eqdkp-plus.eu
-* @package		eqdkpplus
-* @version		$Rev: 12937 $
-*
-* $Id: pdh_r_articles.class.php 12937 2013-01-29 16:35:08Z wallenium $
-*/
-
+/*	Project:	EQdkp-Plus
+ *	Package:	MediaCenter Plugin
+ *	Link:		http://eqdkp-plus.eu
+ *
+ *	Copyright (C) 2006-2015 EQdkp-Plus Developer Team
+ *
+ *	This program is free software: you can redistribute it and/or modify
+ *	it under the terms of the GNU Affero General Public License as published
+ *	by the Free Software Foundation, either version 3 of the License, or
+ *	(at your option) any later version.
+ *
+ *	This program is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	GNU Affero General Public License for more details.
+ *
+ *	You should have received a copy of the GNU Affero General Public License
+ *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 if ( !defined('EQDKP_INC') ){
 	die('Do not access this file directly.');
 }
@@ -634,6 +636,21 @@ if ( !class_exists( "pdh_r_mediacenter_categories" ) ) {
 				$arrCategories[$intCategoryID] = $catName;
 			}
 			return $arrCategories;
+		}
+		
+		public function get_unpublished_articles_notify(){
+			$arrOut = array();
+			foreach($this->mediacenter_categories as $intCategoryID => $val){
+				if (!$val['notify_on_onpublished']) continue;
+				$arrArticleIDs = $this->pdh->get('mediacenter_media', 'id_list_for_category', array($intCategoryID, false, true));
+				foreach($arrArticleIDs as $intArticleID){
+					if (!$this->pdh->get('mediacenter_media', 'published', array($intArticleID))){
+						if (!isset($arrOut[$intCategoryID])) $arrOut[$intCategoryID] = 0;
+						$arrOut[$intCategoryID]++;
+					}
+				}
+			}
+			return $arrOut;
 		}
 
 	}//end class
