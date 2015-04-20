@@ -1,22 +1,5 @@
 ToDo:
 
-- Index:
-	- Media hinzufügen
-	- Liste für Admins
-	
-- Category:
-	- Medium hinzufügen
-	- Liste: Adminseite
-	- Neues Album
-	- Checboxen, unten ein Dropdown
-	- Methoden für Löschen, Veröffentlichen/Unveröffentlichen
-	
-- Media
-	- sichtbar machen auch für Admins
-	- Medium löschen
-	- Medium veröffentlichen
-	- Medium unveröffentlichen
-
 - Admin/Manage_media.php:
 	- Filter für Reported/Unveröffentlichte Medien
 		- Notifications anpassen für direkten Filter

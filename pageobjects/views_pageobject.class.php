@@ -43,15 +43,110 @@ class views_pageobject extends pageobject {
     $this->user->check_auth('u_mediacenter_view');
     
     $handler = array(
-    	'myalbums' 	=> array('process' => 'view_myalbums'),
-    	'a'			=> array('process' => 'view_album'),
-    	'download'	=> array('process' => 'download'),
-    	'image'		=> array('process' => 'image'),	
-    	'report'	=> array('process' => 'report'),
+    	'myalbums' 			=> array('process' => 'view_myalbums'),
+    	'download'			=> array('process' => 'download'),
+    	'image'				=> array('process' => 'image'),	
+    	'report'			=> array('process' => 'report'),
+    	'set_published'		=> array('process' => 'set_published', 'csrf' => true),
+    	'set_unpublished'	=> array('process' => 'set_unpublished', 'csrf' => true),
+    	'delete_media'		=> array('process' => 'delete', 'csrf' => true),
+    	'a'					=> array('process' => 'view_album'),
     );
-    parent::__construct(false, $handler);
-
+    parent::__construct(false, $handler, array('mediacenter_media', 'name'), null, 'selected_ids[]');
+    
     $this->process();
+  }
+  
+
+  public function set_unpublished(){
+  	$intCategoryId = $this->in->get('category_id', 0);
+  	$arrPermissions = $this->pdh->get('mediacenter_categories', 'user_permissions', array($intCategoryId, $this->user->id));
+  	if (!$arrPermissions['change_state']) {
+  		$this->user->check_auth('u_something');
+  	}
+  	
+  	if(count($this->in->getArray('selected_ids', 'int')) > 0) {
+  		$arrMedia = array();
+  		foreach($this->in->getArray('selected_ids', 'int') as $intMediaID){
+  			if($this->pdh->get('mediacenter_media', 'category_id', array($intMediaID)) === $intCategoryId){
+  				$arrMedia[] = $intMediaID;
+  			}
+  		}
+  		if(count($arrMedia) === 0) {
+  			if($this->in->get('album_id', 0)){
+  				$this->view_album();
+  			}
+  			return;
+  		}
+  
+  		$this->pdh->put('mediacenter_media', 'set_unpublished', array($arrMedia));
+  		$this->pdh->process_hook_queue();
+  		$this->core->message($this->user->lang('mc_change_state_unpublish'), $this->user->lang('success'), 'green');
+  	}
+
+  	if($this->in->get('album_id', 0)){
+  		$this->view_album();
+  	}
+  }
+  
+  public function set_published(){
+  	$intCategoryId = $this->in->get('category_id', 0);
+  	$arrPermissions = $this->pdh->get('mediacenter_categories', 'user_permissions', array($intCategoryId, $this->user->id));
+  	if (!$arrPermissions['change_state']) $this->user->check_auth('u_something');
+  	 
+  	if(count($this->in->getArray('selected_ids', 'int')) > 0) {
+  		$arrMedia = array();
+  		foreach($this->in->getArray('selected_ids', 'int') as $intMediaID){
+  		  	//Check if they are in the right category
+  			if($this->pdh->get('mediacenter_media', 'category_id', array($intMediaID)) === $intCategoryId){
+  				$arrMedia[] = $intMediaID;
+  			}
+  		}
+  		if(count($arrMedia) === 0) {
+  			if($this->in->get('album_id', 0)){
+  				$this->view_album();
+  			}
+  			return;
+  		}
+  
+  		$this->pdh->put('mediacenter_media', 'set_published', array($arrMedia));
+  		$this->pdh->process_hook_queue();
+  		$this->core->message($this->user->lang('mc_change_state_publish'), $this->user->lang('success'), 'green');
+  	}
+  	if($this->in->get('album_id', 0)){
+  		$this->view_album();
+  	}
+  }
+  
+  public function delete(){
+  	$retu = array();
+  	
+  	$intCategoryId = $this->in->get('category_id', 0);
+  	$arrPermissions = $this->pdh->get('mediacenter_categories', 'user_permissions', array($intCategoryId, $this->user->id));
+  	if (!$arrPermissions['change_state']) $this->user->check_auth('u_something');
+  
+  	if(count($this->in->getArray('selected_ids', 'int')) > 0) {
+  		foreach($this->in->getArray('selected_ids','int') as $id) {
+  			//Check if they are in the right category
+  			if($this->pdh->get('mediacenter_media', 'category_id', array($intMediaID)) !== $intCategoryId){
+  				continue;
+  			}
+  				
+  			$pos[] = stripslashes($this->pdh->get('mediacenter_media', 'name', array($id)));
+  			$retu[$id] = $this->pdh->put('mediacenter_media', 'delete', array($id));
+  		}
+  	}
+  
+  	if(!empty($pos)) {
+  		$messages[] = array('title' => $this->user->lang('del_suc'), 'text' => implode(', ', $pos), 'color' => 'green');
+  		$this->core->messages($messages);
+  	}
+  
+  	$this->pdh->process_hook_queue();
+  	
+  	if($this->in->get('album_id', 0)){
+  		$this->view_album();
+  	}
   }
   
   public function download(){
@@ -217,6 +312,10 @@ class views_pageobject extends pageobject {
   			array('name' => 'mediacenter_media_views',	'sort' => true, 'th_add' => 'width="20"', 'td_add' => ''),
   	),
   	);
+  	
+	  	if($arrPermissions['delete'] || $arrPermissions['change_state']){
+	  		$hptt_page_settings['show_select_boxes'] = true;
+	  	}
   				
   			$start		 = $this->in->get('start', 0);
   			$page_suffix = '&amp;start='.$start.'&amp;layout='.$intLayout;
@@ -224,8 +323,10 @@ class views_pageobject extends pageobject {
   			$strBaseLayoutURL = $this->strPath.$this->SID.'&sort='.$this->in->get('sort', '3|desc').'&start='.$start.'&layout=';
   			$strBaseSortURL = $this->strPath.$this->SID.'&start='.$start.'&layout='.$intLayout.'&sort=';
   			$arrSortOptions = $this->user->lang('mc_sort_options');
+  			
+  			$blnShowUnpublished = ($arrPermissions['change_state'] || $this->user->check_auth('a_mediacenter_manage', false)) ? true : false;
   				
-  			$arrMediaInCategory = $this->pdh->get('mediacenter_media', 'id_list', array($intAlbumID, true));
+  			$arrMediaInCategory = $this->pdh->get('mediacenter_media', 'id_list', array($intAlbumID, (!$blnShowUnpublished)));
   				
   			if (count($arrMediaInCategory)){
   				$view_list = $arrMediaInCategory;
@@ -242,6 +343,7 @@ class views_pageobject extends pageobject {
   				$arrRealViewList = $hptt->get_view_list();
   				foreach($arrRealViewList as $intMediaID){
   					$this->tpl->assign_block_vars('mc_media_row', array(
+  							'ID'			=> $intMediaID,
   							'PREVIEW_IMAGE' => 	$this->pdh->geth('mediacenter_media', 'previewimage', array($intMediaID, 2)),
   							'PREVIEW_IMAGE_URL' => 	$this->pdh->geth('mediacenter_media', 'previewimage', array($intMediaID, 2, true)),
   							'NAME'			=> $this->pdh->get('mediacenter_media', 'name', array($intMediaID)),
@@ -253,15 +355,77 @@ class views_pageobject extends pageobject {
   							'CATEGORY_AND_ALBUM' => ((strlen($this->pdh->geth('mediacenter_media', 'album_id', array($intMediaID, true)))) ? ' &bull; '.$this->pdh->geth('mediacenter_media', 'album_id', array($intMediaID, true)): ''),
   							'DESCRIPTION'	=> $this->bbcode->remove_bbcode($this->pdh->get('mediacenter_media', 'description', array($intMediaID))),
   							'TYPE'			=> $this->pdh->geth('mediacenter_media', 'type', array($intMediaID)),
+  							'S_PUBLISHED'	=> ($this->pdh->get('mediacenter_media', 'published', array($intMediaID))) ? true : false,
+  							'S_CHECKBOX'	=> ($arrPermissions['delete'] || $arrPermissions['change_state']),
   					));
   				}
   			}
  
   			$strPermalink = $this->user->removeSIDfromString($this->env->buildlink().$this->controller_path_plain.$this->pdh->get('mediacenter_albums', 'path', array($intAlbumID, false)));
   	
+  			$arrToolbarItems = array();
+  			if ($arrPermissions['create'] || $this->user->check_auth('a_mediacenter_manage', false)) {
+  				$arrToolbarItems[] = array(
+  						'icon'	=> 'fa-plus',
+  						'js'	=> 'onclick="editMedia(0)"',
+  						'title'	=> $this->user->lang('mc_add_media'),
+  				);
+  					
+  				$this->jquery->dialog('editMedia', $this->user->lang('mc_add_media'), array('url' => $this->controller_path."EditMedia/Media-'+id+'/".$this->SID."&aid=".$intAlbumID, 'withid' => 'id', 'width' => 920, 'height' => 740, 'onclose'=> $this->env->link.$this->controller_path_plain.$this->page_path.$this->SID));
+  			}
+  			
+  			if ($this->user->check_auth('a_mediacenter_manage', false)) {
+  				$arrToolbarItems[] = array(
+  						'icon'	=> 'fa-list',
+  						'js'	=> 'onclick="window.location=\''.$this->server_path."plugins/mediacenter/admin/manage_media.php".$this->SID.'&cid='.$intCategoryId.'\';"',
+  						'title'	=> $this->user->lang('mc_manage_media'),
+  				);
+  				$arrToolbarItems[] = array(
+  						'icon'	=> 'fa-pencil',
+  						'js'	=> 'onclick="editAlbum('.$intAlbumID.')"',
+  						'title'	=> $this->user->lang('mc_edit_album'),
+  				);
+  				
+  				$this->jquery->Dialog('editAlbum', $this->user->lang('mc_edit_album'), array('withid' => 'albumid', 'url'=> $this->controller_path.'EditAlbum/Album-\'+albumid+\'/'.$this->SID.'&simple_head=1', 'width'=>'640', 'height'=>'520', 'onclose' => $this->env->link.$this->controller_path_plain.$this->page_path.$this->SID));
+  				
+  			}
+  				
+  			$jqToolbar = $this->jquery->toolbar('pages', $arrToolbarItems, array('position' => 'bottom'));
+  				
+  			$arrMenuItems = array();
+  			if ($arrPermissions['delete']){
+  				$arrMenuItems[] = array(
+  						'name'	=> $this->user->lang('delete'),
+  						'type'	=> 'button', //link, button, javascript
+  						'icon'	=> 'fa-trash-o',
+  						'perm'	=> true,
+  						'link'	=> '#del_articles',
+  				);
+  			}
+  				
+  			if ($arrPermissions['change_state']){
+  				$arrMenuItems[] =  array(
+  						'name'	=> $this->user->lang('mc_change_state_publish'),
+  						'type'	=> 'button', //link, button, javascript
+  						'icon'	=> 'fa-eye',
+  						'perm'	=> true,
+  						'link'	=> '#set_published',
+  				);
+  				$arrMenuItems[] = array(
+  						'name'	=> $this->user->lang('mc_change_state_unpublish'),
+  						'type'	=> 'button', //link, button, javascript
+  						'icon'	=> 'fa-eye-slash',
+  						'perm'	=> true,
+  						'link'	=> '#set_unpublished',
+  				);
+  			}
+  				
+  			$this->confirm_delete($this->user->lang('mc_confirm_delete_media'));
+  			
   			$this->tpl->assign_vars(array(
   					'MC_CATEGORY_NAME'	=> $arrAlbumData['name'],
-  					'MC_CATEGORY_ID'	=> $intAlbumID,
+  					'MC_CATEGORY_ID'	=> $intCategoryId,
+  					'MC_ALBUM_ID'		=> $intAlbumID,
   					'MC_BREADCRUMB'		=> $this->pdh->get('mediacenter_albums', 'breadcrumb', array($intAlbumID)),
   					'MC_CATEGORY_MEDIA_COUNT' => count($arrMediaInCategory),
   					'MC_LAYOUT_DD'		=> new hdropdown('selectlayout', array('options' => $this->user->lang('mc_layout_types'), 'value' => $intLayout, 'id' => 'selectlayout', 'class' => 'dropdown')),
@@ -271,6 +435,10 @@ class views_pageobject extends pageobject {
   					'MC_PERMALINK'		=> $strPermalink,
   					'MC_EMBEDD_HTML'	=> htmlspecialchars('<a href="'.$strPermalink.'">'.$this->pdh->get('mediacenter_albums', 'name', array($intAlbumID)).'</a>'),
   					'MC_EMBEDD_BBCODE'	=> htmlspecialchars("[url='".$strPermalink."']".$this->pdh->get('mediacenter_albums', 'name', array($intAlbumID))."[/url]"),
+  					'S_MC_TOOLBAR'		=> ($arrPermissions['create'] || $this->user->check_auth('a_mediacenter_manage', false)),
+  					'MC_TOOLBAR'		=> $jqToolbar['id'],
+  					'MC_BUTTON_MENU'	=> $this->jquery->ButtonDropDownMenu('manage_members_menu', $arrMenuItems, array("input[name=\"selected_ids[]\"]"), '', $this->user->lang('mc_selected_media').'...', ''),
+  					'S_MC_BUTTON_MENU'  => (count($arrMenuItems) > 0) ? true : false,
   			));
 
   	// -- EQDKP ---------------------------------------------------------------
@@ -304,16 +472,19 @@ class views_pageobject extends pageobject {
   			$intMediaID = $this->url_id;
   			$intCategoryId = $this->pdh->get('mediacenter_media', 'category_id', array($this->url_id));
   			$intAlbumID = $this->pdh->get('mediacenter_media', 'album_id', array($this->url_id));
-  			if(!$arrMediaData['published']) message_die($this->user->lang('article_unpublished'));
+  			$blnShowUnpublished = ($arrPermissions['change_state'] || $this->user->check_auth('a_mediacenter_manage', false));
+  			
+  			if(!$arrMediaData['published'] && !$blnShowUnpublished) message_die($this->user->lang('article_unpublished'));
   			
   			$arrCategoryData = $this->pdh->get('mediacenter_categories', 'data', array($intCategoryId));
   			$intPublished = $arrCategoryData['published'];
-  			if (!$intPublished) message_die($this->user->lang('category_unpublished'));
+  			
+  			if (!$intPublished && !$this->user->check_auth('a_mediacenter_manage', false)) message_die($this->user->lang('category_unpublished'));
   				
   			//Check Permissions
   			$arrPermissions = $this->pdh->get('mediacenter_categories', 'user_permissions', array($intCategoryId, $this->user->id));
   			if (!$arrPermissions['read']) message_die($this->user->lang('category_noauth'), $this->user->lang('noauth_default_title'), 'access_denied', true);
-  			if(!$this->pdh->get('mediacenter_media', 'published', array($intMediaID))) message_die($this->user->lang('category_unpublished'));
+  	
   			
   			$arrTags = $this->pdh->get('mediacenter_media', 'tags', array($intMediaID));
   			
@@ -401,6 +572,7 @@ class views_pageobject extends pageobject {
   					$strImage = $this->pfh->FolderPath('files', 'mediacenter', 'relative').$arrMediaData['localfile'];
   				}
   				$arrImageDimesions = getimagesize($strImage);
+  				$strImage = str_replace($this->root_path, $this->server_path, $strImage);
   				
   				$strOtherImages = "";
   				$arrOtherFiles = $this->pdh->get('mediacenter_media', 'other_ids', array($intMediaID));
@@ -423,7 +595,7 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   						$strOtherImages .= '<a href="'.$strOtherImage.'&image" data-url="'.$strOtherImage.'" data-desc="'.$strDesc.'" class="lightbox_'.md5($intMediaID).'" rel="'.md5($intMediaID).'" title="'.sanitize($strName).'"><img src="" /></a>';
   					}
   				}
-  				
+
   				$this->tpl->assign_vars(array(
   					'MC_IMAGE'			=> $strImage,
   					'MC_MEDIA_FILENAME'	=> $arrMediaData['filename'],
@@ -508,25 +680,27 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   			if ($arrPermissions['delete']) {
   				$arrToolbarItems[] = array(
   						'icon'	=> 'fa-trash-o',
-  						'js'	=> 'onclick="deleteMedia('.$intMediaID.')"',
+  						'js'	=> 'onclick="$(\'#del_articles\').click()"',
   						'title'	=> $this->user->lang('mc_delete_media'),
   				);
   			}
   			if ($arrPermissions['change_state']) {
-  				if ($intPublished){
+  				if ($this->pdh->get('mediacenter_media', 'published', array($intMediaID))){
   					$arrToolbarItems[] = array(
   							'icon'	=> 'fa-eye-slash',
-  							'js'	=> 'onclick="window.location=\''.$this->env->link.$this->controller_path_plain.$this->page_path.$this->SID.'&mcunpublish&link_hash='.$this->CSRFGetToken('unpublish').'&mid='.$intMediaID.'\'"',
+  							'js'	=> 'onclick="$(\'#set_unpublished\').click()"',
   							'title'	=> $this->user->lang('article_unpublish'),
   					);
   				} else {
   					$arrToolbarItems[] = array(
   							'icon'	=> 'fa-eye',
-  							'js'	=> 'onclick="window.location=\''.$this->env->link.$this->controller_path_plain.$this->page_path.$this->SID.'&mcpublish&link_hash='.$this->CSRFGetToken('publish').'&mid='.$intMediaID.'\'"',
+  							'js'	=> 'onclick="$(\'#set_published\').click()"',
   							'title'	=> $this->user->lang('article_publish'),
   					);
   				}
   			}
+  			
+  			$this->confirm_delete($this->user->lang('mc_confirm_delete_media'));
   			
   			$jqToolbar = $this->jquery->toolbar('pages', $arrToolbarItems, array('position' => 'bottom'));
 
@@ -559,7 +733,9 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   					'MC_TOOLBAR'					=> $jqToolbar['id'],
   					'S_MC_TOOLBAR'					=> ($arrPermissions['create'] || $arrPermissions['update'] || $arrPermissions['delete'] || $arrPermissions['change_state']),
   					'MC_MEDIA_ID'					=> $intMediaID,
+  					'MC_CATEGORY_ID'				=> $intCategoryId,
   					'MC_PERMALINK'					=> $strPermalink,
+  					'MC_S_PUBLISHED'				=> ($this->pdh->get('mediacenter_media', 'published', array($intMediaID)) ? true : false),
   			));
   			
   			$this->social->callSocialPlugins($this->pdh->get('mediacenter_media', 'name', array($intMediaID)), truncate($this->bbcode->remove_bbcode($this->pdh->get('mediacenter_media', 'description', array($intMediaID))), 200), $this->pdh->geth('mediacenter_media', 'previewimage', array($intMediaID, 2, true)));
@@ -690,7 +866,6 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   		//Also Subcategories possible:
   		// index.php/MediaCenter/Blablupp/Sowieso/Downloads/
 
-  		
   		$arrPathParts = registry::get_const('patharray');
   	  		$strCategoryAlias = $this->url_id;
   		if ($strCategoryAlias != $arrPathParts[0]){
@@ -707,7 +882,9 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   			//Check Permissions
   			$arrPermissions = $this->pdh->get('mediacenter_categories', 'user_permissions', array($intCategoryId, $this->user->id));
   			if (!$arrPermissions['read']) message_die($this->user->lang('category_noauth'), $this->user->lang('noauth_default_title'), 'access_denied', true);  			
-  			  			
+  			
+  			$blnShowUnpublished = ($arrPermissions['change_state'] || $this->user->check_auth('a_mediacenter_manage', false));
+  			
   			$arrChilds = $this->pdh->get('mediacenter_categories', 'childs', array($intCategoryId));
   			foreach($arrChilds as $intChildID){
   				$this->tpl->assign_block_vars('child_row', array(
@@ -748,6 +925,10 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   					),
   			);
   			
+  			if($arrPermissions['delete'] || $arrPermissions['change_state']){
+	  			$hptt_page_settings['show_select_boxes'] = true;
+	  		}
+  			
   			$start		 = $this->in->get('start', 0);
   			$page_suffix = '&amp;start='.$start.'&amp;layout='.$intLayout;
   			$sort_suffix = '?sort='.$this->in->get('sort', '3|desc');
@@ -755,11 +936,11 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   			$strBaseSortURL = $this->strPath.$this->SID.'&start='.$start.'&layout='.$intLayout.'&sort=';
   			$arrSortOptions = $this->user->lang('mc_sort_options');
   			
-  			$arrMediaInCategory = $this->pdh->get('mediacenter_media', 'id_list_for_category', array($intCategoryId, true, true));
+  			$arrMediaInCategory = $this->pdh->get('mediacenter_media', 'id_list_for_category', array($intCategoryId, (($blnShowUnpublished) ? false : true), true));
   			
   			if (count($arrMediaInCategory)){
   				$view_list = $arrMediaInCategory;
-  				$hptt = $this->get_hptt($hptt_page_settings, $view_list, $view_list, array('%link_url%' => 'manage_media.php', '%link_url_suffix%' => '&amp;upd=true'), $intCategoryId.'.0');
+  				$hptt = $this->get_hptt($hptt_page_settings, $view_list, $view_list, array('%link_url%' => 'manage_media.php', '%link_url_suffix%' => '&amp;upd=true'), 'cat_'.$intCategoryId.'.0');
   				$hptt->setPageRef($this->strPath);
   				
   				$this->tpl->assign_vars(array(
@@ -772,6 +953,7 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   				$arrRealViewList = $hptt->get_view_list();
   				foreach($arrRealViewList as $intMediaID){
   					$this->tpl->assign_block_vars('mc_media_row', array(
+  							'ID'			=> $intMediaID,
   							'PREVIEW_IMAGE' => 	$this->pdh->geth('mediacenter_media', 'previewimage', array($intMediaID, 2)),
   							'PREVIEW_IMAGE_URL' => 	$this->pdh->geth('mediacenter_media', 'previewimage', array($intMediaID, 2, true)),
   							'NAME'			=> $this->pdh->get('mediacenter_media', 'name', array($intMediaID)),
@@ -782,7 +964,9 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   							'DATE'			=> $this->time->createTimeTag($this->pdh->get('mediacenter_media', 'date', array($intMediaID)), $this->pdh->geth('mediacenter_media', 'date', array($intMediaID))),
   							'CATEGORY_AND_ALBUM' => ((strlen($this->pdh->geth('mediacenter_media', 'album_id', array($intMediaID, true)))) ? ' &bull; '.$this->pdh->geth('mediacenter_media', 'album_id', array($intMediaID, true)): ''),
   							'DESCRIPTION'	=> $this->bbcode->remove_bbcode($this->pdh->get('mediacenter_media', 'description', array($intMediaID))),
-  							'TYPE'			=> $this->pdh->geth('mediacenter_media', 'type', array($intMediaID)),	
+  							'TYPE'			=> $this->pdh->geth('mediacenter_media', 'type', array($intMediaID)),
+  							'S_PUBLISHED'	=> ($this->pdh->get('mediacenter_media', 'published', array($intMediaID))) ? true : false,
+  							'S_CHECKBOX'	=> ($arrPermissions['delete'] || $arrPermissions['change_state']),
   					));
   				}
   			}
@@ -803,7 +987,63 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   				));
   			}
   			$strPermalink = $this->user->removeSIDfromString($this->env->buildlink().$this->controller_path_plain.$this->pdh->get('mediacenter_categories', 'path', array($intCategoryId, false)));
+  			
+  			$arrToolbarItems = array();
+  			if ($arrPermissions['create'] || $this->user->check_auth('a_mediacenter_manage', false)) {
+  				$arrToolbarItems[] = array(
+  						'icon'	=> 'fa-plus',
+  						'js'	=> 'onclick="editMedia(0)"',
+  						'title'	=> $this->user->lang('mc_add_media'),
+  				);
+  					
+  				$this->jquery->dialog('editMedia', $this->user->lang('mc_add_media'), array('url' => $this->controller_path."EditMedia/Media-'+id+'/".$this->SID."&aid=c".$intCategoryId, 'withid' => 'id', 'width' => 920, 'height' => 740, 'onclose'=> $this->env->link.$this->controller_path_plain.$this->page_path.$this->SID));
+  			}
   				
+  			if ($this->user->check_auth('a_mediacenter_manage', false)) {
+  				$arrToolbarItems[] = array(
+  						'icon'	=> 'fa-list',
+  						'js'	=> 'onclick="window.location=\''.$this->server_path."plugins/mediacenter/admin/manage_media.php".$this->SID.'&cid='.$intCategoryId.'\';"',
+  						'title'	=> $this->user->lang('mc_manage_media'),
+  				);
+  				$arrToolbarItems[] = array(
+  						'icon'	=> 'fa-pencil',
+  						'js'	=> 'onclick="window.location=\''.$this->server_path."plugins/mediacenter/admin/manage_categories.php".$this->SID.'&cid='.$intCategoryId.'\';"',
+  						'title'	=> $this->user->lang('mc_manage_category'),
+  				);
+  			}
+  			
+  			$jqToolbar = $this->jquery->toolbar('pages', $arrToolbarItems, array('position' => 'bottom'));
+  			
+  			$arrMenuItems = array();
+  			if ($arrPermissions['delete']){
+  				$arrMenuItems[] = array(
+  					'name'	=> $this->user->lang('delete'),
+  					'type'	=> 'button', //link, button, javascript
+  					'icon'	=> 'fa-trash-o',
+  					'perm'	=> true,
+  					'link'	=> '#del_articles',
+  				);
+  			}
+  			
+  			if ($arrPermissions['change_state']){
+  				$arrMenuItems[] =  array(
+  					'name'	=> $this->user->lang('mc_change_state_publish'),
+  					'type'	=> 'button', //link, button, javascript
+  					'icon'	=> 'fa-eye',
+  					'perm'	=> true,
+  					'link'	=> '#set_published',
+  				);
+  				$arrMenuItems[] = array(
+  					'name'	=> $this->user->lang('mc_change_state_unpublish'),
+  					'type'	=> 'button', //link, button, javascript
+  					'icon'	=> 'fa-eye-slash',
+  					'perm'	=> true,
+  					'link'	=> '#set_unpublished',
+  				);
+  			}
+  			
+  			$this->confirm_delete($this->user->lang('mc_confirm_delete_media'));
+
   			$this->tpl->assign_vars(array(
   					'MC_CATEGORY_NAME'	=> $arrCategoryData['name'],
   					'MC_CATEGORY_ID'	=> $intCategoryId,
@@ -817,7 +1057,13 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   					'MC_PERMALINK'		=> $strPermalink,
   					'MC_EMBEDD_HTML' => htmlspecialchars('<a href="'.$strPermalink.'">'.$this->pdh->get('mediacenter_categories', 'name', array($intCategoryId)).'</a>'),
   					'MC_EMBEDD_BBCODE' => htmlspecialchars("[url='".$strPermalink."']".$this->pdh->get('mediacenter_categories', 'name', array($intCategoryId))."[/url]"),
+  					'S_MC_TOOLBAR'		=> ($arrPermissions['create'] || $this->user->check_auth('a_mediacenter_manage', false)),
+  					'MC_TOOLBAR'		=> $jqToolbar['id'],
+  					'MC_BUTTON_MENU'	=> $this->jquery->ButtonDropDownMenu('manage_members_menu', $arrMenuItems, array("input[name=\"selected_ids[]\"]"), '', $this->user->lang('mc_selected_media').'...', ''),
+  					'S_MC_BUTTON_MENU'  => (count($arrMenuItems) > 0) ? true : false,
   			));
+  			
+  			
   			
 	  		// -- EQDKP ---------------------------------------------------------------
 	  		$this->core->set_vars(array (
@@ -941,15 +1187,42 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   					'CATEGORY_AND_ALBUM' => $this->pdh->geth('mediacenter_media', 'category_id', array($intMediaID, true)).((strlen($this->pdh->geth('mediacenter_media', 'album_id', array($intMediaID, true)))) ? ' &bull; '.$this->pdh->geth('mediacenter_media', 'album_id', array($intMediaID, true)): ''),
   					'DESCRIPTION'	=> $this->bbcode->remove_bbcode($this->pdh->get('mediacenter_media', 'description', array($intMediaID))),
   					'TYPE'			=> $this->pdh->geth('mediacenter_media', 'type', array($intMediaID)),
+  					'S_MC_TOOLBAR'	=> ($arrPermissions['create'] || $this->user->check_auth('a_mediacenter_manage', false)),
+  					'MC_TOOLBAR'	=> $jqToolbar['id'],
   			));
   		}
   		
+  		$arrToolbarItems = array();
+  		if ($arrPermissions['create'] || $this->user->check_auth('a_mediacenter_manage', false)) {
+  			$arrToolbarItems[] = array(
+  					'icon'	=> 'fa-plus',
+  					'js'	=> 'onclick="editMedia(0)"',
+  					'title'	=> $this->user->lang('mc_add_media'),
+  			);
+  			
+  			$this->jquery->dialog('editMedia', $this->user->lang('mc_add_media'), array('url' => $this->controller_path."EditMedia/Media-'+id+'/".$this->SID, 'withid' => 'id', 'width' => 920, 'height' => 740, 'onclose'=> $this->env->link.$this->controller_path_plain.$this->page_path.$this->SID));
+
+  		}
+  			
+  		if ($this->user->check_auth('a_mediacenter_manage', false)) {
+  			$arrToolbarItems[] = array(
+					'icon'	=> 'fa-list',
+					'js'	=> 'onclick="window.location=\''.$this->server_path."plugins/mediacenter/admin/manage_categories.php".$this->SID.'\';"',
+					'title'	=> $this->user->lang('mc_manage_media'),
+			);
+  		}
+
+  			
+  		$jqToolbar = $this->jquery->toolbar('pages', $arrToolbarItems, array('position' => 'bottom'));
+  		
   		$this->tpl->assign_vars(array(
-  			'S_MC_SHOW_FEATURED' => intval($this->config->get('show_featured', 'mediacenter')) && count($arrFeaturedFiles),
-  			'S_MC_SHOW_NEWEST' => intval($this->config->get('show_newest', 'mediacenter')) && count($arrNewestMedia),
-  			'S_MC_SHOW_CATEGORIES' => intval($this->config->get('show_categories', 'mediacenter')),
-  			'S_MC_SHOW_MOSTVIEWED' => intval($this->config->get('show_mostviewed', 'mediacenter')) && count($arrMostViewedMedia),
+  			'S_MC_SHOW_FEATURED'	=> intval($this->config->get('show_featured', 'mediacenter')) && count($arrFeaturedFiles),
+  			'S_MC_SHOW_NEWEST'		=> intval($this->config->get('show_newest', 'mediacenter')) && count($arrNewestMedia),
+  			'S_MC_SHOW_CATEGORIES'	=> intval($this->config->get('show_categories', 'mediacenter')),
+  			'S_MC_SHOW_MOSTVIEWED'	=> intval($this->config->get('show_mostviewed', 'mediacenter')) && count($arrMostViewedMedia),
   			'S_MC_SHOW_LATESTCOMMENTS' => intval($this->config->get('show_latestcomments', 'mediacenter')) && count($arrLatestCommentMedia),
+  			'S_MC_TOOLBAR'			=> ($arrPermissions['create'] || $this->user->check_auth('a_mediacenter_manage', false)),
+  			'MC_TOOLBAR'			=> $jqToolbar['id'],
   		));
   		
   		// -- EQDKP ---------------------------------------------------------------

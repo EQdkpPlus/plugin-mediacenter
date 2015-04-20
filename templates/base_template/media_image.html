@@ -13,7 +13,11 @@
 			<br />
 		</nav>
 			<a href="{MC_MEDIA_LINK}&image" rel="{MC_LIGHTBOX}" class="lightbox_{MC_LIGHTBOX}" title="{MC_MEDIA_NAME}" data-desc="{MC_DESC_STRIPPED}">
+				<!-- IF MC_S_PUBLISHED -->
 				<img src="{MC_MEDIA_LINK}&image" />
+				<!-- ELSE -->
+				<img src="{MC_IMAGE}" />
+				<!-- ENDIF -->
 			</a>
 		</div>
 		<div class="mcSocialShare">

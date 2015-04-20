@@ -37,7 +37,7 @@
 		<div>
 			<ul class="mcGridList">
 			<!-- BEGIN mc_media_row -->
-			<li style="background-image:url('{mc_media_row.PREVIEW_IMAGE_URL}');">
+			<li style="background-image:url('{mc_media_row.PREVIEW_IMAGE_URL}');" class="<!-- IF not mc_media_row.S_PUBLISHED -->unpublished<!-- ENDIF -->">
 				<a href="{mc_media_row.LINK}"></a>
 				<div>
 					<p><!-- IF not mc_media_row.S_PUBLISHED --><i class="fa fa-eye-slash fa-lg "></i> <!-- ENDIF -->{mc_media_row.NAME}</p>

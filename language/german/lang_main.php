@@ -196,6 +196,7 @@ $lang = array(
 	"mc_change_state_publish" => "Veröffentlichen",
 	"mc_change_state_unpublish" => "Unveröffentlichen",
 	"mc_perm_rea" => "Ansehen",	
+	"mc_manage_category" => "Kategorie bearbeiten",
  );
 
 ?>

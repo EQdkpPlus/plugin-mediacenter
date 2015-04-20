@@ -536,3 +536,8 @@
 .mcArticleBoxAlbum ul, .mcArticleBoxCategory ul {
 	padding-left: 0 !important;
 }
+
+.mcGridList li.unpublished {
+  filter: grayscale(100%);
+  -webkit-filter: grayscale(100%);
+}

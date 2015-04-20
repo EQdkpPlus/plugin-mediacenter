@@ -9,8 +9,17 @@
 
 
 <div>
-	<h2>{MC_CATEGORY_NAME} <span class="badge">{MC_CATEGORY_MEDIA_COUNT}</span></h2>
+	<h2>{MC_CATEGORY_NAME} <span class="badge">{MC_CATEGORY_MEDIA_COUNT}</span>
+		<!-- IF S_MC_TOOLBAR --> 
+		<div class="floatRight">
+			<div class="toolbar-button">
+				<span class="{MC_TOOLBAR} toolbar" style="font-size: 18px;"><i class="fa fa-cog"></i></span>
+			</div>
+		</div>
+		<!-- ENDIF -->
+	</h2>
 </div>
+<form method="post" action="{ACTION}">
 <div class="grid mcSidebar">
 	<div class="col10">
 		<div class="mcSwitcherBar floatRight">
@@ -35,12 +44,13 @@
 		<div>
 			<ul class="mcGridList">
 			<!-- BEGIN mc_media_row -->
-			<li style="background-image:url('{mc_media_row.PREVIEW_IMAGE_URL}');">
+			<li style="background-image:url('{mc_media_row.PREVIEW_IMAGE_URL}');" class="<!-- IF not mc_media_row.S_PUBLISHED -->unpublished<!-- ENDIF -->">
 				<a href="{mc_media_row.LINK}"></a>
 				<div>
-					<p>{mc_media_row.NAME}</p>
+					<p><!-- IF not mc_media_row.S_PUBLISHED --><i class="fa fa-eye-slash fa-lg "></i> <!-- ENDIF -->{mc_media_row.NAME}</p>
 					<div>{mc_media_row.TYPE} &nbsp; {mc_media_row.DATE} &bull; {mc_media_row.AUTHOR} {mc_media_row.CATEGORY_AND_ALBUM}<br />
 					<i class="fa fa-eye"></i> {mc_media_row.VIEWS} &nbsp;&nbsp; <i class="fa fa-comment"></i> {mc_media_row.COMMENTS}
+					<!-- IF mc_media_row.S_CHECKBOX --><div class="floatRight"><input type="checkbox" name="selected_ids[]" value="{mc_media_row.ID}" id="cbrow1" /></div><!-- ENDIF -->
 					</div>
 				</div>
 			</li>
@@ -71,6 +81,20 @@
 		<br />
 	</div>
 </div>
+<!-- IF S_MC_BUTTON_MENU -->
+<div class="contentFooter">
+	{MC_BUTTON_MENU}
+	<button class="mainoption" type="button" name="del" onclick="delete_warning();" id="del_articles" style="display:none;"><i class="fa fa-times"></i>{L_delete_selected_entries}</button>
+	<button class="mainoption" type="submit" name="set_published" id="set_published" style="display:none;"></button>
+	<button class="mainoption" type="submit" name="set_unpublished" id="set_unpublished" style="display:none;"></button>
+	<input type="hidden" name="delete_media" value="1" disabled="disabled" id="mass_del_submit" />
+	<input type="hidden" name="category_id" value="{MC_CATEGORY_ID}"/>
+</div>
+<div class="clear"></div>
+<!-- ENDIF -->
+{CSRF_TOKEN}
+</form>
+
 <script>
 $(document).ready(function() {
 	$('#selectsort').change(function() {
