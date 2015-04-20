@@ -137,7 +137,7 @@ $lang = array(
 	'mc_imagedimensions'		=> 'Bildmaße',
 	'mc_size'					=> 'Dateigröße',
 	'mc_Camera'					=> 'Kamera',
-	'mc_ExposureTime'			=> 'BelichtungFnumber',
+	'mc_ExposureTime'			=> 'Belichtungszeit',
 	'mc_CreationTime'			=> 'Aufnahmedatum',
 	'mc_FNumber'				=> 'Blendenzahl',
 	'mc_FocalLength'			=> 'Brennweite',
@@ -180,7 +180,7 @@ $lang = array(
 	'mc_download'				=> 'Datei herunterladen',
 	'mc_external'				=> 'Externer Link',
 	
-	'user_sett_f_ntfy_mediacenter_media_comment_new' => 'MediaCenter: Neuer Kommentar bei abbonierten Medien',
+	'user_sett_f_ntfy_mediacenter_media_comment_new' => 'MediaCenter: Neuer Kommentar bei abonnierten Medien',
 	'user_sett_f_ntfy_mediacenter_media_new' => 'MediaCenter: Neue Medien',
 	'user_sett_f_ntfy_mediacenter_media_reported' => 'MediaCenter: Gemeldete Medien',
 	'user_sett_f_ntfy_mediacenter_media_unpublished' => 'MediaCenter: Unveröffentlichte Medien',
