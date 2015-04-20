@@ -250,12 +250,18 @@ if ( !class_exists( "pdh_r_mediacenter_albums" ) ) {
 		  	return $arrCategories;
 		}
 		
-		public function get_html_album_tree($strValue = false){
+		public function get_html_album_tree($strValue = false, $blnCheckPermissions = false){
 			$strOut = "";
 			
 			
 			$arrCategoryIDs = $this->pdh->sort($this->pdh->get('mediacenter_categories', 'id_list', array()), 'mediacenter_categories', 'sort_id', 'asc');
 			foreach($arrCategoryIDs as $intCategoryID){
+				if($blnCheckPermissions){
+					$arrPermissions = $this->pdh->get('mediacenter_categories', 'user_permissions', array($intCategoryID, $this->user->id));
+					if ((!$arrPermissions || !$arrPermissions['create'])) continue;
+				}
+				
+				
 				$strPrefix = $this->pdh->get('mediacenter_categories', 'name_prefix', array($intCategoryID));
 				$catName = $strPrefix.$this->pdh->get('mediacenter_categories', 'name', array($intCategoryID));
 				
@@ -317,6 +323,15 @@ if ( !class_exists( "pdh_r_mediacenter_albums" ) ) {
 			return $strBreadcrumb;
 		}
 
+		public function get_my_albums($intUserID){
+			$arrOut = array();
+			foreach($this->mediacenter_albums as $intAlbumID => $arrAlbumData){
+				if($arrAlbumData['user_id'] === $intUserID){
+					$arrOut[] = $intAlbumID;
+				}
+			}
+			return $arrOut;
+		}
 
 	}//end class
 }//end if

@@ -46,7 +46,7 @@ class editmedia_pageobject extends pageobject {
     	$this->user->check_auth('u_mediacenter_something');
     }
     
-    $this->blnAdminMode = ($this->in->get('admin', 0) && $this->user->check_auth('a_mediacenter_manage', false)) ? 1 : 0;
+    $this->blnAdminMode = $this->user->check_auth('a_mediacenter_manage', false) ? 1 : 0;
     
     $handler = array(
       'save' => array('process' => 'save', 'csrf' => true),
@@ -77,7 +77,8 @@ class editmedia_pageobject extends pageobject {
   	//Check Permissions
   	$intCategoryID = $this->pdh->get('mediacenter_media', 'category_id', array($intMediaID));
   	$arrPermissions = $this->pdh->get('mediacenter_categories', 'user_permissions', array($intCategoryID, $this->user->id));
-  	if ((!$arrPermissions || !$arrPermissions['update']) && !$this->user->check_auth('a_mediacenter_manage', false)){
+  	$intUserID = $this->pdh->get('mediacenter_media', 'user_id', array($intMediaID));
+  	if ((!$arrPermissions || !$arrPermissions['update']) && !$this->user->check_auth('a_mediacenter_manage', false) && ($this->user->id !== $intUserID)){
   		$this->user->check_auth('u_mediacenter_something');
   	}
   	 
@@ -146,8 +147,9 @@ class editmedia_pageobject extends pageobject {
   	
   	//Check Permissions
   	$intCategoryID = $this->pdh->get('mediacenter_media', 'category_id', array($intMediaID));
+  	$intUserID = $this->pdh->get('mediacenter_media', 'user_id', array($intMediaID));
   	$arrPermissions = $this->pdh->get('mediacenter_categories', 'user_permissions', array($intCategoryID, $this->user->id));
-  	if ((!$arrPermissions || !$arrPermissions['update']) && !$this->user->check_auth('a_mediacenter_manage', false)){
+  	if ((!$arrPermissions || !$arrPermissions['update']) && !$this->user->check_auth('a_mediacenter_manage', false) && ($this->user->id !== $intUserID)){
   		echo "error";
   		return false;
   	}
@@ -198,8 +200,9 @@ class editmedia_pageobject extends pageobject {
   	
   	//Check Permissions
   	$intCategoryID = $this->pdh->get('mediacenter_media', 'category_id', array($intMediaID));
+  	$intUserID = $this->pdh->get('mediacenter_media', 'user_id', array($intMediaID));
   	$arrPermissions = $this->pdh->get('mediacenter_categories', 'user_permissions', array($intCategoryID, $this->user->id));
-  	if ((!$arrPermissions || !$arrPermissions['update']) && !$this->user->check_auth('a_mediacenter_manage', false)){
+  	if ((!$arrPermissions || !$arrPermissions['update']) && !$this->user->check_auth('a_mediacenter_manage', false) && ($this->user->id !== $intUserID)){
   		echo "error";
   		return false;
   	}
@@ -215,8 +218,9 @@ class editmedia_pageobject extends pageobject {
   	
   	//Check Permissions
   	$intCategoryID = $this->pdh->get('mediacenter_media', 'category_id', array($intMediaID));
+  	$intUserID = $this->pdh->get('mediacenter_media', 'user_id', array($intMediaID));
   	$arrPermissions = $this->pdh->get('mediacenter_categories', 'user_permissions', array($intCategoryID, $this->user->id));
-  	if ((!$arrPermissions || !$arrPermissions['update']) && !$this->user->check_auth('a_mediacenter_manage', false)){
+  	if ((!$arrPermissions || !$arrPermissions['update']) && !$this->user->check_auth('a_mediacenter_manage', false) && ($this->user->id !== $intUserID)){
   		echo "error";
   		return false;
   	}
@@ -270,8 +274,9 @@ class editmedia_pageobject extends pageobject {
   	
   	//Check Permissions
   	$intCategoryID = $this->pdh->get('mediacenter_media', 'category_id', array($intMediaID));
+  	$intUserID = $this->pdh->get('mediacenter_media', 'user_id', array($intMediaID));
   	$arrPermissions = $this->pdh->get('mediacenter_categories', 'user_permissions', array($intCategoryID, $this->user->id));
-  	if ((!$arrPermissions || !$arrPermissions['update']) && !$this->user->check_auth('a_mediacenter_manage', false)){
+  	if ((!$arrPermissions || !$arrPermissions['update']) && !$this->user->check_auth('a_mediacenter_manage', false) && ($this->user->id !== $intUserID)){
   		echo "error";
   		return false;
   	}
@@ -566,6 +571,14 @@ class editmedia_pageobject extends pageobject {
 	
 	$arrValues = array();
   	if ($this->url_id) {
+  		//Check Permission
+  		$intCategoryID = $this->pdh->get('mediacenter_media', 'category_id', array($this->url_id));
+  		$intUserID = $this->pdh->get('mediacenter_media', 'user_id', array($this->url_id));
+  		$arrPermissions = $this->pdh->get('mediacenter_categories', 'user_permissions', array($intCategoryID, $this->user->id));
+  		if ((!$arrPermissions || !$arrPermissions['update']) && !$this->user->check_auth('a_mediacenter_manage', false) && ($this->user->id !== $intUserID)){
+  			$this->user->check_auth('u_mediacenter_something');
+  		}
+  		
   		$arrValues = $this->pdh->get('mediacenter_media', 'data', array($this->url_id));
   		$arrValues['tags'] = implode(", ", unserialize($arrValues['tags']));
   		$arrValues['previewimage'] = (strlen($arrValues['previewimage'])) ? $this->pfh->FolderPath('thumbs', 'mediacenter', 'absolute').$arrValues['previewimage'] : false;
@@ -588,8 +601,11 @@ class editmedia_pageobject extends pageobject {
   	}
 
   	$this->jquery->Tab_header('editmedia_tab');
+  	
+  	$blnCheckPerms = ($this->blnAdminMode) ? false : true;
+  	
   	$this->tpl->assign_vars(array(
-  		'DD_ALBUMS' => $this->pdh->geth('mediacenter_albums', 'album_tree', array($this->in->get('aid', 0))),
+  		'DD_ALBUMS' => $this->pdh->geth('mediacenter_albums', 'album_tree', array($this->in->get('aid', 0), $blnCheckPerms)),
   		'ADMINMODE'	=> $this->blnAdminMode,
   		'MAX_UPLOADSIZE' => human_filesize($this->detectMaxUploadFileSize()),
   	));
@@ -629,10 +645,12 @@ class editmedia_pageobject extends pageobject {
   			$strSelected = 'c'.$intCategory;
   		}
   	}
-  	  	
+
+  	$blnCheckPerms = ($this->blnAdminMode) ? false : true;
+  	
   	$arrFields = array(
   		'album_id' => array(
-  			'text' => '<select onchange="load_mediatypes();" class="input" id="album_id" name="album_id" size="1">'.$this->pdh->geth('mediacenter_albums', 'album_tree', array($strSelected)).'</select> <button onclick="addalbum()" type="button"><i class="fa fa-plus"></i> '.$this->user->lang('mc_new_album').'</button>',	
+  			'text' => '<select onchange="load_mediatypes();" class="input" id="album_id" name="album_id" size="1">'.$this->pdh->geth('mediacenter_albums', 'album_tree', array($strSelected, $blnCheckPerms)).'</select> <button onclick="addalbum()" type="button"><i class="fa fa-plus"></i> '.$this->user->lang('mc_new_album').'</button>',	
   			'lang' => 'mc_f_album',
   		),
   		'name' => array(

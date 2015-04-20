@@ -132,7 +132,7 @@
 				myobj.after(data);
 				myobj.remove();
 				
-				var size = $(data).length;
+				var size = $(data).find('option').size();
 				if (size == 1){
 					$('#type').parent().parent().hide();
 					$('#type').trigger('change');

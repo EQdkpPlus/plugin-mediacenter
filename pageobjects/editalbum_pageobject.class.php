@@ -47,7 +47,7 @@ class editalbum_pageobject extends pageobject {
     	$this->user->check_auth('u_mediacenter_something');
     }
     
-    $this->blnAdminMode = ($this->in->get('admin', 0) && $this->user->check_auth('a_mediacenter_manage', false)) ? 1 : 0;
+    $this->blnAdminMode = $this->user->check_auth('a_mediacenter_manage', false) ? 1 : 0;
     
     $handler = array(
       'save' => array('process' => 'save', 'csrf' => true),
@@ -161,6 +161,11 @@ class editalbum_pageobject extends pageobject {
   	$arrCategories = array();
   	$arrCategoryIDs = $this->pdh->sort($this->pdh->get('mediacenter_categories', 'id_list', array()), 'mediacenter_categories', 'sort_id', 'asc');
   	foreach($arrCategoryIDs as $cid){
+  		if(!$this->blnAdminMode){
+  			$arrPermissions = $this->pdh->get('mediacenter_categories', 'user_permissions', array($cid, $this->user->id));
+  			if ((!$arrPermissions || !$arrPermissions['add_album'])) continue;
+  		}
+  		
   		$arrCategories[$cid] = $this->pdh->get('mediacenter_categories', 'name_prefix', array($cid)).$this->pdh->get('mediacenter_categories', 'name', array($cid));
   	}
   	

@@ -159,7 +159,7 @@ if(!class_exists('pdh_w_mediacenter_categories')) {
 				'allow_comments'=> $intAllowComments,
 				'layout'		=> $intDefaultLayout,
 				'types'			=> serialize($arrTypes),
-				'sort_id'		=> 99999999,
+				//'sort_id'		=> 99999999,
 				'allow_voting'  => $intAllowVoting,
 				'per_page'		=> $intPerPage,
 			);

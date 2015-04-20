@@ -189,6 +189,13 @@ $lang = array(
 	"mc_notify_new_media_grouped" => "Es wurden {COUNT} neue Dateien in Kategorie \"{ADDITIONAL}\" hinzugefügt",
 	"mc_notify_new_comment" => "{PRIMARY} haben einen Kommentar zur Datei \"{ADDITIONAL}\" geschrieben",
 	"mc_notify_new_comment_grouped" => "{PRIMARY} hat einen Kommentar zur Datei \"{ADDITIONAL}\" geschrieben",
+		
+	"mc_mymedia" => "Meine Medien",
+	"mc_my_albums" => "Meine Alben",
+	"mc_selected_media" => "ausgewählte Dateien",
+	"mc_change_state_publish" => "Veröffentlichen",
+	"mc_change_state_unpublish" => "Unveröffentlichen",
+	"mc_perm_rea" => "Ansehen",	
  );
 
 ?>

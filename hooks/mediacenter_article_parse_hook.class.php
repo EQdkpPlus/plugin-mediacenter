@@ -32,6 +32,8 @@ if (!class_exists('mediacenter_article_parse_hook'))
   class mediacenter_article_parse_hook extends gen_class
   {
 
+  	private $videojs_included = false;
+  	
 	/**
     * hook_search
     * Do the hook 'search'
@@ -42,6 +44,56 @@ if (!class_exists('mediacenter_article_parse_hook'))
 	{
 		
 		$strContent = $arrOptions['content'];
+		//Parse all links
+		$arrLinks = array();
+		$intLinks = preg_match_all('@((("|:)?)https?:\/\/([-\w\.]+)+(:\d+)?(\/([\w\/_\-\.]*(\?[^<\s]+|\?)?)?)?)@', $strContent, $arrLinks);
+		
+		$arrDecodedLinks = array();
+		if ($intLinks){
+			$key = 0;
+			foreach ($arrLinks[0] as $link){
+				$orig_link = $link;
+
+				if (substr($link, 0, 1) != '"' && substr($link, 0, 1) != ':') {
+					$embedlyUrls[$key] = strip_tags($link);
+					$arrDecodedLinks[$key] = $orig_link;
+					$strOut = "";
+					if(stripos($link, 'mediacenter/') !== false){
+						$link = str_replace(array('.php', '.html'), '', strip_tags($link));
+						$arrPath = array_filter(explode('/', $link));
+						$arrPath = array_reverse($arrPath);
+						
+						$strMyPath = $arrPath[0];
+						
+						if(preg_match('#(.*)\-([a]?[0-9]*)#', $strMyPath, $arrMatches)){							
+							if(is_numeric($arrMatches[2])){
+								//Media
+								$intMediaID = intval($arrMatches[2]);
+								$strOut = $this->createMedia($intMediaID);
+							} else {
+								//Album
+								$intAlbumID = intval(substr($arrMatches[2], 1));
+								$strOut = $this->createAlbum($intAlbumID);
+							}
+						} else {
+							//Must be a category
+							$arrmyurl = parse_url($strMyPath);
+							$intCategoryId = $this->pdh->get('mediacenter_categories', 'resolve_alias', array($arrmyurl['path']));
+							if($intCategoryId){
+								$strOut = $this->createCategory($intCategoryId);
+							}
+						}
+						
+						if($strOut != ""){
+							$strContent = str_replace($orig_link, $strOut, $strContent);
+						}
+					}
+					
+					$key++;
+				}
+			}
+		}
+
 		//Replace Album
 		$arrAlbumObjects = array();
 		preg_match_all('#<p(.*)class="system-block mediacenter-album"(.*) data-album-id="(.*)">(.*)</p>#iU', $strContent, $arrAlbumObjects, PREG_PATTERN_ORDER);
@@ -155,10 +207,12 @@ if (!class_exists('mediacenter_article_parse_hook'))
 				
 				$arrPlayableVideos = array('mp4', 'webm', 'ogg');
 				if(in_array($strExtension, $arrPlayableVideos)){
-					$this->tpl->css_file($this->root_path.'plugins/mediacenter/includes/videojs/video-js.min.css');
-					$this->tpl->js_file($this->root_path.'plugins/mediacenter/includes/videojs/video.js');
-					$this->tpl->add_js('videojs.options.flash.swf = "'.$this->server_path.'plugins/mediacenter/includes/videojs/video-js.swf"; ', 'docready');
-						
+					if(!$this->videojs_included){
+						$this->tpl->css_file($this->root_path.'plugins/mediacenter/includes/videojs/video-js.min.css');
+						$this->tpl->js_file($this->root_path.'plugins/mediacenter/includes/videojs/video.js');
+						$this->tpl->add_js('videojs.options.flash.swf = "'.$this->server_path.'plugins/mediacenter/includes/videojs/video-js.swf"; ', 'docready');
+						$this->videojs_included = true;	
+					}
 					switch($strExtension){
 						case 'mp4': $strSource =  '  <source src="'.$strFile.'" type=\'video/mp4\' />'; break;
 						case 'webm': $strSource =  '  <source src="'.$strFile.'" type=\'video/webm\' />'; break;

@@ -44,6 +44,9 @@ if (!class_exists('mediacenter_portal_hook')){
 				}
 			}
 			
+			$this->tpl->assign_block_vars('user_tooltip_addition', array(
+				'TEXT' => '<a href="'.$this->routing->build('MyMedia').'"><i class="fa fa-picture-o fa-lg"></i> '.$this->user->lang('mc_mymedia').'</a>',	
+			));
 			
 		}
 	}

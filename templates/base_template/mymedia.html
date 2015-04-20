@@ -2,7 +2,7 @@
 	<ul class="breamcrumb">
 		<li><a href="{EQDKP_CONTROLLER_PATH}{SID}" title="{L_home}"><i class="fa fa-home"></i></a></li>
 		<li><a href="{EQDKP_CONTROLLER_PATH}MediaCenter{SEO_EXTENSION}{SID}">{L_mediacenter}</a></li>
-		{MC_BREADCRUMB}
+		<li class="current"><a href="{EQDKP_CONTROLLER_PATH}MyMedia{SEO_EXTENSION}{SID}">{L_mc_mymedia}</a></li>
 	</ul>
 	<div class="clear"></div>
 </div>
@@ -11,9 +11,11 @@
 <div>
 	<h2>{MC_CATEGORY_NAME} <span class="badge">{MC_CATEGORY_MEDIA_COUNT}</span></h2>
 </div>
+<form method="post" action="{ACTION}">
 <div class="grid mcSidebar">
 	<div class="col10">
 		<div class="mcSwitcherBar floatRight">
+			<button class="mainoption" type="button" name="addadj" onclick="addmedia('');"><i class="fa fa-plus"></i>{L_mc_add_media}</button>
 			<!-- IF not S_LAYOUT_LIST -->{MC_SORT_DD}<!-- ENDIF --> {MC_LAYOUT_DD}
 		</div>
 		{MC_CATEGORY_DESCRIPTION}
@@ -38,9 +40,11 @@
 			<li style="background-image:url('{mc_media_row.PREVIEW_IMAGE_URL}');">
 				<a href="{mc_media_row.LINK}"></a>
 				<div>
-					<p>{mc_media_row.NAME}</p>
+					<p><!-- IF not mc_media_row.S_PUBLISHED --><i class="fa fa-eye-slash fa-lg "></i> <!-- ENDIF -->{mc_media_row.NAME}</p>
 					<div>{mc_media_row.TYPE} &nbsp; {mc_media_row.DATE} &bull; {mc_media_row.AUTHOR} {mc_media_row.CATEGORY_AND_ALBUM}<br />
 					<i class="fa fa-eye"></i> {mc_media_row.VIEWS} &nbsp;&nbsp; <i class="fa fa-comment"></i> {mc_media_row.COMMENTS}
+					<div class="floatRight"><input type="checkbox" name="selected_ids[]" value="{mc_media_row.ID}" id="cbrow1"></div>
+					<div class="clear"></div>
 					</div>
 				</div>
 			</li>
@@ -49,7 +53,6 @@
 		</div>
 		<!-- ENDIF -->
 		<!-- ENDIF -->
-		
 		<div class="center pagination_wrapper">
 			{PAGINATION}
 		</div>
@@ -58,11 +61,24 @@
 	<div class="col2 last mcSidebarRight">
 		<h3>{L_mc_my_albums}</h3>
 		<ul>
-		<li><a href="javascript:embedd_media();"><i class="fa fa-chain fa-lg"></i> {L_mc_embedd}</a></li>
+		<!-- BEGIN album_list -->
+		<li><a href="{album_list.LINK}">{album_list.NAME} <span class="badge">{album_list.MEDIA_COUNT}</span></a></li>
+		<!-- END album_list -->
 		</ul>
 		<br />
 	</div>
 </div>
+
+<div class="contentFooter">
+{MC_BUTTON_MENU}
+	<button class="mainoption" type="button" name="del" onclick="delete_warning();" id="del_articles" style="display:none;"><i class="fa fa-times"></i>{L_delete_selected_entries}</button>
+	<button class="mainoption" type="submit" name="set_published" id="set_published" style="display:none;"></button>
+	<button class="mainoption" type="submit" name="set_unpublished" id="set_unpublished" style="display:none;"></button>
+	<input type="hidden" name="delete_media" value="1" disabled="disabled" id="mass_del_submit" />
+</div>
+<div class="clear"></div>
+{CSRF_TOKEN}
+</form>
 <script>
 $(document).ready(function() {
 	$('#selectsort').change(function() {

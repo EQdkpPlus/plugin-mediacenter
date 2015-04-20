@@ -349,7 +349,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 		
 		public function get_html_reported($intMediaID){
 			if ($this->get_reported($intMediaID)){
-				return '<div onclick="get_report_media('.$intMediaID.')" id="reported_'.$intMediaID.'" data-user="'.$this->pdh->get('user', 'name', array($this->get_reported_by($intMediaID))).'" data-reason="'.$this->get_reported_text($intMediaID).'">'.$this->core->icon_font('fa fa-warning icon-red fa-lg');
+				return '<div onclick="get_report_media('.$intMediaID.')" id="reported_'.$intMediaID.'" data-user="'.$this->pdh->get('user', 'name', array($this->get_reported_by($intMediaID))).'" data-reason="'.$this->get_reported_text($intMediaID).'" class="hand">'.$this->core->icon_font('fa fa-warning icon-red fa-lg');
 			}
 			return "";
 		}
@@ -670,7 +670,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 		}
 		
 		public function get_frontendlist($intMediaID){
-			$out = '<a href="'.$this->controller_path.$this->get_path($intMediaID).'"><h3>'.$this->get_name($intMediaID).'</h3></a>';
+			$out = '<a href="'.$this->controller_path.$this->get_path($intMediaID).'"><h3>'.((!$this->get_published($intMediaID)) ? '<i class="fa fa-eye-slash fa-lg "></i> ' : '').$this->get_name($intMediaID).'</h3></a>';
 			$strUsertime = $this->get_html_date($intMediaID);
 			$intTimestamp = $this->get_date($intMediaID);
 			$out .= $this->get_html_type($intMediaID).' &bull; '.$this->time->createTimeTag($intTimestamp, $strUsertime).' &bull; '.$this->pdh->geth('user', 'name', array($this->get_user_id($intMediaID),'', '', true));
@@ -842,6 +842,22 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 				}
 			}
 			return $arrSearchResults;
+		}
+		
+		/**
+		 * Returns also unpublished media
+		 * 
+		 * @param integer $intUserID
+		 * @return array
+		 */
+		public function get_my_media($intUserID){
+			$arrOut = array();
+			foreach($this->mediacenter_media as $intMediaID => $arrMediaData){
+				if($arrMediaData['user_id'] === $intUserID){
+					$arrOut[] = $intMediaID;
+				}
+			}
+			return $arrOut;
 		}
 
 	}//end class
