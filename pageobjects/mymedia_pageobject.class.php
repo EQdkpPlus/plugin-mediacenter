@@ -159,8 +159,8 @@ class mymedia_pageobject extends pageobject {
   	));
   				
   			$start		 = $this->in->get('start', 0);
-  			$page_suffix = '&amp;start='.$start.'&amp;layout='.$intLayout;
-  			$sort_suffix = '?sort='.$this->in->get('sort', '3|desc');
+  			$page_suffix = '&amp;layout='.$intLayout;
+  			$sort_suffix = '&sort='.$this->in->get('sort', '3|desc');
   			$strBaseLayoutURL = $this->strPath.$this->SID.'&sort='.$this->in->get('sort', '3|desc').'&start='.$start.'&layout=';
   			$strBaseSortURL = $this->strPath.$this->SID.'&start='.$start.'&layout='.$intLayout.'&sort=';
   			$arrSortOptions = $this->user->lang('mc_sort_options');
