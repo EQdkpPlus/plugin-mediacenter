@@ -257,7 +257,7 @@ class views_pageobject extends pageobject {
   		$arrAdmins = $this->pdh->get('user', 'users_with_permission', array('a_mediacenter_manage'));
   		$intCategory = $this->pdh->get('mediacenter_media', 'category_id', array($intMediaID));
   		$strName = $this->pdh->get('mediacenter_media', 'name', array($intMediaID));
-  		$strLink = 'plugins/mediacenter/admin/manage_media.php'.$this->SID.'&cid='.$intCategory;
+  		$strLink = 'plugins/mediacenter/admin/manage_media.php'.$this->SID.'&cid='.$intCategory.'&filter=reported';
   		foreach($arrAdmins as $intUserID){
   			$this->ntfy->add('mediacenter_media_reported', $intMediaID, $this->user->data['username'], $strLink, $intUserID, $strName);
   		}
@@ -629,7 +629,7 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   					));
   				}
   				
-  				if(isset($arrAdditionalData['Longitude']) && isset($arrAdditionalData['Latitude'])) {
+  				if(isset($arrAdditionalData['Longitude']) && isset($arrAdditionalData['Latitude']) && (int)$this->config->get('show_maps', 'mediacenter') == 1) {
   					$this->tpl->assign_vars(array(
   							'S_MC_COORDS' 			=> true,
   							'MC_MEDIA_LONGITUDE'	=> $arrAdditionalData['Longitude'],

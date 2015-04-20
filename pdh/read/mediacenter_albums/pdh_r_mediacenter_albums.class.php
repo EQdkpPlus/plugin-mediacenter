@@ -250,9 +250,9 @@ if ( !class_exists( "pdh_r_mediacenter_albums" ) ) {
 		  	return $arrCategories;
 		}
 		
-		public function get_html_album_tree($strValue = false, $blnCheckPermissions = false){
+		public function get_html_album_tree($strValue = false, $blnCheckPermissions = false, $blnArrayOnly = false){
 			$strOut = "";
-			
+			$arrOut = array();
 			
 			$arrCategoryIDs = $this->pdh->sort($this->pdh->get('mediacenter_categories', 'id_list', array()), 'mediacenter_categories', 'sort_id', 'asc');
 			foreach($arrCategoryIDs as $intCategoryID){
@@ -280,14 +280,16 @@ if ( !class_exists( "pdh_r_mediacenter_albums" ) ) {
 					}
 				}
 				
+				$arrOut['c'.$intCategoryID] = $catName;
 				$strOut .= '<option class="category'.$class.'"'.$selected.' value="c'.$intCategoryID.'">'.$catName.'</option>';
 				
 				foreach($arrAlbums as $albumID){
 					$selected = ($strValue !== false && $strValue == $albumID) ? 'selected="selected"' : '';		
 					$strOut .= '<option class="'.$class.'"'.$selected.' value="'.$albumID.'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.$strPrefix.$this->pdh->get('mediacenter_albums', 'name', array($albumID)).'</option>';
+					$arrOut[$albumID] = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.$strPrefix.$this->pdh->get('mediacenter_albums', 'name', array($albumID));
 				}
 			}
-			return $strOut;
+			return ($blnArrayOnly) ? $arrOut : $strOut;
 		}
 		
 		public function get_path($intAlbumID, $url_id=false, $arrPath=array()){

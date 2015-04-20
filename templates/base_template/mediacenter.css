@@ -571,3 +571,20 @@
 		max-width: 100%;
 	}
 }
+
+.mcPortalBox > div {
+	padding: 3px;
+	margin-bottom: 3px;
+}
+
+.mcPortalBox .mcPreviewImageSmall.image img, .mcPortalBox .mcPreviewImageSmall.video img  {
+	max-width: 100%;
+	height: auto;
+	width: auto;
+	max-height: 150px;
+}
+
+.mcPortalBox .mcPreviewImageSmall.image, .mcPortalBox .mcPreviewImageSmall.video {
+	float: none;
+	text-align: center;
+}

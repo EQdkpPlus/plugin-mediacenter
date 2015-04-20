@@ -349,7 +349,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 		
 		public function get_html_reported($intMediaID){
 			if ($this->get_reported($intMediaID)){
-				return '<div onclick="get_report_media('.$intMediaID.')" id="reported_'.$intMediaID.'" data-user="'.$this->pdh->get('user', 'name', array($this->get_reported_by($intMediaID))).'" data-reason="'.$this->get_reported_text($intMediaID).'" class="hand">'.$this->core->icon_font('fa fa-warning icon-red fa-lg');
+				return '<div title="'.$this->user->lang('mc_view_report').'" onclick="get_report_media('.$intMediaID.')" id="reported_'.$intMediaID.'" data-user="'.$this->pdh->get('user', 'name', array($this->get_reported_by($intMediaID))).'" data-reason="'.$this->get_reported_text($intMediaID).'" class="hand">'.$this->core->icon_font('fa fa-warning icon-red fa-lg');
 			}
 			return "";
 		}

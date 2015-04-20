@@ -1,19 +1,9 @@
 ToDo:
 
-- Admin/Manage_media.php:
-	- Filter für Reported/Unveröffentlichte Medien
-		- Notifications anpassen für direkten Filter
-
-- Portalmodule
-	- Latest Files Module
-	- Random Media Module
-	- Interesting Media Module (enthält die Favoriten)
-	- Top Media Module (am meisten angesehen)
-	- Jedes Modul soll klonbar sein, und Auswahl für die verschiedenen Medientypen haben
+- Englisch
 
 ------------------
 Zukünftig:
 - Karte
-- Karten abschaltbar machen
 - Ähnliche Medien bzw. mehr aus Kategorie
 - Dateien neu indexieren, evtl. mit finfo_file() oder sowas

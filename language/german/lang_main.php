@@ -197,6 +197,26 @@ $lang = array(
 	"mc_change_state_unpublish" => "Unveröffentlichen",
 	"mc_perm_rea" => "Ansehen",	
 	"mc_manage_category" => "Kategorie bearbeiten",
+	"mc_filter_media_admin" => array(
+		"unpub"	=> "Nur unveröffentlichte Medien",
+		"reported"	=> "Nur gemeldete Medien",
+	),
+	"mc_view_report" => "Meldung ansehen",
+	"mc_fs_maps" => "Karten",
+	"mc_f_show_maps" => "Karte des Aufnahmeortes von Bildern anzeigen",
+		
+	/* Portal moduls */
+	"mc_f_output_count_limit" => "Anzahl angezeigter Medien",
+	"mc_f_categories" => "Kategorien auswählen",
+	"mc_featured_media" => "Vorgestellte Medien",
+	"mc_featured_media_name" => "MediaCenter: Vorgestellte Medien",
+	"mc_latest_media" => "Neueste Medien",
+	"mc_latest_media_name" => "MediaCenter: Neueste Medien",
+	"mc_most_viewed_media" => "Am meisten angesehene Medien",
+	"mc_most_viewed_media_name" => "MediaCenter: Am meisten angesehene Medien",
+	"mc_random_media" => "Zufällige Medien",
+	"mc_random_media_name" => "MediaCenter: Zufällige Medien",
+	"mc_portal_settings_warning" => "Damit dieses Modul Medien anzeigen kann, musst du in den Portalmoduleinstellungen einige Sachen einstellen."
  );
 
 ?>

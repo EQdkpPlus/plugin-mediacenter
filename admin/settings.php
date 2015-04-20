@@ -106,6 +106,11 @@ class MediaCenterSettings extends page_generic
   				'default' => 25,
   			),	
   		),
+  		'maps' => array(
+  			'show_maps' => array(
+  				'type' => 'radio',
+  			),
+  		),
   		'index_page' => array(
   			'show_featured' => array(
   				'type' => 'radio',

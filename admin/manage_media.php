@@ -120,9 +120,10 @@ class Manage_Media extends page_generic {
 	public function display(){
 		$intCategoryID = $this->in->get('cid', 0);
 		if (!$intCategoryID) redirect('plugins/mediacenter/admin/manage_categories.php'.$this->SID);
+		
+		$strFilter = $this->in->get('filter', '');
 				
 		$arrAlbums = $this->pdh->get('mediacenter_albums', 'albums_for_category', array($intCategoryID));
-		$view_list = $this->pdh->get('mediacenter_categories', 'id_list', array());
 		
 		$hptt_page_settings = array(
 			'name'				=> 'hptt_mc_admin_manage_media_categorylist',
@@ -161,7 +162,26 @@ class Manage_Media extends page_generic {
 		$arrMediaInCategory = $this->pdh->get('mediacenter_media', 'id_list_for_category', array($intCategoryID));
 		if (isset($arrMediaInCategory[0]) && count($arrMediaInCategory[0])){
 			$view_list = $arrMediaInCategory[0];
-			$hptt = $this->get_hptt($hptt_page_settings, $view_list, $view_list, array('%link_url%' => 'manage_media.php', '%link_url_suffix%' => '&amp;upd=true'), $intCategoryID.'.0');
+			if($strFilter == 'unpub'){
+				$arrTmpList = array();
+				foreach($view_list as $id){
+					if(!$this->pdh->get('mediacenter_media', 'published', array($id))){
+						$arrTmpList[] = $id;
+					}
+				}
+				$view_list = $arrTmpList;
+			}elseif($strFilter == 'reported'){
+				$arrTmpList = array();
+				foreach($view_list as $id){
+					if($this->pdh->get('mediacenter_media', 'reported', array($id))){
+						$arrTmpList[] = $id;
+					}
+				}
+				$view_list = $arrTmpList;
+			}
+			
+			
+			$hptt = $this->get_hptt($hptt_page_settings, $view_list, $view_list, array('%link_url%' => 'manage_media.php', '%link_url_suffix%' => '&amp;upd=true'), $intCategoryID.'.0.'.md5($strFilter));
 			
 			$this->tpl->assign_vars(array(
 				'S_IN_CATEGORY' => true,
@@ -172,7 +192,25 @@ class Manage_Media extends page_generic {
 		
 		foreach($arrAlbums as $intAlbumID){
 			$view_list = $this->pdh->get('mediacenter_media', 'id_list', array($intAlbumID));
-			$hptt = $this->get_hptt($hptt_page_settings, $view_list, $view_list, array('%link_url%' => 'manage_media.php', '%link_url_suffix%' => '&amp;upd=true'), $intCategoryID.'.'.$intAlbumID);
+			if($strFilter == 'unpub'){
+				$arrTmpList = array();
+				foreach($view_list as $id){
+					if(!$this->pdh->get('mediacenter_media', 'published', array($id))){
+						$arrTmpList[] = $id;
+					}
+				}
+				$view_list = $arrTmpList;
+			}elseif($strFilter == 'reported'){
+				$arrTmpList = array();
+				foreach($view_list as $id){
+					if($this->pdh->get('mediacenter_media', 'reported', array($id))){
+						$arrTmpList[] = $id;
+					}
+				}
+				$view_list = $arrTmpList;
+			}
+			
+			$hptt = $this->get_hptt($hptt_page_settings, $view_list, $view_list, array('%link_url%' => 'manage_media.php', '%link_url_suffix%' => '&amp;upd=true'), $intCategoryID.'.'.$intAlbumID.'.'.md5($strFilter));
 		
 			$this->tpl->assign_block_vars('album_list', array(
 				'NAME'				=> $this->pdh->get('mediacenter_albums', 'name', array($intAlbumID)),
@@ -225,9 +263,13 @@ class Manage_Media extends page_generic {
 		$this->jquery->Dialog('editalbum', $this->user->lang('mc_edit_album'), array('withid' => 'albumid', 'url'=> $this->controller_path.'EditAlbum/Album-\'+albumid+\'/'.$this->SID.'&simple_head=1&admin=1', 'width'=>'640', 'height'=>'520', 'onclose' => $this->env->buildlink().'plugins/mediacenter/admin/manage_media.php'.$this->SID.'&cid='.$intCategoryID));
 		$this->jquery->Dialog('addalbum', $this->user->lang('mc_new_album'), array('url'=> $this->controller_path.'AddAlbum/'.$this->SID.'&simple_head=1&admin=1&cid='.$intCategoryID, 'width'=>'640', 'height'=>'520', 'onclose' => $this->env->buildlink().'plugins/mediacenter/admin/manage_media.php'.$this->SID.'&cid='.$intCategoryID));
 		
+		$arrFilter[] = " - ";
+		$arrFilter = array_merge($arrFilter, $this->user->lang('mc_filter_media_admin'));
+		
 		$this->tpl->assign_vars(array(
 			'CID' 			=> $intCategoryID,
 			'CATEGORY_NAME' => $this->pdh->get('mediacenter_categories', 'name', array($intCategoryID)),
+			'DD_FILTER'		=> new hdropdown('filter', array('options' => $arrFilter, 'js' => 'onchange="this.form.submit()"', 'value' => $strFilter)),
 			'BUTTON_MENU'	=> $this->jquery->ButtonDropDownMenu('manage_members_menu', $arrMenuItems, array("input[name=\"selected_ids[]\"]"), '', $this->user->lang('mc_selected_media').'...', ''),
 		));
 				

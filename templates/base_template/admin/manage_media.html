@@ -53,9 +53,16 @@
 	<div class="contentHeader">
 		<h1 class="contentTitle">{L_mc_manage_media}: {CATEGORY_NAME}</h1>
 	</div>
-	<div class="tableHeader floatRight">
-		<button class="mainoption" type="button" name="addadj" onclick="addmedia('c{CID}');"><i class="fa fa-plus"></i>{L_mc_add_media}</button>
-		<button class="mainoption" type="button" name="addadj" onclick="addalbum();"><i class="fa fa-plus"></i>{L_mc_new_album}</button>
+	<div class="tableHeader">
+		<div>
+			<form method="post" action="">
+			<span style="font-weight:bold;">{L_filter}:</span> <label>{DD_FILTER}</label>
+			</form>
+		</div>
+		<div class="floatRight">
+			<button class="mainoption" type="button" name="addadj" onclick="addmedia('c{CID}');"><i class="fa fa-plus"></i>{L_mc_add_media}</button>
+			<button class="mainoption" type="button" name="addadj" onclick="addalbum();"><i class="fa fa-plus"></i>{L_mc_new_album}</button>
+		</div>
 	</div>
 	<div class="clear"></div>
 	<!-- IF S_IN_CATEGORY -->

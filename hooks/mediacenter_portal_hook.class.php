@@ -37,7 +37,7 @@ if (!class_exists('mediacenter_portal_hook')){
 					$this->ntfy->add_persistent(
 							'mediacenter_media_unpublished',
 							sprintf($this->user->lang('mc_notify_unpublished_media'), $intUnpublishedCount, $this->pdh->get('mediacenter_categories', 'name', array($intCategoryID))),
-							$this->server_path.'plugins/mediacenter/admin/manage_media.php'.$this->SID.'&amp;cid='.$intCategoryID,
+							$this->server_path.'plugins/mediacenter/admin/manage_media.php'.$this->SID.'&amp;cid='.$intCategoryID.'&filter=unpub',
 							1,
 							'fa-picture-o'
 					);

@@ -115,6 +115,12 @@ class mediacenter extends plugin_generic
     $this->add_menu('admin', $this->gen_admin_menu());
 	$this->add_menu('main', $this->gen_main_menu());
 	
+	//Portal modules
+	$this->add_portal_module('mc_latest_media');
+	$this->add_portal_module('mc_random_media');
+	$this->add_portal_module('mc_featured_media');
+	$this->add_portal_module('mc_most_viewed_media');
+	
 	//Add Mediacenter Stylesheets
 	$this->tpl->css_file($this->root_path.'plugins/mediacenter/templates/base_template/mediacenter.css');
   }
@@ -151,6 +157,7 @@ class mediacenter extends plugin_generic
   		'show_categories' => 1,
   		'show_mostviewed' => 1,
   		'show_latestcomments' => 1,
+  		'show_maps'	=> 1,
   	);
   	
   	$this->config->set($arrSave, '', 'mediacenter');
