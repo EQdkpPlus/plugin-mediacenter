@@ -285,6 +285,25 @@ class Manage_Categories extends page_generic {
 		$item_count = count($view_list);
 		
 		$this->confirm_delete($this->user->lang('mc_confirm_delete_category'));
+		
+		$intMediaCount = $this->pdh->get('mediacenter_media', 'id_list', array());
+		if($intMediaCount === 0){
+			$strFolder = $this->pfh->FolderPath('files', 'mediacenter');
+			$arrFiles = scandir($strFolder);
+			$blnOldFiles = false;
+			foreach($arrFiles as $strFile){
+				if(valid_folder($strFile)){
+					$blnOldFiles = true;
+					break;
+				}
+			}
+			
+			if($blnOldFiles){
+				$this->tpl->assign_vars(array(
+					'S_SHOW_OLD_INFO' => true	
+				));
+			}
+		}
 
 		$this->tpl->assign_vars(array(
 			'CATEGORY_LIST'		=> $hptt->get_html_table($this->in->get('sort'), $page_suffix,null,1,null,false, array('mediacenter_categories', 'checkbox_check')),

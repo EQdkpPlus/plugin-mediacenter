@@ -218,6 +218,11 @@ $lang = array(
 	"mc_random_media_name" => "MediaCenter: Zufällige Medien",
 	"mc_portal_settings_warning" => "Damit dieses Modul Medien anzeigen kann, musst du in den Portalmoduleinstellungen einige Sachen einstellen.",
 	"mc_show_map" => "Karte anzeigen",
+	"mc_index_files" => "Dateien importieren",
+	"mc_index_files_category_help" => "Wähle am besten eine Kategorie, in der alle Medien erlaubt sind, um alle Medien importieren zu können.",
+	"mc_index_finfo_warning" => "Die vorhanden Dateien können nicht importiert werden, da die PHP-Erweiterung finfo nicht aktiviert ist.",
+	"mc_index_info" => "Auf dieser Seite kannst du bereits vorhandene Dateien von einer alten Installation importieren. Wähle dazu am besten eine Kategorie aus, in der alle Medientypen erlaubt sind, um alle Dateien zu importieren.",
+	"mc_index_info_old" => "Es sind noch Dateien von einer früheren Installation des MediaCenters vorhanden. Klicke auf diesen Link, um diese vorhandenen Dateien zu importieren",	
  );
 
 ?>

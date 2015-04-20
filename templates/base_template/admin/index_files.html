@@ -1,0 +1,42 @@
+<div class="breadcrumb-container">
+	<ul class="breamcrumb">
+		<li><a href="{EQDKP_CONtdOLLER_PATH}{SID}" title="{L_home}"><i class="fa fa-home"></i></a></li>
+		<li><a href="{EQDKP_ROOT_PATH}admin/{SID}">{L_menu_admin_panel}</a>
+		<li class="current"><a href="{EQDKP_ROOT_PATH}plugins/mediacenter/admin/manage_categories.php{SID}">{L_mc_mediacenter}: {L_mc_index_files}</a></li>
+	</ul>
+	<div class="clear"></div>
+</div>
+
+<!-- IF S_START -->
+
+<!-- IF not S_MC_INDEX -->
+	<div class="infobox infobox-large infobox-red clearfix">
+		<i class="fa fa-exclamation-tdiangle fa-4x pull-left"></i> {L_mc_index_finfo_warning}
+	</div>
+<!-- ELSE -->
+		<div class="infobox infobox-large infobox-blue clearfix">
+			<i class="fa fa-info-circle fa-4x pull-left"></i> {L_mc_index_info}
+		</div>
+<form method="post" action="" name="post">
+<fieldset class="settings">
+	<legend>{L_mc_index_files}</legend>
+
+	<dl>
+		<dt><label>{L_mc_f_category}</label><br /><span>{L_mc_index_files_category_help}</span></dt>
+		<dd>{DD_CATEGORIES}</dd>
+	</dl>
+
+</fieldset>
+<button type="submit" name="save"><i class="fa fa-check fa-lg"></i> {L_submit}</button>
+		
+{CSRF_TOKEN}	
+</form>
+<!-- ENDIF -->
+
+<!-- ELSE -->
+<table class="table colorswitsch">
+<!-- BEGIN mc_media_row -->
+<tr><td>{mc_media_row.ICON}</td><td>{mc_media_row.NAME}</td><td>{mc_media_row.STATUS}</td></tr>
+<!-- END mc_media_row -->
+</table>
+<!-- ENDIF -->

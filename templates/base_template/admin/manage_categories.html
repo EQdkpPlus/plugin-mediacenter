@@ -28,6 +28,13 @@
 	<div class="contentHeader">
 		<h1 class="contentTitle">{L_mc_manage_categories}</h1>
 	</div>
+	
+	<!-- IF S_SHOW_OLD_INFO -->
+<div class="infobox infobox-large infobox-blue clearfix">
+			<i class="fa fa-info-circle fa-4x pull-left"></i> <a href="index_files.php{SID}">{L_mc_index_info_old}</a>
+		</div>
+<!-- ENDIF -->
+	
 	<div class="tableHeader floatRight">
 		<button class="mainoption" type="button" name="addadj" onclick="window.location='manage_categories.php{SID}&amp;cid=0'"><i class="fa fa-plus"></i>{L_mc_add_category}</button>
 	</div>
