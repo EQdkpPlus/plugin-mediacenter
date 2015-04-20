@@ -541,3 +541,33 @@
   filter: grayscale(100%);
   -webkit-filter: grayscale(100%);
 }
+
+@media all and (max-width: 899px) {
+	.responsive .TripleColumn li, .responsive .DoubleColumn li {
+		float: none;
+		width: 100%;
+	}
+	
+	.responsive .mcPreviewImageBig {
+		float: none;
+	}
+	
+	.responsive .mcSidebar, .mcSidebar > .col2.last {
+		display: block;
+		border: none;
+		background: none;
+	}
+	
+	.responsive .mcSwitcherBar, .responsive .mcSwitcherBar .dropdown {
+		float: none;
+		display: block;
+	}
+	
+	.responsive .mcSidebarRight {
+		width: auto !important;
+	}
+	
+	.responsive .mcVideoContainer > iframe {
+		max-width: 100%;
+	}
+}

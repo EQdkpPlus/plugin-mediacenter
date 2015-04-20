@@ -11,9 +11,6 @@ ToDo:
 	- Top Media Module (am meisten angesehen)
 	- Jedes Modul soll klonbar sein, und Auswahl für die verschiedenen Medientypen haben
 
-- Responsive Design
-
-
 ------------------
 Zukünftig:
 - Karte
