@@ -1,9 +1,7 @@
 ToDo:
-
 - Englisch
 
 ------------------
 Zukünftig:
-- Karte
 - Ähnliche Medien bzw. mehr aus Kategorie
 - Dateien neu indexieren, evtl. mit finfo_file() oder sowas

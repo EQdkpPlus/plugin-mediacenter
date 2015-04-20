@@ -588,3 +588,7 @@
 	float: none;
 	text-align: center;
 }
+
+.mcSwitcherBar .dropdown .selected {
+	font-size: 14px;
+}

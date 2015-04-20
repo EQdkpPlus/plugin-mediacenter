@@ -216,7 +216,8 @@ $lang = array(
 	"mc_most_viewed_media_name" => "MediaCenter: Am meisten angesehene Medien",
 	"mc_random_media" => "Zufällige Medien",
 	"mc_random_media_name" => "MediaCenter: Zufällige Medien",
-	"mc_portal_settings_warning" => "Damit dieses Modul Medien anzeigen kann, musst du in den Portalmoduleinstellungen einige Sachen einstellen."
+	"mc_portal_settings_warning" => "Damit dieses Modul Medien anzeigen kann, musst du in den Portalmoduleinstellungen einige Sachen einstellen.",
+	"mc_show_map" => "Karte anzeigen",
  );
 
 ?>
