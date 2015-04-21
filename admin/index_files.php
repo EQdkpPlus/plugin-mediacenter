@@ -116,12 +116,7 @@ class IndexMediaFiles extends page_generic {
 					//Preview Image
 					$filename = md5(rand().unique_id());
 					$this->pfh->copy($strFileFolder.$strLocalfile, $strThumbfolder.$filename.'.'.$strExtension);
-				
-					//Watermark
-					if ((int)$this->config->get('watermark_enabled', 'mediacenter')){
-						$this->create_watermark($strThumbfolder.$filename.'.'.$strExtension);
-					}
-				
+			
 					$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.64.'.$strExtension, 64);
 					$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.240.'.$strExtension, 240);
 				

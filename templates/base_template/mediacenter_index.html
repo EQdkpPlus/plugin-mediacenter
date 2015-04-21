@@ -121,6 +121,31 @@
 	</div>
 	<!-- ENDIF -->
 	
+	<!-- IF S_MC_SHOW_BESTRATED -->
+	<div>
+		<h2>{L_mc_f_show_bestrated}</h2>
+		<div class="mcFileList TripleColumn">
+			<ul>
+				<!-- BEGIN mc_bestrated_row -->
+				<li>
+					<div class="mcPreviewImageSmall">
+						<a href="{mc_bestrated_row.LINK}">
+							{mc_bestrated_row.PREVIEW_IMAGE}
+						</a>
+					</div>
+					<div>
+						<a href="{mc_bestrated_row.LINK}"><h3>{mc_bestrated_row.NAME}</h3></a>
+						{mc_bestrated_row.TYPE} &bull; {mc_bestrated_row.DATE} &bull; {mc_bestrated_row.AUTHOR} &bull; {mc_bestrated_row.CATEGORY_AND_ALBUM}
+					</div>
+					
+				</li>
+				<!-- END mc_bestrated_row -->
+			</ul>
+		</div>
+		<div class="clear"></div>
+	</div>
+	<!-- ENDIF -->
+	
 	<!-- IF S_MC_SHOW_LATESTCOMMENTS -->
 	<div>
 		<h2>{L_mc_f_show_latestcomments}</h2>

@@ -149,8 +149,9 @@ $lang = array(
 	'mc_f_show_featured'		=> 'Vorgestellte Medien',
 	'mc_f_show_newest'			=> 'Neueste Medien',
 	'mc_f_show_categories'		=> 'Kategorien',
-	'mc_f_show_mostviewed'		=> 'Am meisten angesehen',
+	'mc_f_show_mostviewed'		=> 'Am meisten Angesehen',
 	'mc_f_show_latestcomments'	=> 'Neueste Kommentare',
+	'mc_f_show_bestrated'		=> 'Am besten Bewertet',
 	'mc_fs_index_page'			=> 'Startseite',
 	'mc_coords'					=> 'Aufnahmeort',
 		

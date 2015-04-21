@@ -218,10 +218,13 @@ class views_pageobject extends pageobject {
   			
   			//Check if there is a watermark image
   			$strThumbfolder = $this->pfh->FolderPath('thumbs', 'mediacenter');
-  			if(file_exists($strThumbfolder.$arrMediaData['localfile'].'.'.$strExtension)){
-  				$strImage = $strThumbfolder.$arrMediaData['localfile'].'.'.$strExtension;
+  			$strWatermarkFile = $strThumbfolder.'wm_'.$arrMediaData['previewimage'];
+  			
+  			if(file_exists($strWatermarkFile)){
+  				$strImage = $strWatermarkFile;
   			} else {
-  				$strImage = $this->pfh->FolderPath('files', 'mediacenter', 'relative').$arrMediaData['localfile'];
+  				$this->create_watermark($strThumbfolder.$arrMediaData['previewimage'], $strWatermarkFile);
+  				$strImage = $strWatermarkFile;
   			}
   				
   			if (file_exists($strImage)){
@@ -1289,6 +1292,26 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   			));
   		}
   		
+  		//Get Best rated files
+  		$arrBestRatedMedia = $this->pdh->get('mediacenter_media', 'best_rated', array(6));
+
+  		foreach($arrBestRatedMedia as $intMediaID){
+  			$this->tpl->assign_block_vars('mc_bestrated_row', array(
+  					'PREVIEW_IMAGE' => 	$this->pdh->geth('mediacenter_media', 'previewimage', array($intMediaID, 1)),
+  					'PREVIEW_IMAGE_URL' => 	$this->pdh->geth('mediacenter_media', 'previewimage', array($intMediaID, 1, true)),
+  					'NAME'			=> $this->pdh->get('mediacenter_media', 'name', array($intMediaID)),
+  					'LINK'			=> $this->controller_path.$this->pdh->get('mediacenter_media', 'path', array($intMediaID)),
+  					'VIEWS'			=> $this->pdh->get('mediacenter_media', 'views', array($intMediaID)),
+  					'AUTHOR'		=> $this->core->icon_font('fa-user').' '.$this->pdh->geth('user', 'name', array($this->pdh->get('mediacenter_media', 'user_id', array($intMediaID)),'', '', true)),
+  					'DATE'			=> $this->time->createTimeTag($this->pdh->get('mediacenter_media', 'date', array($intMediaID)), $this->pdh->geth('mediacenter_media', 'date', array($intMediaID))),
+  					'CATEGORY_AND_ALBUM' => $this->pdh->geth('mediacenter_media', 'category_id', array($intMediaID, true)).((strlen($this->pdh->geth('mediacenter_media', 'album_id', array($intMediaID, true)))) ? ' &bull; '.$this->pdh->geth('mediacenter_media', 'album_id', array($intMediaID, true)): ''),
+  					'DESCRIPTION'	=> $this->bbcode->remove_bbcode($this->pdh->get('mediacenter_media', 'description', array($intMediaID))),
+  					'TYPE'			=> $this->pdh->geth('mediacenter_media', 'type', array($intMediaID)),
+  					'S_MC_TOOLBAR'	=> ($arrPermissions['create'] || $this->user->check_auth('a_mediacenter_manage', false)),
+  					'MC_TOOLBAR'	=> $jqToolbar['id'],
+  			));
+  		}
+  		
   		$arrToolbarItems = array();
   		if ($arrPermissions['create'] || $this->user->check_auth('a_mediacenter_manage', false)) {
   			$arrToolbarItems[] = array(
@@ -1316,6 +1339,7 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   			'S_MC_SHOW_FEATURED'	=> intval($this->config->get('show_featured', 'mediacenter')) && count($arrFeaturedFiles),
   			'S_MC_SHOW_NEWEST'		=> intval($this->config->get('show_newest', 'mediacenter')) && count($arrNewestMedia),
   			'S_MC_SHOW_CATEGORIES'	=> intval($this->config->get('show_categories', 'mediacenter')),
+  			'S_MC_SHOW_BESTRATED'	=> intval($this->config->get('show_bestrated', 'mediacenter')) && count($arrBestRatedMedia),
   			'S_MC_SHOW_MOSTVIEWED'	=> intval($this->config->get('show_mostviewed', 'mediacenter')) && count($arrMostViewedMedia),
   			'S_MC_SHOW_LATESTCOMMENTS' => intval($this->config->get('show_latestcomments', 'mediacenter')) && count($arrLatestCommentMedia),
   			'S_MC_TOOLBAR'			=> ($arrPermissions['create'] || $this->user->check_auth('a_mediacenter_manage', false)),
@@ -1332,5 +1356,71 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   	}
 
   }
+  
+  private function create_watermark($image, $dest){
+  		
+  	//Image
+  	$imageInfo		= GetImageSize($image);
+  	if (!$imageInfo) {
+  		return false;
+  	}
+  		
+  	switch($imageInfo[2]){
+  		case 1:	$imgOld = ImageCreateFromGIF($image);	break;	// GIF
+  		case 2:	$imgOld = ImageCreateFromJPEG($image);	break;	// JPG
+  		case 3:
+  			$imgOld = ImageCreateFromPNG($image);
+  			imageAlphaBlending($imgOld, false);
+  			imageSaveAlpha($imgOld, true);
+  			break;	// PNG
+  	}
+  		
+  	//Watermark Logo
+  	$strWatermarkImage = $this->root_path.$this->config->get('watermark_logo', 'mediacenter');
+  	$logoInfo = getimagesize($strWatermarkImage);
+  	if (!$logoInfo) return false;
+  		
+  	switch($logoInfo[2]){
+  		case 1:	$imgLogo = ImageCreateFromGIF($strWatermarkImage);	break;	// GIF
+  		case 2:	$imgLogo = ImageCreateFromJPEG($strWatermarkImage);	break;	// JPG
+  		case 3:
+  			$imgLogo = ImageCreateFromPNG($strWatermarkImage);
+  			imageAlphaBlending($imgLogo, false);
+  			imageSaveAlpha($imgLogo, true);
+  			break;	// PNG
+  	}
+  		
+  	$margin = 10;
+  	$sx = imagesx($imgLogo);
+  	$sy = imagesy($imgLogo);
+  		
+  	switch($this->config->get('watermark_position', 'mediacenter')){
+  		case 'rt': $dst_x = imagesx($imgOld) - $sx - $margin; $dst_y = 10;
+  		break;
+  		case 'rb': $dst_x = imagesx($imgOld) - $sx - $margin; $dst_y = imagesy($imgOld) - $sy - $margin;
+  		break;
+  		case 'lb': $dst_x = 10; $dst_y = imagesy($imgOld) - $sy - $margin;
+  		break;
+  		case 'lt': $dst_x = $margin; $dst_y = $margin;
+  		break;
+  	}
+  		
+  	$intTransparency = (100 - $this->config->get('watermark_transparency', 'mediacenter'));
+  	if ($intTransparency > 100 || $intTransparency < 0) $intTransparency = 100;
+  	
+  	$result = imagecopymerge($imgOld, $imgLogo, $dst_x, $dst_y, 0, 0, $sx, $sy, $intTransparency);
+  
+  	switch($imageInfo[2]){
+  		case 1:	ImageGIF($imgOld,	$dest);	break;	// GIF
+  		case 2:	ImageJPEG($imgOld,	$dest, 100);	break;	// JPG
+  		case 3:	ImagePNG($imgOld,	$dest, 0);	break;	// PNG
+  	}
+  		
+  	imagedestroy($imgOld);
+  	imagedestroy($imgLogo);
+  		
+  	return true;
+  }
+  
 }
 ?>

@@ -80,8 +80,20 @@ class MediaCenterSettings extends page_generic
 
   	if ($objForm->error){
   		$this->arrData = $arrValues;
-  	} else {
-  		if (!$arrValues['watermark_logo']) $arrValues['watermark_logo'] = $this->config->get('watermark_logo', 'mediacenter');
+  	} else {  
+  		$blnWatermarkChanged = false;
+  		if (!$arrValues['watermark_logo']) {
+  			$arrValues['watermark_logo'] = $this->config->get('watermark_logo', 'mediacenter');
+  		} else {
+  			$blnWatermarkChanged = true;
+  		}
+  		if($arrValues['watermark_position'] != $this->config->get('watermark_position', 'mediacenter') || $arrValues['watermark_transparency'] != $this->config->get('watermark_transparency', 'mediacenter')){
+  			$blnWatermarkChanged = true;
+  		}
+  		
+  		if($blnWatermarkChanged){
+  			$this->deleteWatermarkImages();
+  		}
   		
 	  	// update configuration
 	    $this->config->set($arrValues, '', 'mediacenter');
@@ -127,6 +139,9 @@ class MediaCenterSettings extends page_generic
   			'show_latestcomments' => array(
   				'type' => 'radio',
   			),
+  			'show_bestrated' => array(
+  				'type' => 'radio',
+  			),
   		),
   		'extensions' => array(
 	  		'extensions_image' => array(
@@ -159,6 +174,7 @@ class MediaCenterSettings extends page_generic
   				),
   				'folder'		=> $this->pfh->FolderPath('watermarks', 'mediacenter'),
   				'numerate'		=> true,
+  				'default'		=> false,
 	  		),
   			'watermark_position' => array(
   				'type' => 'dropdown',
@@ -197,8 +213,7 @@ class MediaCenterSettings extends page_generic
     
     $arrValues = $this->config->get_config('mediacenter');
     if ($this->arrData !== false) $arrValues = $this->arrData;
-    
-    if (strlen($arrValues['watermark_logo'])) $arrValues['watermark_logo'] = $this->root_path.$arrValues['watermark_logo'];
+    if ($arrValues['watermark_logo'] && strlen($arrValues['watermark_logo'])) $arrValues['watermark_logo'] = $this->root_path.$arrValues['watermark_logo'];
 
     // -- Template ------------------------------------------------------------
 	// initialize form class
@@ -220,6 +235,18 @@ class MediaCenterSettings extends page_generic
       'template_file' => 'admin/settings.html',
       'display'       => true
     ));
+  }
+  
+  private function deleteWatermarkImages(){
+  	$strThumbfolder = $this->pfh->FolderPath('thumbs', 'mediacenter');
+  	$arrFiles = scandir($strThumbfolder);
+  	foreach($arrFiles as $strFile){
+  		if(valid_folder($strFile)){
+  			if(strpos($strFile, 'wm_') === 0){
+  				$this->pfh->Delete($strThumbfolder.$strFile);
+  			}
+  		}
+  	}
   }
 }
 

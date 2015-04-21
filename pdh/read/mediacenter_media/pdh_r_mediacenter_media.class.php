@@ -466,6 +466,12 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 			}
 			return false;
 		}
+		
+		public function get_rating($intMediaID){
+			$intVotesCount = $this->get_votes_count($intMediaID);
+			$intVotesSum = $this->get_votes_sum($intMediaID);
+			return ($intVotesCount) ? round($intVotesSum / $intVotesCount) : 0;
+		}
 
 		/**
 		 * Returns featured for $intMediaID				
@@ -803,6 +809,29 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 			}
 			$arrOut = $this->pdh->sort($arrOut, 'mediacenter_media', 'last_comment', 'desc');
 
+			$arrOut = $this->pdh->limit($arrOut, 0, $limit);
+			return $arrOut;
+		}
+		
+		/**
+		 * Checks Permissions
+		 */
+		public function get_best_rated($limit=20){
+			$arrOut = array();
+			$intUserID = $this->user->id;
+			foreach($this->mediacenter_media as $intMediaID => $arrData){
+				if(!$this->get_published($intMediaID)) continue;
+				$intCategoryID = $this->get_category_id($intMediaID);
+				if(!$this->pdh->get('mediacenter_categories', 'published', array($intCategoryID))) continue;
+					
+				//Check cat permission
+				$arrPermissions = $this->pdh->get('mediacenter_categories','user_permissions', array($intCategoryID, $intUserID));
+				if (!$arrPermissions['read']) continue;
+
+				$arrOut[] = $intMediaID;
+			}
+			$arrOut = $this->pdh->sort($arrOut, 'mediacenter_media', 'rating', 'desc');
+		
 			$arrOut = $this->pdh->limit($arrOut, 0, $limit);
 			return $arrOut;
 		}
