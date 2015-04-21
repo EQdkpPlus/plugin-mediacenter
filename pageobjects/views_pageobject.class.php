@@ -215,16 +215,16 @@ class views_pageobject extends pageobject {
   		//It's an image
   		if($arrMediaData['type'] === 2){
   			$strExtension = pathinfo($arrMediaData['filename'], PATHINFO_EXTENSION);
-  			
-  			//Check if there is a watermark image
   			$strThumbfolder = $this->pfh->FolderPath('thumbs', 'mediacenter');
-  			$strWatermarkFile = $strThumbfolder.'wm_'.$arrMediaData['previewimage'];
   			
-  			if(file_exists($strWatermarkFile)){
-  				$strImage = $strWatermarkFile;
-  			} elseif($this->config->get('watermark_enabled', 'mediacenter')) {
-  				$this->create_watermark($strThumbfolder.$arrMediaData['previewimage'], $strWatermarkFile);
-  				$strImage = $strWatermarkFile;
+  			if($this->config->get('watermark_enabled', 'mediacenter') && $strExtension !== 'gif'){
+  				$strWatermarkFile = $strThumbfolder.'wm_'.$arrMediaData['previewimage'];
+  				if(file_exists($strWatermarkFile)){
+	  				$strImage = $strWatermarkFile;
+	  			} else {
+	  				$this->create_watermark($strThumbfolder.$arrMediaData['previewimage'], $strWatermarkFile);
+	  				$strImage = $strWatermarkFile;
+	  			}
   			} else {
   				$strImage = $strThumbfolder.$arrMediaData['previewimage'];
   			}
