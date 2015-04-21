@@ -138,6 +138,7 @@ class mediacenter extends plugin_generic
     for ($i = 1; $i <= count($mediacenterSQL['install']); $i++)
       $this->add_sql(SQL_INSTALL, $mediacenterSQL['install'][$i]);
 	  
+    $this->pdc->del_prefix('pdh_mediacenter_');
   }
   
   /**

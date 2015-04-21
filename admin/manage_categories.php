@@ -287,7 +287,7 @@ class Manage_Categories extends page_generic {
 		$this->confirm_delete($this->user->lang('mc_confirm_delete_category'));
 		
 		$intMediaCount = $this->pdh->get('mediacenter_media', 'id_list', array());
-		if($intMediaCount === 0){
+		if(!$intMediaCount || $intMediaCount === 0){
 			$strFolder = $this->pfh->FolderPath('files', 'mediacenter');
 			$arrFiles = scandir($strFolder);
 			$blnOldFiles = false;

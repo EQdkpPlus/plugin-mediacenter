@@ -284,6 +284,54 @@ class views_pageobject extends pageobject {
   	$arrPermissions = $this->pdh->get('mediacenter_categories', 'user_permissions', array($intCategoryId, $this->user->id));
   	if (!$arrPermissions['read']) message_die($this->user->lang('category_noauth'), $this->user->lang('noauth_default_title'), 'access_denied', true);
   	
+  	
+  	if($this->in->exists('map') && (int)$this->config->get('show_maps', 'mediacenter') == 1){
+  		$arrMediaInCategory = $this->pdh->get('mediacenter_media', 'id_list', array($intAlbumID, (!$blnShowUnpublished)));
+  	
+  		$intCount = 0;
+  		foreach($arrMediaInCategory as $intMediaID){
+  			$arrAdditionalData = $this->pdh->get('mediacenter_media', 'additionaldata', array($intMediaID));
+  			if(isset($arrAdditionalData['Longitude']) && isset($arrAdditionalData['Latitude'])){
+  				$this->tpl->assign_block_vars('mc_media_row', array(
+  						'LNG'			=> $arrAdditionalData['Longitude'],
+  						'LAT'			=> $arrAdditionalData['Latitude'],
+  						'NAME'			=> $this->pdh->get('mediacenter_media', 'name', array($intMediaID)),
+  						'LINK'			=> $this->server_path.$this->controller_path_plain.$this->pdh->get('mediacenter_media', 'path', array($intMediaID)),
+  						'PREVIEW_IMAGE' => 	$this->pdh->geth('mediacenter_media', 'previewimage', array($intMediaID, 2)),
+  				));
+  	
+  				$intCount++;
+  			}
+  		}
+  	
+  		$this->tpl->assign_vars(array(
+  				'MC_CATEGORY_NAME'	=> $arrAlbumData['name'],
+  				'MC_CATEGORY_ID'	=> $intCategoryId,
+  				'MC_BREADCRUMB'		=> $this->pdh->get('mediacenter_albums', 'breadcrumb', array($intAlbumID)),
+  				'MC_CATEGORY_MEDIA_COUNT' => $intCount,
+  		));
+  			
+  		// -- EQDKP ---------------------------------------------------------------
+  		$this->core->set_vars(array (
+  				'page_title'    => $arrCategoryData['name'].' - '.$this->user->lang('mediacenter'),
+  				'template_path' => $this->pm->get_data('mediacenter', 'template_path'),
+  				'template_file' => 'map.html',
+  				'display'       => true
+  		));
+  	
+  	} else {
+  		$arrMediaInCategory = $this->pdh->get('mediacenter_media', 'id_list', array($intAlbumID, (!$blnShowUnpublished)));
+  		$intMapCount = 0;
+  		foreach($arrMediaInCategory as $intMediaID){
+  			$arrAdditionalData = $this->pdh->get('mediacenter_media', 'additionaldata', array($intMediaID));
+  			if(isset($arrAdditionalData['Longitude']) && isset($arrAdditionalData['Latitude'])){
+  				$intMapCount++;
+  			}
+  		}
+  	}
+  	
+  	
+  	
   	//Items per Page
   	$intPerPage = $arrCategoryData['per_page'];
   	//Grid or List
@@ -440,6 +488,7 @@ class views_pageobject extends pageobject {
   					'MC_TOOLBAR'		=> $jqToolbar['id'],
   					'MC_BUTTON_MENU'	=> $this->jquery->ButtonDropDownMenu('manage_members_menu', $arrMenuItems, array("input[name=\"selected_ids[]\"]"), '', $this->user->lang('mc_selected_media').'...', ''),
   					'S_MC_BUTTON_MENU'  => (count($arrMenuItems) > 0) ? true : false,
+  					'S_SHOW_MAP'		=> ($intMapCount && $this->config->get('show_maps', 'mediacenter')) ? true : false,	
   			));
 
   	// -- EQDKP ---------------------------------------------------------------
@@ -469,7 +518,8 @@ class views_pageobject extends pageobject {
   		//For URL: index.php/MediaCenter/Downloads/MyFileName-17.html
   		
   		$arrMediaData = $this->pdh->get('mediacenter_media', 'data', array($this->url_id));
-  		if(count($arrMediaData)){
+
+  		if($arrMediaData != false && count($arrMediaData)){
   			$intMediaID = $this->url_id;
   			$intCategoryId = $this->pdh->get('mediacenter_media', 'category_id', array($this->url_id));
   			$intAlbumID = $this->pdh->get('mediacenter_media', 'album_id', array($this->url_id));
@@ -776,7 +826,7 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
 	  				'display'       => true
 	  		));
   		} else {
-  			message_die($this->user->lang('article_not_found'));
+  			redirect($this->controller_path_plain.'MediaCenter/'.$this->SID);
   		}
   	} elseif(isset($arrPathArray[1]) && $arrPathArray[1] === 'tags'){
   		
@@ -1109,10 +1159,8 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   					'MC_TOOLBAR'		=> $jqToolbar['id'],
   					'MC_BUTTON_MENU'	=> $this->jquery->ButtonDropDownMenu('manage_members_menu', $arrMenuItems, array("input[name=\"selected_ids[]\"]"), '', $this->user->lang('mc_selected_media').'...', ''),
   					'S_MC_BUTTON_MENU'  => (count($arrMenuItems) > 0) ? true : false,
-  					'S_SHOW_MAP'		=> (count($intMapCount) && $this->config->get('show_maps', 'mediacenter')) ? true : false,
+  					'S_SHOW_MAP'		=> ($intMapCount && $this->config->get('show_maps', 'mediacenter')) ? true : false,
   			));
-  			
-  			
   			
 	  		// -- EQDKP ---------------------------------------------------------------
 	  		$this->core->set_vars(array (
