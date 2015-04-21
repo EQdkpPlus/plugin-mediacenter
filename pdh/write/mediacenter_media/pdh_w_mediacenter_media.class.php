@@ -57,6 +57,8 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				$intCategoryID = $this->pdh->get('mediacenter_albums', 'category_id', array($intAlbumID));
 			}
 			
+			$intRealCategoryID = $intCategoryID;
+			
 			//Check Type
 			$arrTypes = $this->pdh->get('mediacenter_categories', 'types', array($intCategoryID));			
 			if (!$intCategoryID || !$arrTypes || (count($arrTypes) == 0)) return false;
@@ -231,9 +233,9 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			if ($objQuery) {
 				$id = $objQuery->insertId;
 				//Dataset is here CategoryID for Grouping
-				$strLink = $this->controller_path_plain.$this->pdh->get('mediacenter_categories', 'path', array($intCategoryID));
-				$strCategoryName = $this->pdh->get('mediacenter_categories', 'name', array($intCategoryID));
-				$this->ntfy->add('mediacenter_media_new', $intCategoryID, $this->pdh->get('user', 'name', array($intUserID)), $strLink, false, $strCategoryName);
+				$strLink = $this->controller_path_plain.$this->pdh->get('mediacenter_categories', 'path', array($intRealCategoryID));
+				$strCategoryName = $this->pdh->get('mediacenter_categories', 'name', array($intRealCategoryID));
+				$this->ntfy->add('mediacenter_media_new', $intRealCategoryID, $this->pdh->get('user', 'name', array($intUserID)), $strLink, false, $strCategoryName);
 				
 				$log_action = $this->logs->diff(false, $arrQuery, $this->arrLogLang);
 				$this->log_insert("action_media_added", $log_action, $id, $arrQuery["name"], 1, 'mediacenter');
@@ -461,6 +463,8 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				$intCategoryID = $this->pdh->get('mediacenter_albums', 'category_id', array($intAlbumID));
 			}
 
+			$intRealCategoryID = $intCategoryID;
+			
 			$arrTypes = $this->pdh->get('mediacenter_categories', 'types', array($intCategoryID));
 			
 			if (!$intCategoryID || !$arrTypes || (count($arrTypes) == 0)) return false;
@@ -558,9 +562,9 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				$id = $objQuery->insertId;
 				
 				//Dataset is here CategoryID for Grouping
-				$strLink = $this->controller_path_plain.$this->pdh->get('mediacenter_categories', 'path', array($intCategoryID));
-				$strCategoryName = $this->pdh->get('mediacenter_categories', 'name', array($intCategoryID));
-				$this->ntfy->add('mediacenter_media_new', $intCategoryID, $this->pdh->get('user', 'name', array($this->user->id)), $strLink, false, $strCategoryName);
+				$strLink = $this->controller_path_plain.$this->pdh->get('mediacenter_categories', 'path', array($intRealCategoryID));
+				$strCategoryName = $this->pdh->get('mediacenter_categories', 'name', array($intRealCategoryID));
+				$this->ntfy->add('mediacenter_media_new', $intRealCategoryID, $this->pdh->get('user', 'name', array($this->user->id)), $strLink, false, $strCategoryName);
 				
 				$log_action = $this->logs->diff(false, $arrQuery, $this->arrLogLang);
 				$this->log_insert("action_media_added", $log_action, $id, $arrQuery["name"], 1, 'mediacenter');
