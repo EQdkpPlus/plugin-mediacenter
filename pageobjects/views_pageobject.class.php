@@ -308,7 +308,7 @@ class views_pageobject extends pageobject {
   				$intCount++;
   			}
   		}
-  	
+
   		$this->tpl->assign_vars(array(
   				'MC_CATEGORY_NAME'	=> $arrAlbumData['name'],
   				'MC_CATEGORY_ID'	=> $intCategoryId,
@@ -493,6 +493,8 @@ class views_pageobject extends pageobject {
   					'MC_TOOLBAR'		=> $jqToolbar['id'],
   					'MC_BUTTON_MENU'	=> $this->jquery->ButtonDropDownMenu('manage_members_menu', $arrMenuItems, array("input[name=\"selected_ids[]\"]"), '', $this->user->lang('mc_selected_media').'...', ''),
   					'S_MC_BUTTON_MENU'  => (count($arrMenuItems) > 0) ? true : false,
+  					'MC_S_PERSONAL_ALBUM' => ($this->pdh->get('mediacenter_albums', 'personal_album', array($intAlbumID)) ? true : false),
+  					'L_ALBUM_OWNER'		=> sprintf($this->user->lang('mc_personal_album_info'), $this->pdh->geth('user', 'name', array($this->pdh->get('mediacenter_albums', 'user_id', array($intAlbumID)), '', '', true))),
   					'S_SHOW_MAP'		=> ($intMapCount && $this->config->get('show_maps', 'mediacenter')) ? true : false,	
   			));
 

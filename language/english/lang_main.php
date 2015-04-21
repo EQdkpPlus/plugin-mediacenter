@@ -36,7 +36,7 @@ $lang = array(
 	'mc_edit_album'				=> 'Edit album',
 	'mc_massupload'				=> 'Mass upload',
 	'mc_f_album_name'			=> 'Album name',
-	'mc_mediacenter'			=> 'Media center',
+	'mc_mediacenter'			=> 'MediaCenter',
 	'mc_f_description'			=> 'Description',
 	'mc_f_personal_album'		=> 'Personal album',
 	'mc_f_personal_album_help'	=> 'In a personal album only the owner and administrators are eligible to add new media',
@@ -189,6 +189,7 @@ $lang = array(
 	"mc_notify_new_media_grouped" => "There are {COUNT} new files added to category \"{ADDITIONAL}\"",
 	"mc_notify_new_comment" => "{PRIMARY} has written a new comment to file \"{ADDITIONAL}\"",
 	"mc_notify_new_comment_grouped" => "{PRIMARY} has written new comments to file \"{ADDITIONAL}\"",
+	"mc_personal_album_info" => "This is a personal album from %s",
  );
 
 ?>

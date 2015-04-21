@@ -284,6 +284,12 @@ if ( !class_exists( "pdh_r_mediacenter_albums" ) ) {
 				$strOut .= '<option class="category'.$class.'"'.$selected.' value="c'.$intCategoryID.'">'.$catName.'</option>';
 				
 				foreach($arrAlbums as $albumID){
+					if($blnCheckPermissions){
+						if($this->get_personal_album($albumID) && $this->get_user_id($albumID) != $this->user->id){
+							continue;
+						}
+					}
+					
 					$selected = ($strValue !== false && $strValue == $albumID) ? 'selected="selected"' : '';		
 					$strOut .= '<option class="'.$class.'"'.$selected.' value="'.$albumID.'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.$strPrefix.$this->pdh->get('mediacenter_albums', 'name', array($albumID)).'</option>';
 					$arrOut[$albumID] = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.$strPrefix.$this->pdh->get('mediacenter_albums', 'name', array($albumID));
