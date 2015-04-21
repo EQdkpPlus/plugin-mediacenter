@@ -101,6 +101,7 @@ class mediacenter extends plugin_generic
 	$this->add_hook('main_menu_items', 'mediacenter_main_menu_items_hook', 'main_menu_items');
 	$this->add_hook('article_parse', 'mediacenter_article_parse_hook', 'article_parse');
 	$this->add_hook('search', 'mediacenter_search_hook', 'search');
+	$this->add_hook('plugin_statistics', 'mediacenter_plugin_statistics_hook', 'plugin_statistics');
 	
     //Routing
 	$this->routing->addRoute('AddAlbum', 'editalbum', 'plugins/mediacenter/pageobjects');

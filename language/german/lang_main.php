@@ -234,6 +234,10 @@ $lang = array(
 	"mc_statistics_downloads" => "%s Downloads",
 	"mc_statistics_size" => "%s Gesamtgröße",
 	"mc_statistics_comments" => "%s Kommentare",
+		
+	"plugin_statistics_mediacenter_media" => "MediaCenter: Medien",
+	"plugin_statistics_mediacenter_views" => "MediaCenter: Views",
+	"plugin_statistics_mediacenter_downloads" => "MediaCenter: Downloads",
  );
 
 ?>

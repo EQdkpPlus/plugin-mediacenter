@@ -240,6 +240,11 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				$log_action = $this->logs->diff(false, $arrQuery, $this->arrLogLang);
 				$this->log_insert("action_media_added", $log_action, $id, $arrQuery["name"], 1, 'mediacenter');
 				
+				//Insert Data into Statistics Plugin
+				if ($this->pm->check('statistics', PLUGIN_INSTALLED)){
+					$this->pdh->put('statistics_plugin', 'insert', array('mediacenter_media', 1));
+				}
+				
 				return $id;
 			}
 			
@@ -568,6 +573,12 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				
 				$log_action = $this->logs->diff(false, $arrQuery, $this->arrLogLang);
 				$this->log_insert("action_media_added", $log_action, $id, $arrQuery["name"], 1, 'mediacenter');
+				
+				//Insert Data into Statistics Plugin
+				if ($this->pm->check('statistics', PLUGIN_INSTALLED)){
+					$this->pdh->put('statistics_plugin', 'insert', array('mediacenter_media', 1));
+				}
+				
 				return $id;
 			}
 				
@@ -752,6 +763,12 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			$objQuery = $this->db->prepare("UPDATE __mediacenter_media SET views=views+1 WHERE id=?")->execute($intMediaID);
 			
 			if ($objQuery) {
+				
+				//Insert Data into Statistics Plugin
+				if ($this->pm->check('statistics', PLUGIN_INSTALLED)){
+					$this->pdh->put('statistics_plugin', 'insert', array('mediacenter_views', 1));
+				}
+				
 				$this->pdh->enqueue_hook('mediacenter_media_update');
 				return true;
 			}
@@ -763,6 +780,11 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			$objQuery = $this->db->prepare("UPDATE __mediacenter_media SET downloads=downloads+1 WHERE id=?")->execute($intMediaID);
 				
 			if ($objQuery) {
+				//Insert Data into Statistics Plugin
+				if ($this->pm->check('statistics', PLUGIN_INSTALLED)){
+					$this->pdh->put('statistics_plugin', 'insert', array('mediacenter_downloads', 1));
+				}
+				
 				$this->pdh->enqueue_hook('mediacenter_media_update');
 				return true;
 			}
