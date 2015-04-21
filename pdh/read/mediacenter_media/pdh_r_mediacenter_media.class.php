@@ -32,6 +32,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 	public $default_lang = 'english';
 	public $mediacenter_media = null;
 	public $tags = NULL;
+	public $stats = NULL;
 
 	public $hooks = array(
 		'mediacenter_media_update',
@@ -67,6 +68,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 	public function reset(){
 			$this->pdc->del('pdh_mediacenter_media_table');
 			$this->pdc->del('pdh_mediacenter_tags_table');
+			$this->pdc->del('pdh_mediacenter_stats');
 			$this->mediacenter_media = NULL;
 			$this->tags = NULL;
 	}
@@ -74,6 +76,8 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 	public function init(){
 			$this->mediacenter_media	= $this->pdc->get('pdh_mediacenter_media_table');				
 			$this->tags 				= $this->pdc->get('pdh_mediacenter_tags_table');
+			$this->stats 				= $this->pdc->get('pdh_mediacenter_stats');
+			
 			if($this->mediacenter_media !== NULL){
 				return true;
 			}		
@@ -115,9 +119,11 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 						}
 					}
 				}
+				$this->stats = $this->buildStats();
 				
 				$this->pdc->put('pdh_mediacenter_media_table', $this->mediacenter_media, null);
 				$this->pdc->put('pdh_mediacenter_tags_table', $this->tags, null);
+				$this->pdc->put('pdh_mediacenter_tags_stats', $this->stats, null);
 			}
 
 		}	//end init function
@@ -887,6 +893,59 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 				}
 			}
 			return $arrOut;
+		}
+		
+		public function buildStats(){
+			$arrOut = array(
+				'media_count' => 0,
+				'file_count' => 0,
+				'image_count' => 0,
+				'video_count' => 0,
+				'views' => 0,
+				'downloads' => 0,
+				'size' => 0,
+				'comments' => 0,
+			);
+			foreach($this->mediacenter_media as $intMediaID => $arrMediaData){
+				if($arrMediaData['published']){
+					$arrOut['media_count'] = $arrOut['media_count'] + 1;
+					$arrAdditional = unserialize($arrMediaData['additionaldata']);
+					switch($arrMediaData['type']){
+						case 0: $arrOut['file_count']++;
+								  $arrOut['downloads'] = $arrOut['downloads'] + $arrMediaData['downloads'];
+								  if(isset($arrAdditional['size'])){
+								  	$arrOut['size'] = $arrOut['size'] + $arrAdditional['size'];
+								  }
+								  $arrOut['views'] = $arrOut['views'] + $arrMediaData['views'];
+								  $arrOut['comments'] = $arrOut['comments'] + $this->get_comment_count($intMediaID);
+						break;
+						
+						case 1: 
+							$arrOut['video_count']++;
+							$arrOut['downloads'] = $arrOut['downloads'] + $arrMediaData['downloads'];
+							if(isset($arrAdditional['size'])){
+								$arrOut['size'] = $arrOut['size'] + $arrAdditional['size'];
+							}
+							$arrOut['views'] = $arrOut['views'] + $arrMediaData['views'];
+							$arrOut['comments'] = $arrOut['comments'] + $this->get_comment_count($intMediaID);
+						break;
+						
+						case 2:
+							$arrOut['image_count']++;
+							$arrOut['downloads'] = $arrOut['downloads'] + $arrMediaData['downloads'];
+							if(isset($arrAdditional['size'])){
+								$arrOut['size'] = $arrOut['size'] + $arrAdditional['size'];
+							}
+							$arrOut['views'] = $arrOut['views'] + $arrMediaData['views'];
+							$arrOut['comments'] = $arrOut['comments'] + $this->get_comment_count($intMediaID);
+					}
+				}
+			}
+			return $arrOut;
+		}
+		
+		public function get_statistics(){
+			return $this->stats;
 		}
 
 	}//end class

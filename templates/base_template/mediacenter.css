@@ -502,6 +502,7 @@
   background-color: #fcfdfe;
   border: 1px solid #ccc;
   border-radius: 5px;
+  color: #fff;
   margin: 5px;
 }
 
@@ -591,4 +592,21 @@
 
 .mcSwitcherBar .dropdown .selected {
 	font-size: 14px;
+}
+
+.mcStatisticBox, .mcCategoriesBox {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+}
+.mcStatisticBox > i {
+	font-size: 48px;
+	float: left;
+}
+.mcStatisticBox > div {
+	margin-left: 70px;
+}
+
+.mcDashboardBox {
+	margin-bottom: 20px;
 }

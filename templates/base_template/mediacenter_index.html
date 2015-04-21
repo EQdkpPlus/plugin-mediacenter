@@ -16,7 +16,7 @@
 	<!-- ENDIF -->
 
 	<!-- IF S_MC_SHOW_FEATURED -->
-	<div>
+	<div class="mcDashboardBox">
 		<h2>{L_mc_f_show_featured}</h2>
 		<div class="mc_featured_container">
 			<ul class="rslides" id="slider_mc_featured">
@@ -50,7 +50,7 @@
 	<!-- ENDIF -->
 
 	<!-- IF S_MC_SHOW_NEWEST -->
-	<div>
+	<div class="mcDashboardBox">
 		<h2>{L_mc_f_show_newest}</h2>
 		<div class="mcFileList TripleColumn">
 			<ul>
@@ -75,7 +75,7 @@
 	<!-- ENDIF -->
 	
 	<!-- IF S_MC_SHOW_CATEGORIES -->
-	<div>
+	<div class="mcCategoriesBox mcDashboardBox">
 		<h2>{L_mc_f_show_categories}</h2>
 		<div class="mcNestedCategoryList DoubleColumn">
 			<ul>
@@ -97,7 +97,7 @@
 	<!-- ENDIF -->
 	
 	<!-- IF S_MC_SHOW_MOSTVIEWED -->
-	<div>
+	<div class="mcDashboardBox">
 		<h2>{L_mc_f_show_mostviewed}</h2>
 		<div class="mcFileList TripleColumn">
 			<ul>
@@ -122,7 +122,7 @@
 	<!-- ENDIF -->
 	
 	<!-- IF S_MC_SHOW_BESTRATED -->
-	<div>
+	<div class="mcDashboardBox">
 		<h2>{L_mc_f_show_bestrated}</h2>
 		<div class="mcFileList TripleColumn">
 			<ul>
@@ -147,7 +147,7 @@
 	<!-- ENDIF -->
 	
 	<!-- IF S_MC_SHOW_LATESTCOMMENTS -->
-	<div>
+	<div class="mcDashboardBox">
 		<h2>{L_mc_f_show_latestcomments}</h2>
 		<div class="mcFileList TripleColumn">
 			<ul>
@@ -170,4 +170,13 @@
 		<div class="clear"></div>
 	</div>
 	<!-- ENDIF -->
+</div>
+
+<div class="mcStatisticBox">
+<i class="fa fa-bar-chart"></i>
+<div>
+	<h3>{L_mc_statistics}</h3>
+	<div>{S_MC_STATS_IMAGE_COUNT} ({S_MC_STATS_VIDEO_COUNT}, {S_MC_STATS_FILE_COUNT}, {S_MC_STATS_MEDIA_COUNT}) - {S_MC_STATS_VIEWS} - {S_MC_STATS_DOWNLOADS} - {S_MC_STATS_SIZE} - {S_MC_STATS_COMMENTS}</div>
+</div>
+<div class="clear"></div>
 </div>

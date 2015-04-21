@@ -190,6 +190,15 @@ $lang = array(
 	"mc_notify_new_comment" => "{PRIMARY} has written a new comment to file \"{ADDITIONAL}\"",
 	"mc_notify_new_comment_grouped" => "{PRIMARY} has written new comments to file \"{ADDITIONAL}\"",
 	"mc_personal_album_info" => "This is a personal album from %s",
+	"mc_statistics" => "Statistics",
+	"mc_statistics_media_count" => "%s media",
+	"mc_statistics_file_count" => "%s files",
+	"mc_statistics_image_count" => "%s images",
+	"mc_statistics_video_count" => "%s videos",
+	"mc_statistics_views" => "%s views",
+	"mc_statistics_downloads" => "%s downloads",
+	"mc_statistics_size" => "%s total size",
+	"mc_statistics_comments" => "%s comments",
  );
 
 ?>

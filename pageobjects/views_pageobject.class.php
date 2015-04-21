@@ -1339,6 +1339,14 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   			
   		$jqToolbar = $this->jquery->toolbar('pages', $arrToolbarItems, array('position' => 'bottom'));
   		
+  		$arrStats = $this->pdh->get('mediacenter_media', 'statistics');
+  		foreach($arrStats as $key => $val){
+  			if($key === 'size') $val = human_filesize($val);
+  			$this->tpl->assign_vars(array(
+  				'S_MC_STATS_'.strtoupper($key) => sprintf($this->user->lang('mc_statistics_'.$key), $val),
+  			));
+  		}
+  		
   		$this->tpl->assign_vars(array(
   			'S_MC_SHOW_FEATURED'	=> intval($this->config->get('show_featured', 'mediacenter')) && count($arrFeaturedFiles),
   			'S_MC_SHOW_NEWEST'		=> intval($this->config->get('show_newest', 'mediacenter')) && count($arrNewestMedia),

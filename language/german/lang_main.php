@@ -225,7 +225,15 @@ $lang = array(
 	"mc_index_info" => "Auf dieser Seite kannst du bereits vorhandene Dateien von einer alten Installation importieren. Wähle dazu am besten eine Kategorie aus, in der alle Medientypen erlaubt sind, um alle Dateien zu importieren.",
 	"mc_index_info_old" => "Es sind noch Dateien von einer früheren Installation des MediaCenters vorhanden. Klicke auf diesen Link, um diese vorhandenen Dateien zu importieren",	
 	"mc_personal_album_info" => "Dies ist ein persönliches Album von %s",
-		
+	"mc_statistics" => "Statistik",
+	"mc_statistics_media_count" => "%s Medien",
+	"mc_statistics_file_count" => "%s Dateien",
+	"mc_statistics_image_count" => "%s Bilder",
+	"mc_statistics_video_count" => "%s Video",
+	"mc_statistics_views" => "%s Views",
+	"mc_statistics_downloads" => "%s Downloads",
+	"mc_statistics_size" => "%s Gesamtgröße",
+	"mc_statistics_comments" => "%s Kommentare",
  );
 
 ?>
