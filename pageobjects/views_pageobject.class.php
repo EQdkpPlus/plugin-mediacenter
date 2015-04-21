@@ -222,9 +222,11 @@ class views_pageobject extends pageobject {
   			
   			if(file_exists($strWatermarkFile)){
   				$strImage = $strWatermarkFile;
-  			} else {
+  			} elseif($this->config->get('watermark_enabled', 'mediacenter')) {
   				$this->create_watermark($strThumbfolder.$arrMediaData['previewimage'], $strWatermarkFile);
   				$strImage = $strWatermarkFile;
+  			} else {
+  				$strImage = $strThumbfolder.$arrMediaData['previewimage'];
   			}
   				
   			if (file_exists($strImage)){
@@ -1366,7 +1368,7 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   	}
   		
   	switch($imageInfo[2]){
-  		case 1:	$imgOld = ImageCreateFromGIF($image);	break;	// GIF
+  		case 1:	return true;	break;	// GIF
   		case 2:	$imgOld = ImageCreateFromJPEG($image);	break;	// JPG
   		case 3:
   			$imgOld = ImageCreateFromPNG($image);

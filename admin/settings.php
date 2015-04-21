@@ -87,7 +87,7 @@ class MediaCenterSettings extends page_generic
   		} else {
   			$blnWatermarkChanged = true;
   		}
-  		if($arrValues['watermark_position'] != $this->config->get('watermark_position', 'mediacenter') || $arrValues['watermark_transparency'] != $this->config->get('watermark_transparency', 'mediacenter') || $arrValues['watermark_enabled'] != $this->config->get('watermark_position', 'watermark_enabled')){
+  		if($arrValues['watermark_position'] != $this->config->get('watermark_position', 'mediacenter') || $arrValues['watermark_transparency'] != $this->config->get('watermark_transparency', 'mediacenter') || $arrValues['watermark_enabled'] != $this->config->get('watermark_enabled', 'mediacenter')){
   			$blnWatermarkChanged = true;
   		}
   		
