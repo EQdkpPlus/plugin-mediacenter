@@ -157,6 +157,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				if (!in_array($strExtension, $this->extensions_image())) return false;
 				
 				//Exif Data
+				$strFileFolder = $this->pfh->FolderPath('files', 'mediacenter');
 				if ($strExtension == 'jpg'){
 					$arrExif = $this->exif_data($strFileFolder.$strLocalfile);
 					if ($arrExif) $arrAdditionalData = array_merge($arrAdditionalData, $arrExif);
@@ -165,7 +166,6 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				//Preview Image
 				if (!in_array($strExtension, array('jpg', 'jpeg', 'png', 'gif'))) return false;
 				$filename = md5(rand().unique_id());
-				$strFileFolder = $this->pfh->FolderPath('files', 'mediacenter');
 				$this->pfh->copy($strFileFolder.$strLocalfile, $strThumbfolder.$filename.'.'.$strExtension);
 				$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.64.'.$strExtension, 64);
 				$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.240.'.$strExtension, 240);

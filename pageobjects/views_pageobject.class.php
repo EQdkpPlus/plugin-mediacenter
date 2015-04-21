@@ -120,18 +120,19 @@ class views_pageobject extends pageobject {
   
   public function delete(){
   	$retu = array();
-  	
+
   	$intCategoryId = $this->in->get('category_id', 0);
   	$arrPermissions = $this->pdh->get('mediacenter_categories', 'user_permissions', array($intCategoryId, $this->user->id));
   	if (!$arrPermissions['change_state']) $this->user->check_auth('u_something');
-  
+
   	if(count($this->in->getArray('selected_ids', 'int')) > 0) {
   		foreach($this->in->getArray('selected_ids','int') as $id) {
   			//Check if they are in the right category
-  			if($this->pdh->get('mediacenter_media', 'category_id', array($intMediaID)) !== $intCategoryId){
+  			if($this->pdh->get('mediacenter_media', 'category_id', array($id)) !== $intCategoryId){
+  				echo "continue";
   				continue;
   			}
-  				
+  			
   			$pos[] = stripslashes($this->pdh->get('mediacenter_media', 'name', array($id)));
   			$retu[$id] = $this->pdh->put('mediacenter_media', 'delete', array($id));
   		}
