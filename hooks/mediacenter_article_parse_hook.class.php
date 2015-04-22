@@ -44,6 +44,11 @@ if (!class_exists('mediacenter_article_parse_hook'))
 	{
 		
 		$strContent = $arrOptions['content'];
+		
+		if(!$this->user->check_auth('u_mediacenter_view', false)){
+			return $arrOptions;
+		}
+		
 		//Parse all links
 		$arrLinks = array();
 		$intLinks = preg_match_all('@((("|:)?)https?:\/\/([-\w\.]+)+(:\d+)?(\/([\w\/_\-\.]*(\?[^<\s]+|\?)?)?)?)@', $strContent, $arrLinks);
@@ -172,8 +177,9 @@ if (!class_exists('mediacenter_article_parse_hook'))
 		 
 		//Check Permissions
 		$arrPermissions = $this->pdh->get('mediacenter_categories', 'user_permissions', array($intCategoryId, $this->user->id));
-		if (!$arrPermissions['read']) return "";
+		if (!$arrPermissions['read'] || !$this->user->check_auth('u_mediacenter_view', false)) return "";
 		if(!$this->pdh->get('mediacenter_media', 'published', array($intMediaID))) return "";
+
 		
 		$strPath = $this->server_path.$this->controller_path_plain.$this->pdh->get('mediacenter_media', 'path', array($intMediaID));
 		$strOut = "";

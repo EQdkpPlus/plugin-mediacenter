@@ -41,28 +41,27 @@ if (!class_exists('mediacenter_tinymce_normal_setup_hook'))
     */
 	public function tinymce_normal_setup($arrOptions)
 	{
-		
-		$arrOptions['js'] .= "
-		var fileURL = '".$this->controller_path."InsertMediaEditor/".$this->SID."&simple_head=1'; 
- 		editor.addButton('custom_buttons', {
-         title: 'Insert Media',
-         icon: 'pageobject',
-         onclick: function() {
-            win = editor.windowManager.open({
-				file : fileURL,
-				title : \"Insert Media\",
-				width : 700,
-				height : 450,
-				resizable : \"yes\",
-				inline : \"yes\",  // This parameter only has an effect if you use the inlinepopups plugin!
-				popup_css : true, // Disable TinyMCEs default popup CSS
-				close_previous : \"yes\"
-			});
-         }
-      });
-				
-				
-		";
+		if($this->user->check_auth('u_mediacenter_view', false)) {
+			$arrOptions['js'] .= "
+			var fileURL = '".$this->controller_path."InsertMediaEditor/".$this->SID."&simple_head=1'; 
+	 		editor.addButton('custom_buttons', {
+	         title: 'Insert Media',
+	         icon: 'pageobject',
+	         onclick: function() {
+	            win = editor.windowManager.open({
+					file : fileURL,
+					title : \"Insert Media\",
+					width : 700,
+					height : 450,
+					resizable : \"yes\",
+					inline : \"yes\",  // This parameter only has an effect if you use the inlinepopups plugin!
+					popup_css : true, // Disable TinyMCEs default popup CSS
+					close_previous : \"yes\"
+				});
+	         }
+	      });	
+			";
+		}
 
 		return $arrOptions;
 	}
