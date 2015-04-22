@@ -123,7 +123,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 				
 				$this->pdc->put('pdh_mediacenter_media_table', $this->mediacenter_media, null);
 				$this->pdc->put('pdh_mediacenter_tags_table', $this->tags, null);
-				$this->pdc->put('pdh_mediacenter_tags_stats', $this->stats, null);
+				$this->pdc->put('pdh_mediacenter_stats', $this->stats, null);
 			}
 
 		}	//end init function
