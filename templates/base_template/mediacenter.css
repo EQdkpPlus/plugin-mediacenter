@@ -155,20 +155,15 @@
 .mc_featured_container {
   position: relative;
   margin: auto;
-".(($strWidth != "100%") ? 'max-width: '.$strWidth.';' : '')."
-  }
+}
+
 .mc_featured li {
   position: absolute;
   width: 100%;
   left: 0;
   bottom: 0;
-  }
-
-
-.mc_featured_imagecontainer {
-	max-height: ".$intHeight."px;
-	overflow: hidden;
 }
+
 .mc_featured .caption {
   display: block;
   position: absolute;
