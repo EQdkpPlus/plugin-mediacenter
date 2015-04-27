@@ -1,7 +1,6 @@
 /* LESS VARS */
-@mcBadgeBackgroundColor: lighten(@eqdkpContentFontColor, 30);
+@mcBadgeBackgroundColor: @eqdkpContentHighlightColor;
 @mcBadgeColor: @eqdkpContentBackgroundColor;
-
 /* END LESS VARS */
 
 .mcFileList ul {

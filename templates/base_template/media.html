@@ -48,6 +48,24 @@ $(document).ready(function() {
 		modal: true,
 		autoOpen: false,
 	});
+	
+	$('html').keydown(function(e){
+        //left
+		if(e.which == 37){
+        	var mylink = $('.mcNavPrev').attr('href');
+        	if(mylink && mylink !=""){
+        		window.location=mylink;
+        	}
+        }
+        //right
+        if(e.which == 39){
+        	var mylink = $('.mcNavNext').attr('href');
+        	if(mylink && mylink !=""){
+        		window.location=mylink;
+        	}
+        }
+    });
+	
 });
 
 function report_media(){
