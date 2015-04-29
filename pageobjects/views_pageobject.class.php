@@ -384,7 +384,7 @@ class views_pageobject extends pageobject {
   				
   			if (count($arrMediaInCategory)){
   				$view_list = $arrMediaInCategory;
-  				$hptt = $this->get_hptt($hptt_page_settings, $view_list, $view_list, array('%link_url%' => 'manage_media.php', '%link_url_suffix%' => '&amp;upd=true'), 'album'.$intAlbumID);
+  				$hptt = $this->get_hptt($hptt_page_settings, $view_list, $view_list, array(), 'album'.$intAlbumID);
   				$hptt->setPageRef($this->strPath);
   	
   				$this->tpl->assign_vars(array(
@@ -527,6 +527,7 @@ class views_pageobject extends pageobject {
   		$arrMediaData = $this->pdh->get('mediacenter_media', 'data', array($this->url_id));
 
   		if($arrMediaData != false && count($arrMediaData)){
+  			$strRef = ($this->in->get('ref') != "") ? '&ref='.$this->in->get('ref') : '';
   			$intMediaID = $this->url_id;
   			$intCategoryId = $this->pdh->get('mediacenter_media', 'category_id', array($this->url_id));
   			$intAlbumID = $this->pdh->get('mediacenter_media', 'album_id', array($this->url_id));
@@ -633,7 +634,7 @@ class views_pageobject extends pageobject {
   				$strImage = str_replace($this->root_path, $this->server_path, $strImage);
   				
   				$strOtherImages = "";
-  				$arrOtherFiles = $this->pdh->get('mediacenter_media', 'other_ids', array($intMediaID));
+  				$arrOtherFiles = $this->pdh->get('mediacenter_media', 'other_ids', array($intMediaID, (($strRef != "") ? true : false)));
   				$this->jquery->lightbox(md5($intMediaID), array('slideshow' => true, 'transition' => "elastic", 'slideshowSpeed' => 4500, 'slideshowAuto' => false, 'type' => 'photo', 'title_function' => "var url = $(this).data('url');
 var title = $(this).attr('title');
 if(url == undefined){ url = $(this).attr('href');}
@@ -698,8 +699,8 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   				
   			}
   			
-  			$nextID = $this->pdh->get('mediacenter_media', 'next_media', array($intMediaID));
-  			$prevID = $this->pdh->get('mediacenter_media', 'prev_media', array($intMediaID));
+  			$nextID = $this->pdh->get('mediacenter_media', 'next_media', array($intMediaID, (($strRef != "") ? true : false)));
+  			$prevID = $this->pdh->get('mediacenter_media', 'prev_media', array($intMediaID, (($strRef != "") ? true : false)));
   			
   			
   			$arrInvolvedUser = $this->pdh->get('comment', 'involved_users', array('mediacenter', $intMediaID));
@@ -779,8 +780,8 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   					'S_MC_TAGS'						=> (count($arrTags)) ? true : false,
   					'S_NEXT_MEDIA'					=> ($nextID !== false) ? true : false,
   					'S_PREV_MEDIA'					=> ($prevID !== false) ? true : false,
-  					'U_NEXT_MEDIA'					=> ($nextID) ? $this->controller_path.$this->pdh->get('mediacenter_media', 'path', array($nextID)) : '',
-  					'U_PREV_MEDIA'					=> ($prevID) ? $this->controller_path.$this->pdh->get('mediacenter_media', 'path', array($prevID)) : '',
+  					'U_NEXT_MEDIA'					=> ($nextID) ? $this->controller_path.$this->pdh->get('mediacenter_media', 'path', array($nextID)).$strRef : '',
+  					'U_PREV_MEDIA'					=> ($prevID) ? $this->controller_path.$this->pdh->get('mediacenter_media', 'path', array($prevID)).$strRef : '',
   					'MEDIA_NEXT_TITLE'				=> ($nextID) ? $this->pdh->get('mediacenter_media', 'name', array($nextID)) : '',
   					'MEDIA_PREV_TITLE'				=> ($prevID) ? $this->pdh->get('mediacenter_media', 'name', array($prevID)) : '',
   					'MC_MEDIA_SOCIAL_BUTTONS'		=> $this->social->createSocialButtons($this->env->link.$this->controller_path_plain.$this->pdh->get('mediacenter_media', 'path', array($intMediaID)), strip_tags($this->pdh->get('mediacenter_media', 'name', array($intMediaID)))),
@@ -875,7 +876,7 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   		
   				if (count($arrMediaInCategory)){
   					$view_list = $arrMediaInCategory;
-  					$hptt = $this->get_hptt($hptt_page_settings, $view_list, $view_list, array('%link_url%' => 'manage_media.php', '%link_url_suffix%' => '&amp;upd=true'), 'tag'.md5($strTag));
+  					$hptt = $this->get_hptt($hptt_page_settings, $view_list, $view_list, array(), 'tag'.md5($strTag));
   					$hptt->setPageRef($this->strPath);
   					 
   					$this->tpl->assign_vars(array(
@@ -1045,7 +1046,7 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   			
   			if (count($arrMediaInCategory)){
   				$view_list = $arrMediaInCategory;
-  				$hptt = $this->get_hptt($hptt_page_settings, $view_list, $view_list, array('%link_url%' => 'manage_media.php', '%link_url_suffix%' => '&amp;upd=true'), 'cat_'.$intCategoryId.'.0');
+  				$hptt = $this->get_hptt($hptt_page_settings, $view_list, $view_list, array('%link_url_suffix%' => '&amp;ref=cat'), 'cat_'.$intCategoryId.'.0');
   				$hptt->setPageRef($this->strPath);
   				
   				$this->tpl->assign_vars(array(
@@ -1062,7 +1063,7 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   							'PREVIEW_IMAGE' => 	$this->pdh->geth('mediacenter_media', 'previewimage', array($intMediaID, 2)),
   							'PREVIEW_IMAGE_URL' => 	$this->pdh->geth('mediacenter_media', 'previewimage', array($intMediaID, 2, true)),
   							'NAME'			=> $this->pdh->get('mediacenter_media', 'name', array($intMediaID)),
-  							'LINK'			=> $this->controller_path.$this->pdh->get('mediacenter_media', 'path', array($intMediaID)),
+  							'LINK'			=> $this->controller_path.$this->pdh->get('mediacenter_media', 'path', array($intMediaID)).'&ref=cat',
   							'VIEWS'			=> $this->pdh->get('mediacenter_media', 'views', array($intMediaID)),
   							'COMMENTS' 		=> $this->pdh->get('mediacenter_media', 'comment_count', array($intMediaID)),
   							'AUTHOR'		=> $this->core->icon_font('fa-user').' '.$this->pdh->geth('user', 'name', array($this->pdh->get('mediacenter_media', 'user_id', array($intMediaID)),'', '', true)),

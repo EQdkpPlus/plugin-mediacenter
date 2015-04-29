@@ -62,7 +62,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 		'mediacenter_media_user_id' => array('user_id', array('%intMediaID%'), array()),
 		'mediacenter_media_editicon' => array('editicon', array('%intMediaID%'), array()),
 		'mediacenter_media_downloads' => array('downloads', array('%intMediaID%'), array()),	
-		'mediacenter_media_frontendlist' => array('frontendlist', array('%intMediaID%'), array()),
+		'mediacenter_media_frontendlist' => array('frontendlist', array('%intMediaID%', '%link_url_suffix%'), array()),
 	);
 		
 	public function reset(){
@@ -681,8 +681,10 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 			return $arrOut;
 		}
 		
-		public function get_frontendlist($intMediaID){
-			$out = '<a href="'.$this->controller_path.$this->get_path($intMediaID).'"><h3>'.((!$this->get_published($intMediaID)) ? '<i class="fa fa-eye-slash fa-lg "></i> ' : '').$this->get_name($intMediaID).'</h3></a>';
+		public function get_frontendlist($intMediaID, $strUrlLinkPrefix = false){
+			$prefix = "";
+			if($strUrlLinkPrefix && $strUrlLinkPrefix != "%link_url_suffix%") $prefix = $strUrlLinkPrefix;
+			$out = '<a href="'.$this->controller_path.$this->get_path($intMediaID).$prefix.'"><h3>'.((!$this->get_published($intMediaID)) ? '<i class="fa fa-eye-slash fa-lg "></i> ' : '').$this->get_name($intMediaID).'</h3></a>';
 			$strUsertime = $this->get_html_date($intMediaID);
 			$intTimestamp = $this->get_date($intMediaID);
 			$out .= $this->get_html_type($intMediaID).' &bull; '.$this->time->createTimeTag($intTimestamp, $strUsertime).' &bull; '.$this->pdh->geth('user', 'name', array($this->get_user_id($intMediaID),'', '', true));
@@ -694,7 +696,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 		/**
 		 * Checks Permissions
 		 */
-		public function get_next_media($intMediaID){
+		public function get_next_media($intMediaID, $blnFullCategory=false){
 			$intUserID = $this->user->id;
 			$intCategoryID = $this->get_category_id($intMediaID);
 			if(!$this->pdh->get('mediacenter_categories', 'published', array($intCategoryID))) continue;
@@ -702,7 +704,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 			if (!$arrPermissions['read']) return false;
 			
 			$intAlbumID = $this->get_album_id($intMediaID);
-			if($intAlbumID){
+			if($intAlbumID && !$blnFullCategory){
 				$arrArticleIDs = $this->get_id_list($intAlbumID, true);
 			} else {
 				$arrArticleIDs = $this->get_id_list_for_category($this->get_category_id($intMediaID), true, true);
@@ -714,7 +716,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 				$arrFlippedArticles = array_flip($arrSortedArticleIDs);
 				$intRecentArticlePosition = $arrFlippedArticles[$intMediaID];
 			
-				$nextID = (isset($arrSortedArticleIDs[$intRecentArticlePosition-1])) ? $arrSortedArticleIDs[$intRecentArticlePosition-1] : false;
+				$nextID = (isset($arrSortedArticleIDs[$intRecentArticlePosition+1])) ? $arrSortedArticleIDs[$intRecentArticlePosition+1] : false;
 				return $nextID;
 			}
 			
@@ -724,7 +726,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 		/**
 		 * Checks Permissions
 		 */
-		public function get_prev_media($intMediaID){
+		public function get_prev_media($intMediaID, $blnFullCategory=false){
 			$intUserID = $this->user->id;
 			$intCategoryID = $this->get_category_id($intMediaID);
 			if(!$this->pdh->get('mediacenter_categories', 'published', array($intCategoryID))) continue;
@@ -732,7 +734,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 			if (!$arrPermissions['read']) return false;
 			
 			$intAlbumID = $this->get_album_id($intMediaID);
-			if($intAlbumID){
+			if($intAlbumID && !$blnFullCategory){
 				$arrArticleIDs = $this->get_id_list($intAlbumID, true);
 			} else {
 				$arrArticleIDs = $this->get_id_list_for_category($this->get_category_id($intMediaID), true, true);
@@ -744,7 +746,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 				$arrFlippedArticles = array_flip($arrSortedArticleIDs);
 				$intRecentArticlePosition = $arrFlippedArticles[$intMediaID];
 					
-				$prevID = (isset($arrSortedArticleIDs[$intRecentArticlePosition+1])) ? $arrSortedArticleIDs[$intRecentArticlePosition+1] : false;
+				$prevID = (isset($arrSortedArticleIDs[$intRecentArticlePosition-1])) ? $arrSortedArticleIDs[$intRecentArticlePosition-1] : false;
 				return $prevID;
 			}
 				
@@ -754,7 +756,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 		/**
 		 * Checks Permissions
 		 */
-		public function get_other_ids($intMediaID){
+		public function get_other_ids($intMediaID, $blnFullCategory=false){
 			$intUserID = $this->user->id;
 			$intCategoryID = $this->get_category_id($intMediaID);
 			if(!$this->pdh->get('mediacenter_categories', 'published', array($intCategoryID))) continue;
@@ -762,7 +764,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 			if (!$arrPermissions['read']) return false;
 			
 			$intAlbumID = $this->get_album_id($intMediaID);
-			if($intAlbumID){
+			if($intAlbumID && !$blnFullCategory){
 				$arrArticleIDs = $this->get_id_list($intAlbumID, true);
 			} else {
 				$arrArticleIDs = $this->get_id_list_for_category($this->get_category_id($intMediaID), true);
