@@ -678,7 +678,7 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   						$val = 'f/'.$val;
   					}
   					
-  					if($key == 'Longitude' || $key == 'Latitude') continue;
+  					if($key == 'Longitude' || $key == 'Latitude' || $key == 'Orientation') continue;
   					
   					if(!strlen($val)) continue;
   					

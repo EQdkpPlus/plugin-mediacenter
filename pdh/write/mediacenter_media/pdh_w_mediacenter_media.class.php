@@ -158,6 +158,10 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				if ($strExtension == 'jpg'){
 					$arrExif = $this->exif_data($strFileFolder.$strLocalfile);
 					if ($arrExif) $arrAdditionalData = array_merge($arrAdditionalData, $arrExif);
+					
+					if(isset($arrExif['Orientation'])){
+						$this->rotate_image($strFileFolder.$strLocalfile, $arrExif['Orientation']);
+					}
 				}
 				
 				//Preview Image
@@ -260,6 +264,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			$strLocalPreviewImage = $this->pdh->get('mediacenter_media', 'previewimage', array($intMediaID));
 			$strThumbfolder = $this->pfh->FolderPath('thumbs', 'mediacenter');
 			$strLocalfilename = $this->pdh->get('mediacenter_media', 'filename', array($intMediaID));
+			$strFileFolder = $this->pfh->FolderPath('files', 'mediacenter');
 			
 			if(substr($intAlbumID, 0, 1) == 'c'){
 				$intCategoryID = (int)substr($intAlbumID, 1);
@@ -302,7 +307,6 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 					$strExtension = strtolower(pathinfo($strFilename, PATHINFO_EXTENSION));
 					if (!in_array($strExtension, array('jpg', 'jpeg', 'png', 'gif'))) return false;
 					$filename = md5(rand().unique_id());
-					$strFileFolder = $this->pfh->FolderPath('files', 'mediacenter');
 					$this->pfh->copy($strFileFolder.$strLocalfile, $strThumbfolder.$filename.'.'.$strExtension);
 					$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.64.'.$strExtension, 64);
 					$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.240.'.$strExtension, 240);
@@ -369,12 +373,15 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 					if ($strExtension == 'jpg'){
 						$arrExif = $this->exif_data($strFileFolder.$strLocalfile);
 						if ($arrExif) $arrAdditionalData = array_merge($arrAdditionalData, $arrExif);
+						
+						if(isset($arrExif['Orientation'])){
+							$this->rotate_image($strFileFolder.$strLocalfile, $arrExif['Orientation']);
+						}
 					}
 					
 					//Preview Image
 					if (!in_array($strExtension, array('jpg', 'jpeg', 'png', 'gif'))) return false;
 					$filename = md5(rand().unique_id());
-					$strFileFolder = $this->pfh->FolderPath('files', 'mediacenter');
 					$this->pfh->copy($strFileFolder.$strLocalfile, $strThumbfolder.$filename.'.'.$strExtension);
 					$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.64.'.$strExtension, 64);
 					$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.240.'.$strExtension, 240);
@@ -514,6 +521,18 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			$strThumbfolder = $this->pfh->FolderPath('thumbs', 'mediacenter');
 
 			if ($intType == 2 || $oldType == 2){
+				if ($intType == 2){
+					//Exif Data
+					if ($strExtension == 'jpg'){
+						$arrExif = $this->exif_data($strFileFolder.$strLocalfile);
+						if($arrExif) $arrAdditionalData = array_merge($arrAdditionalData, $arrExif);
+						
+						if(isset($arrExif['Orientation'])){
+							$this->rotate_image($strFileFolder.$strLocalfile, $arrExif['Orientation']);
+						}
+					}
+				}
+				
 				//Preview Image
 				$filename = md5(rand().unique_id());
 				$this->pfh->copy($strFileFolder.$strLocalfile, $strThumbfolder.$filename.'.'.$strExtension);
@@ -522,14 +541,6 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.240.'.$strExtension, 240);
 				
 				$strLocalPreviewImage = $filename.'.'.$strExtension;
-			}
-			
-			if ($intType == 2){
-				//Exif Data
-				if ($strExtension == 'jpg'){
-					$arrExif = $this->exif_data($strFileFolder.$strLocalfile);
-					if($arrExif) $arrAdditionalData = array_merge($arrAdditionalData, $arrExif);
-				}
 			}
 
 			//Default Publish State
@@ -879,6 +890,9 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 					}elseif(isset($arrExifData['COMPUTED']['ApertureFNumber'])){
 						$arrOut['ApertureValue'] = $arrExifData['COMPUTED']['ApertureFNumber'];
 					}
+					if(isset($arrExifData['COMPUTED']['Orientation'])){
+						$arrOut['Orientation'] = intval($arrExifData['COMPUTED']['Orientation']);
+					}
 				}
 				
 				//Coordinates
@@ -970,6 +984,31 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				$arrExtensionsFile[] = utf8_strtolower(str_replace(".", "", $val));
 			}
 			return $arrExtensionsFile;
+		}
+		
+		private function rotate_image($strImage, $intOrientation){
+			$image = ImageCreateFromGIF($strImage);
+			$blnSave = true;
+			
+			switch((int)$intOrientation) {
+				case 3:
+					$image = imagerotate($image, 180, 0);
+					break;
+				case 6:
+					$image = imagerotate($image, -90, 0);
+					break;
+				case 8:
+					$image = imagerotate($image, 90, 0);
+					break;
+				default:
+					$blnSave = false;
+			}
+			
+			if($blnSave){
+				ImageJPEG($image, $strImage, 100);
+			}
+			
+			imagedestroy($image);
 		}
 		
 	}//end class
