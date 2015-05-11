@@ -126,6 +126,14 @@
   word-wrap: normal;
 }
 
+.contentContrast .badge {
+	color: @eqdkpContentContrastBackgroundColor;
+}
+
+.contentSidebar .badge {
+	color: @eqdkpSidebarBackgroundColor;
+}
+
 .rslides {
   position: relative;
   list-style: none;
