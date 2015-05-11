@@ -124,6 +124,7 @@ class mediacenter extends plugin_generic
 	
 	//Add Mediacenter Stylesheets
 	$this->tpl->css_file($this->root_path.'plugins/mediacenter/templates/base_template/mediacenter.css');
+
   }
 
   /**

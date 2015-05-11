@@ -414,6 +414,43 @@
 	margin-bottom: 20px;
 }
 
+
+.mc_featured_tabs {
+  margin-top: 10px;
+  text-align: center;
+  }
+
+.mc_featured_tabs li {
+  display: inline;
+  float: none;
+  _float: left;
+  *float: left;
+  margin-right: 5px;
+  }
+
+.mc_featured_tabs a {
+  text-indent: -9999px;
+  overflow: hidden;
+  -webkit-border-radius: 15px;
+  -moz-border-radius: 15px;
+  border-radius: 15px;
+  background: lighten(@eqdkpContentFontColor, 50);
+  background: rgba(0,0,0, .2);
+  display: inline-block;
+  _display: block;
+  *display: block;
+  -webkit-box-shadow: inset 0 0 2px 0 rgba(0,0,0,.3);
+  -moz-box-shadow: inset 0 0 2px 0 rgba(0,0,0,.3);
+  box-shadow: inset 0 0 2px 0 rgba(0,0,0,.3);
+  width: 14px;
+  height: 14px;
+  }
+  
+  .mc_featured_here a {
+  	background: @eqdkpContentFontColor;
+  	background: rgba(0,0,0, .8);
+  }
+
 @media all and (max-width: 899px) {
 	.responsive .TripleColumn li, .responsive .DoubleColumn li {
 		float: none;
