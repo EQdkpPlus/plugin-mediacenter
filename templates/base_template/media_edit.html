@@ -645,9 +645,9 @@ option.filevideoimage:after {
 		<!-- The file input field used as target for the file upload widget -->
 		<div id="drag-drop-area" style="position: relative;">
 			<div class="drag-drop-inside">
-			<p class="drag-drop-info">Dateien hierher ziehen</p>
-			<p>oder</p>
-			<p class="drag-drop-buttons"><input type="button" class="button" value="Dateien auswählen" id="plupload-browse-button" style="position: relative; z-index: 1;" onclick="$('#fileupload').trigger('click')">
+			<p class="drag-drop-info">{L_mc_drop_files}</p>
+			<p>{L_mc_or}</p>
+			<p class="drag-drop-buttons"><input type="button" class="button" value="{L_mc_select_files}" id="plupload-browse-button" style="position: relative; z-index: 1;" onclick="$('#fileupload').trigger('click')">
 			
 			<input id="fileupload" type="file" name="files[]" class="upload" multiple style="display:none;">
 			</p>

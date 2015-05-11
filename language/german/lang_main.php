@@ -224,6 +224,7 @@ $lang = array(
 	"mc_index_finfo_warning" => "Die vorhanden Dateien können nicht importiert werden, da die PHP-Erweiterung finfo nicht aktiviert ist.",
 	"mc_index_info" => "Auf dieser Seite kannst du bereits vorhandene Dateien von einer alten Installation importieren. Wähle dazu am besten eine Kategorie aus, in der alle Medientypen erlaubt sind, um alle Dateien zu importieren.",
 	"mc_index_info_old" => "Es sind noch Dateien von einer früheren Installation des MediaCenters vorhanden. Klicke auf diesen Link, um diese vorhandenen Dateien zu importieren",	
+	
 	"mc_personal_album_info" => "Dies ist ein persönliches Album von %s",
 	"mc_statistics" => "Statistik",
 	"mc_statistics_media_count" => "%s Medien",
