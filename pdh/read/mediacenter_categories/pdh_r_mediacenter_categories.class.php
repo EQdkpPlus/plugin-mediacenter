@@ -531,18 +531,10 @@ if ( !class_exists( "pdh_r_mediacenter_categories" ) ) {
 		
 		public function get_path($intCategoryID,$blnWithSID=true){
 			$strPath = $this->add_path($intCategoryID);
-				
-			switch((int)$this->config->get('seo_extension')){
-				case 1:
-					if(substr($strPath, -1) == "/") $strPath = substr($strPath, 0, -1);
-					$strPath .= '.html';
-					break;
-				case 2: if(substr($strPath, -1) == "/") $strPath = substr($strPath, 0, -1);
-				$strPath .= '.php';
-				break;
-				default: $strPath .= '/';
-			}
-				
+			
+			if(substr($strPath, -1) == "/") $strPath = substr($strPath, 0, -1);
+			$strPath .= $this->routing->getSeoExtension();
+								
 			return 'MediaCenter/'.$strPath.(($blnWithSID) ? $this->SID : '');
 		}
 		
