@@ -442,8 +442,8 @@
   -webkit-border-radius: 15px;
   -moz-border-radius: 15px;
   border-radius: 15px;
-  background: lighten(@eqdkpContentFontColor, 50);
-  background: rgba(0,0,0, .2);
+  background: lighten(@eqdkpContentFontColor, 60) !important;
+  background: @eqdkpContentContrastColor;
   display: inline-block;
   _display: block;
   *display: block;
@@ -455,8 +455,12 @@
   }
   
   .mc_featured_here a {
-  	background: @eqdkpContentFontColor;
+  	background: @eqdkpContentFontColor !important;
   	background: rgba(0,0,0, .8);
+  }
+  
+  #slider_mc_featured {
+  	height:180px;
   }
 
 @media all and (max-width: 899px) {
@@ -472,6 +476,10 @@
 	.responsive .mcSwitcherBar, .responsive .mcSwitcherBar .dropdown {
 		float: none;
 		display: block;
+	}
+	
+	.responsive #slider_mc_featured {
+		height: auto;
 	}
 	
 	.responsive .mcVideoContainer > iframe {

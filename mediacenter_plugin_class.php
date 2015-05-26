@@ -187,6 +187,8 @@ class mediacenter extends plugin_generic
     $this->ntfy->deleteNotificationType('mediacenter_media_new');
     $this->ntfy->deleteNotificationType('mediacenter_media_comment_new');
     $this->ntfy->deleteNotificationType('mediacenter_media_reported');
+    
+    $this->pdh->put('comment', 'delete_page', array('mediacenter'));
   }
 
 
