@@ -302,7 +302,7 @@ if ( !class_exists( "pdh_r_mediacenter_albums" ) ) {
 			$strPath = "";
 			$strPath .= $this->add_path($this->get_category_id($intAlbumID));
 		
-			$strAlias = ucfirst($this->get_name($intAlbumID)).'-a'.$intAlbumID;
+			$strAlias = $this->routing->clean($this->get_name($intAlbumID)).'-a'.$intAlbumID;
 			$strPath .= $strAlias;
 				
 			if(substr($strPath, -1) == "/") $strPath = substr($strPath, 0, -1);
@@ -312,7 +312,7 @@ if ( !class_exists( "pdh_r_mediacenter_albums" ) ) {
 		}
 		
 		private function add_path($intCategoryID, $strPath=''){
-			$strAlias = ucfirst($this->pdh->get('mediacenter_categories', 'alias', array($intCategoryID)));
+			$strAlias = $this->routing->clean($this->pdh->get('mediacenter_categories', 'alias', array($intCategoryID)));
 			if ($strAlias != ''){
 				$strPath = $strAlias.'/'.$strPath;
 			}

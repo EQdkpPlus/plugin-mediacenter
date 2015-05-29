@@ -656,16 +656,16 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   				}
 
   				$this->tpl->assign_vars(array(
-  					'MC_IMAGE'			=> $strImage,
-  					'MC_MEDIA_FILENAME'	=> $arrMediaData['filename'],
-  					'MC_MEDIA_IMAGEDIMENSIONS' => $arrImageDimesions[0].' x '.$arrImageDimesions[1],
-  					'MC_LIGHTBOX'		=> md5($intMediaID),
-  					'MC_OTHER_IMAGES'	=> $strOtherImages,
-  					'MC_DESC_STRIPPED' => strip_tags($this->bbcode->remove_bbcode($arrMediaData['description'])),
-  					'MC_EMBEDD_HTML_BIG' => htmlspecialchars('<a href="'.$strPermalink.'"><img src="'.$strPermalink.'?image" alt="" /></a>'),
-  					'MC_EMBEDD_HTML_SMALL' => htmlspecialchars('<a href="'.$strPermalink.'"><img src="'.$this->pdh->geth('mediacenter_media', 'previewimage', array($intMediaID, 2, true)).'" alt="" /></a>'),
-  					'MC_EMBEDD_BBCODE_SMALL' => htmlspecialchars("[url='".$strPermalink."'][img]".$this->pdh->geth('mediacenter_media', 'previewimage', array($intMediaID, 2, true))."[/img][/url]"),
-  					'MC_EMBEDD_BBCODE_BIG' => htmlspecialchars("[url='".$strPermalink."'][img]".$strPermalink."?image[/img][/url]"),
+  					'MC_IMAGE'					=> $strImage,
+  					'MC_MEDIA_FILENAME'			=> $arrMediaData['filename'],
+  					'MC_MEDIA_IMAGEDIMENSIONS'	=> $arrImageDimesions[0].' x '.$arrImageDimesions[1],
+  					'MC_LIGHTBOX'				=> md5($intMediaID),
+  					'MC_OTHER_IMAGES'			=> $strOtherImages,
+  					'MC_DESC_STRIPPED' 			=> strip_tags($this->bbcode->remove_bbcode($arrMediaData['description'])),
+  					'MC_EMBEDD_HTML_BIG' 		=> htmlspecialchars('<a href="'.$strPermalink.'"><img src="'.$strPermalink.'?image" alt="" /></a>'),
+  					'MC_EMBEDD_HTML_SMALL' 		=> htmlspecialchars('<a href="'.$strPermalink.'"><img src="'.$this->pdh->geth('mediacenter_media', 'previewimage', array($intMediaID, 2, true)).'" alt="" /></a>'),
+  					'MC_EMBEDD_BBCODE_SMALL' 	=> htmlspecialchars("[url='".$strPermalink."'][img]".$this->pdh->geth('mediacenter_media', 'previewimage', array($intMediaID, 2, true))."[/img][/url]"),
+  					'MC_EMBEDD_BBCODE_BIG' 		=> htmlspecialchars("[url='".$strPermalink."'][img]".$strPermalink."?image[/img][/url]"),
   				));
   				
   				foreach($arrAdditionalData as $key => $val){
