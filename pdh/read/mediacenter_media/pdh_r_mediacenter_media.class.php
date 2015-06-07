@@ -615,7 +615,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 		public function get_path($intMediaID, $url_id=false, $arrPath=array(), $withSID=true){
 			$strPath = $this->add_path($this->get_category_id($intMediaID));
 				
-			$strAlias = ucfirst($this->get_name($intMediaID)).'-'.$intMediaID;
+			$strAlias = $this->routing->clean($this->get_name($intMediaID)).'-'.$intMediaID;
 			$strPath .= $strAlias;
 			
 			if(substr($strPath, -1) == "/") $strPath = substr($strPath, 0, -1);
@@ -625,7 +625,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 		}
 		
 		private function add_path($intCategoryID, $strPath=''){
-			$strAlias = ucfirst($this->pdh->get('mediacenter_categories', 'alias', array($intCategoryID)));
+			$strAlias = $this->routing->clean($this->pdh->get('mediacenter_categories', 'alias', array($intCategoryID)));
 			if ($strAlias != ''){
 				$strPath = $strAlias.'/'.$strPath;
 			}

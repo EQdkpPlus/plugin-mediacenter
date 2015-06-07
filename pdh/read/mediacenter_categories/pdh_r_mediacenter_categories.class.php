@@ -539,7 +539,7 @@ if ( !class_exists( "pdh_r_mediacenter_categories" ) ) {
 		}
 		
 		private function add_path($intCategoryID, $strPath=''){
-			$strAlias = ucfirst($this->get_alias($intCategoryID));
+			$strAlias = $this->routing->clean($this->get_alias($intCategoryID));
 			if ($strAlias != ''){
 				$strPath = $strAlias.'/'.$strPath;
 			}
