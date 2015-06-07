@@ -40,24 +40,24 @@
 }
 
 .mcPreviewImageSmall img {
-	background-color: #ffffff;
-	border: 1px solid #cccccc;
+	background-color: @eqdkpContentContrastBackgroundColor;
+	border: 1px solid @eqdkpContentContrastBorderColor;
 	padding: 1px;
 	box-shadow: 0 2px 3px 0 rgba(0,0,0,0.15);
 	max-height: 48px;	
 }
 
 .mcPreviewImageBig img {
-	background-color: #ffffff;
-	border: 1px solid #cccccc;
+	background-color: @eqdkpContentContrastBackgroundColor;
+	border: 1px solid @eqdkpContentContrastBorderColor;
 	padding: 7px;
 	box-shadow: 0 2px 3px 0 rgba(0,0,0,0.15);
 	max-height: 144px;	
 }
 
 .mcFileContainer .mcPreviewImageBig {
-	background-color: #ffffff;
-	border: 1px solid #cccccc;
+	background-color: @eqdkpContentContrastBackgroundColor;
+	border: 1px solid @eqdkpContentContrastBorderColor;
 	padding: 7px;
 	box-shadow: 0 2px 3px 0 rgba(0,0,0,0.15);
 	max-height: 144px;	
