@@ -40,24 +40,24 @@
 }
 
 .mcPreviewImageSmall img {
-	background-color: #ffffff;
-	border: 1px solid #cccccc;
+	background-color: @eqdkpContentContrastBackgroundColor;
+	border: 1px solid @eqdkpContentContrastBorderColor;
 	padding: 1px;
 	box-shadow: 0 2px 3px 0 rgba(0,0,0,0.15);
 	max-height: 48px;	
 }
 
 .mcPreviewImageBig img {
-	background-color: #ffffff;
-	border: 1px solid #cccccc;
+	background-color: @eqdkpContentContrastBackgroundColor;
+	border: 1px solid @eqdkpContentContrastBorderColor;
 	padding: 7px;
 	box-shadow: 0 2px 3px 0 rgba(0,0,0,0.15);
 	max-height: 144px;	
 }
 
 .mcFileContainer .mcPreviewImageBig {
-	background-color: #ffffff;
-	border: 1px solid #cccccc;
+	background-color: @eqdkpContentContrastBackgroundColor;
+	border: 1px solid @eqdkpContentContrastBorderColor;
 	padding: 7px;
 	box-shadow: 0 2px 3px 0 rgba(0,0,0,0.15);
 	max-height: 144px;	
@@ -127,7 +127,7 @@
 }
 
 .contentContrast .badge {
-	color: @eqdkpContentContrastBackgroundColor;
+	color: fadein(@eqdkpContentContrastBackgroundColor,100%)
 }
 
 .contentSidebar .badge {
@@ -442,8 +442,8 @@
   -webkit-border-radius: 15px;
   -moz-border-radius: 15px;
   border-radius: 15px;
-  background: lighten(@eqdkpContentFontColor, 60) !important;
-  background: @eqdkpContentContrastColor;
+  background: lighten(@eqdkpContentFontColor, 50);
+  background: rgba(0,0,0, .2);
   display: inline-block;
   _display: block;
   *display: block;
@@ -455,12 +455,8 @@
   }
   
   .mc_featured_here a {
-  	background: @eqdkpContentFontColor !important;
+  	background: @eqdkpContentFontColor;
   	background: rgba(0,0,0, .8);
-  }
-  
-  #slider_mc_featured {
-  	height:180px;
   }
 
 @media all and (max-width: 899px) {
@@ -476,10 +472,6 @@
 	.responsive .mcSwitcherBar, .responsive .mcSwitcherBar .dropdown {
 		float: none;
 		display: block;
-	}
-	
-	.responsive #slider_mc_featured {
-		height: auto;
 	}
 	
 	.responsive .mcVideoContainer > iframe {
