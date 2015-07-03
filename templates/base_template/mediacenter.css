@@ -113,9 +113,9 @@
 }
 
 .badge {
-  background-color: @mcBadgeBackgroundColor;
+  background-color: fadein(@mcBadgeBackgroundColor,100%);
   border-radius: 9px;
-  color: @mcBadgeColor;
+  color: fadein(@mcBadgeColor,100%);
   display: inline-block;
   font-size: .85rem;
   padding: 1px 6px 1px;
@@ -127,11 +127,11 @@
 }
 
 .contentContrast .badge {
-	color: @eqdkpContentContrastBackgroundColor;
+	color: fadein(@eqdkpContentContrastBackgroundColor,100%);
 }
 
 .contentSidebar .badge {
-	color: @eqdkpSidebarBackgroundColor;
+	color: fadein(@eqdkpSidebarBackgroundColor,100%);
 }
 
 .rslides {
