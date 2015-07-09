@@ -722,7 +722,7 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   			//Reset Notifications
   			if($this->user->is_signedin()){
   				$arrCommentIDs = $this->pdh->get('comment', 'filtered_list', array('mediacenter', $intMediaID));
-  				if(count($arrCommentIDs)) $this->ntfy->markAsRead('mediacenter_media_comment_new', $this->user->id, $arrCommentIDs);
+  				if(count($arrCommentIDs)) $this->ntfy->markAsRead('mediacenter_media_comment_new', $this->user->id, array_keys($arrCommentIDs));
   				
   				$this->ntfy->markAsRead('mediacenter_media_new', $this->user->id, $intMediaID);
   			}
