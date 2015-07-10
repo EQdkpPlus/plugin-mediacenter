@@ -470,7 +470,6 @@ class editmedia_pageobject extends pageobject {
   		$this->display();
   	} else {
   		if ($this->url_id) {
-  			
   			//Check Permissions
   			if(substr($arrValues['album_id'], 0, 1) == 'c'){
   				$intCategoryID = (int)substr($arrValues['album_id'], 1);
@@ -518,7 +517,6 @@ class editmedia_pageobject extends pageobject {
 			if (count($arrTypes) == 1) $arrValues['type'] = intval($arrTypes[0]);
 			
   			if ($this->blnAdminMode){
-  			
 	  			//$intAlbumID, $strName, $strDescription, $intType, $strExternalLink, $strPreviewimage, $strTags, $strFile, $strFilename
   				//$intPublished=false, $intFeatured=false, $intUserID=false, $intViews=false
 	  			$mixResult = $this->pdh->put('mediacenter_media', 'insert_media', array(
@@ -526,7 +524,7 @@ class editmedia_pageobject extends pageobject {
 	  				(int)$arrValues['published'], (int)$arrValues['featured'], (int)$arrValues['user_id'], (int)$arrValues['views']
 	  			));
   			
-  			} else {
+  			} else {  				
   				$mixResult = $this->pdh->put('mediacenter_media', 'insert_media', array(
   						$arrValues['album_id'], $arrValues['name'], $arrValues['description'], (int)$arrValues['type'], $arrValues['externalfile'], $arrValues['previewimage'], $arrValues['tags'], $this->in->get('localfile'), $this->in->get('filename')
   				));
@@ -537,11 +535,12 @@ class editmedia_pageobject extends pageobject {
   	
   	if ($mixResult){
   		$this->core->message($this->user->lang('save_suc'), $this->user->lang('success'), 'green');
+  		if ($this->in->get('simple_head')) $this->tpl->add_js('$.FrameDialog.closeDialog();', 'docready');
+  	} else {
+  		$this->core->message($this->user->lang('save_nosuc'), $this->user->lang('error'), 'red');
+  		$this->arrData = $arrValues;
   	}
-  	
-  	if ($this->in->get('simple_head')){
-  		$this->tpl->add_js('$.FrameDialog.closeDialog();', 'docready');
-  	}
+
   }
   
   public function delete(){

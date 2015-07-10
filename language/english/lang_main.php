@@ -92,7 +92,8 @@ $lang = array(
 	'mc_f_delete_votes'			=> 'Delete ratings',
 	'mc_f_downloads'			=> 'Quantity of downloads',
 	'mc_insert_media'			=> 'Insert media',
-		
+	'mc_embedly_hint'			=> 'To insert Videos, you need a key from  <a href="https://embed.ly/">embedly</a>. You can get one free <a href="https://embed.ly/">here</a> and after that, enable the video converting in the EQdkp Plus Settings and add the key.',
+			
 	'action_category_deleted'	=> 'Category deleted',
 	'action_category_update'	=> 'Category updated',
 	'action_category_added'		=> 'Category added',
