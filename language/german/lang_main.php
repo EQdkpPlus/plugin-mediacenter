@@ -92,7 +92,7 @@ $lang = array(
 	'mc_f_delete_votes'			=> 'Bewertungen löschen',
 	'mc_f_downloads'			=> 'Anzahl Downloads',
 	'mc_insert_media'			=> 'Medien einfügen',
-	'mc_embedly_hint'			=> 'Um Videos einfügen zu können, benötigst du einen Key von <a href="https://embed.ly/">embedly</a>. Diesen kannst du <a href="https://embed.ly/">hier</a> kostenlos holen und anschließend in den EQdkp Plus Einstellungen die Video-Umwandlung aktivieren und den Key hinterlegen.',
+	'mc_embedly_hint'			=> 'Um Videos einfügen zu können, benötigst du einen Key von <a href="https://embed.ly/">embedly</a>. Diesen kannst du <a href="https://embed.ly/">hier</a> kostenlos holen und anschließend in den EQdkp Plus Einstellungen hinterlegen.',
 		
 	'action_category_deleted'	=> 'Kategorie gelöscht',
 	'action_category_update'	=> 'Kategorie geändert',

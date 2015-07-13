@@ -107,7 +107,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			}elseif($intType == 1){
 				//Video
 				if ($strExternalLink != "" && $strFile == ""){
-					if(!$this->config->get('embedly_key') || $this->config->get('embedly_key') == "" || !$this->config->get('enable_embedly')){
+					if(!$this->config->get('embedly_key') || $this->config->get('embedly_key') == ""){
 						$this->core->message($this->user->lang('mc_embedly_hint'), "Embedly Key", 'red');
 						return false;
 					}
