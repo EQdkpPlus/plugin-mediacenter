@@ -253,6 +253,8 @@ class views_pageobject extends pageobject {
   }
   
   public function report(){
+  	if(!$this->user->is_signedin()) $this->user->check_auth('u_something');
+  	
   	$intUserID = $this->user->id;
   	$strReason = $this->in->get('reason');
   	$intMediaID = $this->url_id;

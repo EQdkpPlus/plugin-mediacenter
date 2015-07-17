@@ -29,6 +29,7 @@
 	<!-- INCLUDE media_image.html -->
 <!-- ENDIF -->
 
+<!-- IF S_LOGGED_IN -->
 <div class="mcReportDialog" style="display:none;" title="{L_mc_report_media}">
 	<form method="post" action="{MC_MEDIA_LINK}&report">
 	<fieldset class="settings mediumsettings">
@@ -39,15 +40,18 @@
 	{CSRF_TOKEN}
 	</form>
 </div>
+<!-- ENDIF -->
 
 <script>
 $(document).ready(function() {
+	<!-- IF S_LOGGED_IN -->
 	$( ".mcReportDialog" ).dialog({
 		height: 380,
 		width: 500,
 		modal: true,
 		autoOpen: false,
 	});
+	<!-- ENDIF -->
 	
 	$('html').keydown(function(e){
         //left
@@ -68,9 +72,11 @@ $(document).ready(function() {
 	
 });
 
+<!-- IF S_LOGGED_IN -->
 function report_media(){
 	$( ".mcReportDialog" ).dialog('open');
 }
+<!-- ENDIF -->
 </script>
 
 <form action="" method="post" style="display:none;">
