@@ -699,7 +699,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 		public function get_next_media($intMediaID, $blnFullCategory=false){
 			$intUserID = $this->user->id;
 			$intCategoryID = $this->get_category_id($intMediaID);
-			if(!$this->pdh->get('mediacenter_categories', 'published', array($intCategoryID))) continue;
+			if(!$this->pdh->get('mediacenter_categories', 'published', array($intCategoryID))) return false;
 			$arrPermissions = $this->pdh->get('mediacenter_categories','user_permissions', array($intCategoryID, $intUserID));
 			if (!$arrPermissions['read']) return false;
 			
@@ -729,7 +729,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 		public function get_prev_media($intMediaID, $blnFullCategory=false){
 			$intUserID = $this->user->id;
 			$intCategoryID = $this->get_category_id($intMediaID);
-			if(!$this->pdh->get('mediacenter_categories', 'published', array($intCategoryID))) continue;
+			if(!$this->pdh->get('mediacenter_categories', 'published', array($intCategoryID))) return false;
 			$arrPermissions = $this->pdh->get('mediacenter_categories','user_permissions', array($intCategoryID, $intUserID));
 			if (!$arrPermissions['read']) return false;
 			
@@ -759,7 +759,7 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 		public function get_other_ids($intMediaID, $blnFullCategory=false){
 			$intUserID = $this->user->id;
 			$intCategoryID = $this->get_category_id($intMediaID);
-			if(!$this->pdh->get('mediacenter_categories', 'published', array($intCategoryID))) continue;
+			if(!$this->pdh->get('mediacenter_categories', 'published', array($intCategoryID))) return false;
 			$arrPermissions = $this->pdh->get('mediacenter_categories','user_permissions', array($intCategoryID, $intUserID));
 			if (!$arrPermissions['read']) return false;
 			

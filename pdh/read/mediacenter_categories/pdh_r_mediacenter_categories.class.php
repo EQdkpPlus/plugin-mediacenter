@@ -153,7 +153,7 @@ if ( !class_exists( "pdh_r_mediacenter_categories" ) ) {
 				
 			//Check cat permission
 			$arrPermissions = $this->get_user_permissions($intCategoryID, $intUserID);
-			if (!$arrPermissions['read']) continue;
+			if (!$arrPermissions['read']) return $arrOut;
 				
 				
 			//Get Albums
