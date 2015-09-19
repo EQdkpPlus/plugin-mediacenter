@@ -664,7 +664,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			}
 			
 				
-			$objQuery = $this->db->prepare("UPDATE __mediacenter_media WHERE id :in")->set(array(
+			$objQuery = $this->db->prepare("UPDATE __mediacenter_media :p WHERE id :in")->set(array(
 				'album_id' => $intAlbumID,
 			))->in($arrIDs)->execute();
 				
