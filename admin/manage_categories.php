@@ -86,7 +86,7 @@ class Manage_Categories extends page_generic {
 		$strAlias = $this->in->get('alias');
 		$intPublished = $this->in->get('published', 0);
 		$intParentCategory = (($id == 1) ? 0 : $this->in->get('parent',0));
-		$intArticlePublishedState = $this->in->get('article_published_state', 0);
+		$intArticlePublishedState = $this->in->get('default_published_state', 0);
 		$arrPermissions = $this->in->getArray('perm', 'int');
 		$intNotifyUnpublishedArticles = $this->in->get('notify_unpublished', 0);
 		$intAllowComments = $this->in->get('allow_comments', 0);
@@ -207,7 +207,7 @@ class Manage_Categories extends page_generic {
 				'ALIAS'				=> $this->pdh->get('mediacenter_categories', 'alias', array($id)),					
 				'PER_PAGE'			=> $this->pdh->get('mediacenter_categories', 'per_page', array($id)),
 				'DD_PARENT' 		=> new hdropdown('parent', array('js'=>'onchange="renew_all_permissions();"', 'options' => $arrCategories, 'value' => $this->pdh->get('mediacenter_categories', 'parent', array($id)))),
-				'DD_PUBLISHED_STATE'=> new hradio('default_published_state]', array('options' => array(0 => $this->user->lang('not_published'), 1 => $this->user->lang('published')), 'value' => $this->pdh->get('mediacenter_categories', 'default_published_state', array($id)))),
+				'DD_PUBLISHED_STATE'=> new hradio('default_published_state', array('options' => array(0 => $this->user->lang('not_published'), 1 => $this->user->lang('published')), 'value' => $this->pdh->get('mediacenter_categories', 'default_published_state', array($id)))),
 				'R_NOTIFY_UNPUBLISHED' => new hradio('notify_unpublished', array('value' => ($this->pdh->get('mediacenter_categories', 'notify_on_onpublished', array($id))))),
 				'R_COMMENTS'		=> new hradio('allow_comments', array('value' => ($this->pdh->get('mediacenter_categories', 'allow_comments', array($id))))),
 				'R_VOTING'			=> new hradio('allow_voting', array('value' => ($this->pdh->get('mediacenter_categories', 'allow_voting', array($id))))),
@@ -222,7 +222,7 @@ class Manage_Categories extends page_generic {
 			$this->tpl->assign_vars(array(
 				'PER_PAGE' => 25,	
 				'DD_PARENT' => new hdropdown('parent', array('js'=>'onchange="renew_all_permissions();"', 'options' => $arrCategories, 'value' => 0)),
-				'DD_PUBLISHED_STATE'=> new hradio('default_published_state]', array('options' => array(0 => $this->user->lang('not_published'), 1 => $this->user->lang('published')), 'value' => 1)),
+				'DD_PUBLISHED_STATE'=> new hradio('default_published_state', array('options' => array(0 => $this->user->lang('not_published'), 1 => $this->user->lang('published')), 'value' => 1)),
 				'R_NOTIFY_UNPUBLISHED' => new hradio('notify_unpublished', array('value' => 0)),
 				'R_COMMENTS'		=> new hradio('allow_comments', array('value' => 1)),
 				'DD_LAYOUT_TYPE' 	=> new hdropdown('layout', array('options' => $this->user->lang('mc_layout_types'), 'value' => 0)),
