@@ -399,7 +399,7 @@
 <style>
 #drag-drop-area-single {
     border: 4px dashed #bbb;
-    height: 100px;
+    height: 130px;
 }
 .drag-drop-inside {
     margin: 15px auto 0;
@@ -614,6 +614,7 @@ option.filevideoimage:after {
 		<p class="drag-drop-buttons"><input type="button" class="button" value="{L_mc_select_file}" id="plupload-browse-button" style="position: relative; z-index: 1;" onclick="$('#singlefileupload').trigger('click')">
 		
 		<input id="singlefileupload" type="file" name="file" class="upload" style="display:none;">
+		<br><p class="small" style="font-weight: normal; padding: 5px;">{L_mc_max_uploadsize}: {MAX_UPLOADSIZE}</p>
 		</p>
 		</div>
 	</div>

@@ -830,7 +830,7 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   			if ($arrPermissions['delete'] || $arrPermissions['change_state']){
   				$this->jquery->dialog('deleteMedia', $this->user->lang('mc_delete_media'), array('custom_js' => 'deleteMediaSubmit(aid);', 'confirm', 'withid' => 'aid', 'message' => $this->user->lang('mc_confirm_delete_media')), 'confirm');
   				$this->tpl->add_js(
-  						"function deleteArticleSubmit(aid){
+  						"function deleteMediaSubmit(aid){
 					window.location='".$this->controller_path.$this->page_path.$this->SID.'&mcdelete&link_hash='.$this->CSRFGetToken('delete')."&aid='+aid;
 				}"
   				);
