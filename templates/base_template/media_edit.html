@@ -238,6 +238,13 @@
 	          		$(".nl_progressbar_label .fa-spinner").addClass("fa-remove");
 		            $(".nl_progressbar_label .fa-spinner").removeClass("fa-spin fa-spinner");
 	          	}
+	          },
+	          error: function(){
+	        	  $("#nl_progressbar").progressbar({
+		     			 value: 0
+		     		});
+	          		$(".nl_progressbar_label .fa-spinner").addClass("fa-remove");
+		            $(".nl_progressbar_label .fa-spinner").removeClass("fa-spin fa-spinner");
 	          }
 	      });
 	}
@@ -515,6 +522,11 @@
 
 #files .progress-bar.error {
 	background-color: #d00000;
+}
+
+#files .loading {
+	margin: 0;
+	margin-right: 5px;
 }
 
 option.category { font-weight:bold; }

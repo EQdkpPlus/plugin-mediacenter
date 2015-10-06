@@ -219,10 +219,11 @@ class views_pageobject extends pageobject {
   			
   			if($this->config->get('watermark_enabled', 'mediacenter') && $strExtension !== 'gif'){
   				$strWatermarkFile = $strThumbfolder.'wm_'.$arrMediaData['previewimage'];
-  				if(file_exists($strWatermarkFile)){
+  				if(false){
+  				//if(file_exists($strWatermarkFile)){
 	  				$strImage = $strWatermarkFile;
 	  			} else {
-	  				$this->create_watermark($strThumbfolder.$arrMediaData['previewimage'], $strWatermarkFile);
+	  				$this->create_watermark($strThumbfolder.$arrMediaData['previewimage'], $strWatermarkFile, $arrMediaData);
 	  				$strImage = $strWatermarkFile;
 	  			}
   			} else {
@@ -1380,7 +1381,7 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
 
   }
   
-  private function create_watermark($image, $dest){
+  private function create_watermark($image, $dest, $arrMediaData){
   		
   	//Image
   	$imageInfo		= GetImageSize($image);
@@ -1388,62 +1389,130 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   		return false;
   	}
   		
-  	switch($imageInfo[2]){
-  		case 1:	return true;	break;	// GIF
-  		case 2:	$imgOld = ImageCreateFromJPEG($image);	break;	// JPG
-  		case 3:
-  			$imgOld = ImageCreateFromPNG($image);
-  			imageAlphaBlending($imgOld, false);
-  			imageSaveAlpha($imgOld, true);
-  			break;	// PNG
-  	}
-  		
   	//Watermark Logo
-  	$strWatermarkImage = $this->root_path.$this->config->get('watermark_logo', 'mediacenter');
-  	$logoInfo = getimagesize($strWatermarkImage);
-  	if (!$logoInfo) return false;
+  	if($this->config->get('watermark_type', 'mediacenter') === false || $this->config->get('watermark_type', 'mediacenter') == 1){
+  		switch($imageInfo[2]){
+  			case 1:	return true;	break;	// GIF
+  			case 2:	$imgOld = ImageCreateFromJPEG($image);	break;	// JPG
+  			case 3:
+  				$imgOld = ImageCreateFromPNG($image);
+  				imageAlphaBlending($imgOld, false);
+  				imageSaveAlpha($imgOld, true);
+  				break;	// PNG
+  		}
   		
-  	switch($logoInfo[2]){
-  		case 1:	$imgLogo = ImageCreateFromGIF($strWatermarkImage);	break;	// GIF
-  		case 2:	$imgLogo = ImageCreateFromJPEG($strWatermarkImage);	break;	// JPG
-  		case 3:
-  			$imgLogo = ImageCreateFromPNG($strWatermarkImage);
-  			imageAlphaBlending($imgLogo, false);
-  			imageSaveAlpha($imgLogo, true);
-  			break;	// PNG
+	  	$strWatermarkImage = $this->root_path.$this->config->get('watermark_logo', 'mediacenter');
+	  	$logoInfo = getimagesize($strWatermarkImage);
+	  	if (!$logoInfo) return false;
+	  		
+	  	switch($logoInfo[2]){
+	  		case 1:	$imgLogo = ImageCreateFromGIF($strWatermarkImage);	break;	// GIF
+	  		case 2:	$imgLogo = ImageCreateFromJPEG($strWatermarkImage);	break;	// JPG
+	  		case 3:
+	  			$imgLogo = ImageCreateFromPNG($strWatermarkImage);
+	  			imageAlphaBlending($imgLogo, false);
+	  			imageSaveAlpha($imgLogo, true);
+	  			break;	// PNG
+	  	}
+	  		
+	  	$margin = 10;
+	  	$sx = imagesx($imgLogo);
+	  	$sy = imagesy($imgLogo);
+	  		
+	  	switch($this->config->get('watermark_position', 'mediacenter')){
+	  		case 'rt': $dst_x = imagesx($imgOld) - $sx - $margin; $dst_y = 10;
+	  		break;
+	  		case 'rb': $dst_x = imagesx($imgOld) - $sx - $margin; $dst_y = imagesy($imgOld) - $sy - $margin;
+	  		break;
+	  		case 'lb': $dst_x = 10; $dst_y = imagesy($imgOld) - $sy - $margin;
+	  		break;
+	  		case 'lt': $dst_x = $margin; $dst_y = $margin;
+	  		break;
+	  	}
+	  		
+	  	$intTransparency = (100 - $this->config->get('watermark_transparency', 'mediacenter'));
+	  	if ($intTransparency > 100 || $intTransparency < 0) $intTransparency = 100;
+	  	
+	  	$result = imagecopymerge($imgOld, $imgLogo, $dst_x, $dst_y, 0, 0, $sx, $sy, $intTransparency);
+	  
+	  	switch($imageInfo[2]){
+	  		case 1:	ImageGIF($imgOld,	$dest);	break;	// GIF
+	  		case 2:	ImageJPEG($imgOld,	$dest, 100);	break;	// JPG
+	  		case 3:	ImagePNG($imgOld,	$dest, 0);	break;	// PNG
+	  	}
+	  		
+	  	imagedestroy($imgOld);
+	  	imagedestroy($imgLogo);
+  	} else {
+  		switch($imageInfo[2]){
+  			case 1:	return true;	break;	// GIF
+  			case 2:	$imgOld = ImageCreateFromJPEG($image);	break;	// JPG
+  			case 3:
+  				$imgOld = ImageCreateFromPNG($image);
+  				//imageAlphaBlending($imgOld, false);
+  				imageSaveAlpha($imgOld, true);
+  				break;	// PNG
+  		}
+  		
+  		//Text
+  		$strUsername = $this->pdh->get('user', 'name', array($arrMediaData['user_id']));
+  		$strWatermarkText = str_replace("{USER}", $strUsername, $this->config->get('watermark_text', 'mediacenter'));
+  		if($strWatermarkText != ""){
+  			$fontSize = ($this->config->get('watermark_fontsize', 'mediacenter')) ? $this->config->get('watermark_fontsize', 'mediacenter') : 12;
+
+  			$fontColor = array(255,255,255);
+  			$fontColorShadow = array(0,0,0);
+  			
+  			$intTransparency = (100 - $this->config->get('watermark_transparency', 'mediacenter'));
+  			if ($intTransparency > 100 || $intTransparency < 0) $intTransparency = 100;
+  			
+  			$fontColorRes = imagecolorallocatealpha($imgOld, $fontColor[0], $fontColor[1], $fontColor[2], (1 - $intTransparency/100)*127);
+  			$shadowColorRes = imagecolorallocatealpha($imgOld, $fontColorShadow[0], $fontColorShadow[1], $fontColorShadow[2], (1 - $intTransparency/100)*127);
+  			$margin = 10;
+  			$font = $this->root_path.'plugins/mediacenter/includes/fonts/OpenSans-Regular.ttf';
+  			
+  			$box = imagettfbbox($fontSize, 0, $font, $strWatermarkText);
+  			$textWidth = abs($box[0] - $box[2]);
+  			$textHeight = abs($box[7] - $box[1]);
+  			
+  			$pos = $this->config->get('watermark_position', 'mediacenter');
+
+  			switch($pos){
+  				case 'rt': $dst_x = imagesx($imgOld) - $textWidth - $margin; $dst_y = $margin + $textHeight;
+  				break;
+  				case 'rb': $dst_x = imagesx($imgOld) - $textWidth - $margin; $dst_y = imagesy($imgOld) - $margin;
+  				break;
+  				case 'lb': $dst_x = 10; $dst_y = imagesy($imgOld) - $margin;
+  				break;
+  				case 'lt': $dst_x = $margin; $dst_y = $margin + $textHeight;
+  				break;
+  			}
+  			
+			// draw text
+			$this->imagettfstroketext($imgOld, $fontSize, 0, $dst_x, $dst_y, $fontColorRes, $shadowColorRes, $font, $strWatermarkText, 1);
+  			
+  			switch($imageInfo[2]){
+  				case 1:	ImageGIF($imgOld,	$dest);	break;	// GIF
+  				case 2:	ImageJPEG($imgOld,	$dest, 100);	break;	// JPG
+  				case 3:	ImagePNG($imgOld,	$dest, 0);	break;	// PNG
+  			}
+  			 
+  			imagedestroy($imgOld);
+
+  		}
+  		
   	}
-  		
-  	$margin = 10;
-  	$sx = imagesx($imgLogo);
-  	$sy = imagesy($imgLogo);
-  		
-  	switch($this->config->get('watermark_position', 'mediacenter')){
-  		case 'rt': $dst_x = imagesx($imgOld) - $sx - $margin; $dst_y = 10;
-  		break;
-  		case 'rb': $dst_x = imagesx($imgOld) - $sx - $margin; $dst_y = imagesy($imgOld) - $sy - $margin;
-  		break;
-  		case 'lb': $dst_x = 10; $dst_y = imagesy($imgOld) - $sy - $margin;
-  		break;
-  		case 'lt': $dst_x = $margin; $dst_y = $margin;
-  		break;
-  	}
-  		
-  	$intTransparency = (100 - $this->config->get('watermark_transparency', 'mediacenter'));
-  	if ($intTransparency > 100 || $intTransparency < 0) $intTransparency = 100;
-  	
-  	$result = imagecopymerge($imgOld, $imgLogo, $dst_x, $dst_y, 0, 0, $sx, $sy, $intTransparency);
-  
-  	switch($imageInfo[2]){
-  		case 1:	ImageGIF($imgOld,	$dest);	break;	// GIF
-  		case 2:	ImageJPEG($imgOld,	$dest, 100);	break;	// JPG
-  		case 3:	ImagePNG($imgOld,	$dest, 0);	break;	// PNG
-  	}
-  		
-  	imagedestroy($imgOld);
-  	imagedestroy($imgLogo);
   		
   	return true;
   }
   
+  private function imagettfstroketext(&$image, $size, $angle, $x, $y, &$textcolor, &$strokecolor, $fontfile, $text, $px) {
+  	for($c1 = ($x-abs($px)); $c1 <= ($x+abs($px)); $c1++)
+  		for($c2 = ($y-abs($px)); $c2 <= ($y+abs($px)); $c2++)
+  			$bg = imagettftext($image, $size, $angle, $c1, $c2, $strokecolor, $fontfile, $text);
+  
+  		return imagettftext($image, $size, $angle, $x, $y, $textcolor, $fontfile, $text);
+  }
+
 }
 ?>

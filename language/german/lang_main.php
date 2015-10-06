@@ -237,6 +237,13 @@ $lang = array(
 	"mc_statistics_size" => "%s Gesamtgröße",
 	"mc_statistics_comments" => "%s Kommentare",
 		
+	"mc_f_watermark_type" => "Typ des Wasserzeichens",
+	"mc_f_watermark_text" => "Text des Wasserzeichens",
+	"mc_f_watermark_text_help" => "Der Platzhalter {USER} wird durch den Eigentümer des Bildes ersetzt",
+	"mc_watermark_type_text" => "Text",
+	"mc_watermark_type_image" => "Bild",
+	"mc_f_watermark_fontsize" => "Schriftgröße des Wasserzeichens",
+		
 	"plugin_statistics_mediacenter_media" => "MediaCenter: Uploads",
 	"plugin_statistics_mediacenter_views" => "MediaCenter: Views",
 	"plugin_statistics_mediacenter_downloads" => "MediaCenter: Downloads",

@@ -162,7 +162,22 @@ class MediaCenterSettings extends page_generic
   		'watermark' => array(
 	  		'watermark_enabled' => array(
   				'type' 			=> 'radio',
-	  			'dependency'	=> array(1 => array('watermark_logo', 'watermark_position', 'watermark_transparency')),
+	  			'dependency'	=> array(1 => array('watermark_type', 'watermark_text', 'watermark_position', 'watermark_transparency', 'watermark_logo')),
+  			),
+  			'watermark_type' => array(
+  				'type' 			=> 'radio',
+  				'dependency'	=> array(0 => array('watermark_text', 'watermark_fontsize'), 1 => array('watermark_logo')),
+  				'options'		=> array($this->user->lang('mc_watermark_type_text'), $this->user->lang('mc_watermark_type_image'))
+  			),
+  			'watermark_text' => array(
+  				'type'			=> 'text',
+  				'size'			=> 50,
+  				'default'		=> '{USER} @ my EQdkp Plus',
+  			),
+  			'watermark_fontsize' => array(
+  				'type'			=> 'spinner',
+  				'min'			=> 1,
+  				'default'		=> 15,
   			),
   			'watermark_logo' => array(
   				'type'	=> 'file',
@@ -176,10 +191,7 @@ class MediaCenterSettings extends page_generic
   				'numerate'		=> true,
   				'default'		=> false,
 	  		),
-  			'watermark_position' => array(
-  				'type' => 'dropdown',
-  				'options' => $this->user->lang('mc_watermark_positions'),
-  			),
+
   			'watermark_transparency' => array(
   				'type'	=> 'slider',
   				'min'	=> 0,
@@ -188,6 +200,10 @@ class MediaCenterSettings extends page_generic
   				'width'	=> '300px',
   				'label' => $this->user->lang('mc_watermark_transparency'),
   				'range' => false,
+  			),
+  			'watermark_position' => array(
+  				'type' => 'dropdown',
+  				'options' => $this->user->lang('mc_watermark_positions'),
   			),
 	  	),
   	);

@@ -238,6 +238,14 @@ $lang = array(
 	"mc_statistics_size" => "%s total size",
 	"mc_statistics_comments" => "%s comments",
 		
+	"mc_f_watermark_type" => "Watermark type",
+	"mc_f_watermark_text" => "Watermark text",
+	"mc_f_watermark_text_help" => "The placeholder {USER} will be replaced by the image owner",
+	"mc_watermark_type_text" => "Text",
+	"mc_watermark_type_image" => "Image",
+	"mc_f_watermark_fontsize" => "Watermark fontsize",
+	
+		
 	"plugin_statistics_mediacenter_media" => "MediaCenter: Uploads",
 	"plugin_statistics_mediacenter_views" => "MediaCenter: Views",
 	"plugin_statistics_mediacenter_downloads" => "MediaCenter: Downloads",
