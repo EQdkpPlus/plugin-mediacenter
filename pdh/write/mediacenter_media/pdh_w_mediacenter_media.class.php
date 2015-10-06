@@ -160,6 +160,19 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				
 				//Exif Data
 				$strFileFolder = $this->pfh->FolderPath('files', 'mediacenter');
+				
+				//Check image Dimensions, because of memory usage
+				$imageInfo = getimagesize($strFileFolder.$strLocalfile);
+				$width			= $imageInfo[0];
+				$height			= $imageInfo[1];
+				
+				$neededMemory = $width * $height * ($strExtension == 'png' ? 4 : 3) * 2.1;
+					
+				if ($this->get_memory_limit() !== false && $this->get_memory_limit() != -1 && $this->get_memory_limit() < (memory_get_usage() + $neededMemory)) {
+					return false;
+				}
+				
+				
 				if ($strExtension == 'jpg'){
 					$arrExif = $this->exif_data($strFileFolder.$strLocalfile);
 					if ($arrExif) $arrAdditionalData = array_merge($arrAdditionalData, $arrExif);
@@ -374,6 +387,17 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 					//Check Extension
 					if (!in_array($strExtension, $this->extensions_image())) return false;
 					
+					//Check image Dimensions, because of memory usage
+					$imageInfo = getimagesize($strFileFolder.$strLocalfile);
+					$width			= $imageInfo[0];
+					$height			= $imageInfo[1];
+					
+					$neededMemory = $width * $height * ($strExtension == 'png' ? 4 : 3) * 2.1;
+					
+					if ($this->get_memory_limit() !== false && $this->get_memory_limit() != -1 && $this->get_memory_limit() < (memory_get_usage() + $neededMemory)) {
+						return false;
+					}
+					
 					//Exif Data
 					if ($strExtension == 'jpg'){
 						$arrExif = $this->exif_data($strFileFolder.$strLocalfile);
@@ -527,6 +551,17 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 
 			if ($intType == 2 || $oldType == 2){
 				if ($intType == 2){
+					//Check image Dimensions, because of memory usage
+					$imageInfo = getimagesize($strFileFolder.$strLocalfile);
+					$width			= $imageInfo[0];
+					$height			= $imageInfo[1];
+						
+					$neededMemory = $width * $height * ($strExtension == 'png' ? 4 : 3) * 2.1;
+					
+					if ($this->get_memory_limit() !== false && $this->get_memory_limit() != -1 && $this->get_memory_limit() < (memory_get_usage() + $neededMemory)) {
+						return false;
+					}
+					
 					//Exif Data
 					if ($strExtension == 'jpg'){
 						$arrExif = $this->exif_data($strFileFolder.$strLocalfile);
@@ -1014,6 +1049,39 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			}
 			
 			imagedestroy($image);
+		}
+		
+		private function get_memory_limit(){
+			$memoryLimit = ini_get('memory_limit');
+				
+			// no limit
+			if ($memoryLimit == -1) {
+				return -1;
+			}
+				
+			// completely numeric, PHP assumes bytes
+			if (is_numeric($memoryLimit)) {
+				return $memoryLimit;
+			}
+				
+			// PHP supports 'K', 'M' and 'G' shorthand notation
+			if (preg_match('~^(\d+)([KMG])$~', $memoryLimit, $matches)) {
+				switch ($matches[2]) {
+					case 'K':
+						return $matches[1] * 1024;
+						break;
+							
+					case 'M':
+						return $matches[1] * 1024 * 1024;
+						break;
+							
+					case 'G':
+						return $matches[1] * 1024 * 1024 * 1024;
+						break;
+				}
+			}
+			
+			return false;
 		}
 		
 	}//end class
