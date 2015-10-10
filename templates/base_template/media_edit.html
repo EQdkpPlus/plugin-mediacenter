@@ -107,6 +107,7 @@
 
 <!-- ENDIF -->
 
+<script src="{EQDKP_ROOT_PATH}plugins/mediacenter/includes/js/flow.js"></script>
 <script>
 	function reload_albums(){
 		$.get("{EQDKP_CONTROLLER_PATH}/AddMedia/{SID}&reload_albums",
@@ -159,7 +160,8 @@
 		$('#drag-drop-area-single').show();
 		$("#myfile").val("");
 		$("#myfilename").val("");
-		this.form.reset();
+		$(".nl_progressbar_label .fa-spinner").addClass("fa-check");
+		document.getElementById("editalbum").reset();
 	}
 	
 	function set_albums(value){
@@ -193,60 +195,118 @@
 	      $("#myfilename").val(file.name);
 	      
 	      //Send File to Server
-	      var uploadURL = "{EQDKP_CONTROLLER_PATH}AddMedia/{SID}&upload=1"; //Upload URL
-	      var jqXHR=$.ajax({
-	              xhr: function() {
-	              var xhrobj = $.ajaxSettings.xhr();
-	              if (xhrobj.upload) {
-	                      xhrobj.upload.addEventListener('progress', function(event) {
-	                          var percent = 0;
-	                          var position = event.loaded || event.position;
-	                          var total = event.total;
-	                          if (event.lengthComputable) {
-	                              percent = Math.ceil(position / total * 100);
-	                          }
-	                          //Set progress
-						      $("#nl_progressbar").progressbar({
-								 value: percent
-							  });
-	                      }, false);
-	                  }
-	              return xhrobj;
-	          },
-	          url: uploadURL,
-	          type: "POST",
-	          contentType:false,
-	          processData: false,
-	          cache: false,
-	          data: fd,
-	          success: function(data){
-	        	  if (data != "error"){
-		              $("#nl_progressbar").progressbar({
+	      	var r = new Flow({
+			  target:'{EQDKP_CONTROLLER_PATH}AddMedia/{SID}&chunkupload=1',
+			  forceChunkSize: true,
+			  withCredentials: true,
+			});
+	      
+			// Resumable.js isn't supported, fall back to normal Ajax Request
+			if(!r.support) {
+				  var uploadURL = "{EQDKP_CONTROLLER_PATH}AddMedia/{SID}&upload=1"; //Upload URL
+			      var jqXHR=$.ajax({
+			              xhr: function() {
+			              var xhrobj = $.ajaxSettings.xhr();
+			              if (xhrobj.upload) {
+			                      xhrobj.upload.addEventListener('progress', function(event) {
+			                          var percent = 0;
+			                          var position = event.loaded || event.position;
+			                          var total = event.total;
+			                          if (event.lengthComputable) {
+			                              percent = Math.ceil(position / total * 100);
+			                          }
+			                          //Set progress
+								      $("#nl_progressbar").progressbar({
+										 value: percent
+									  });
+			                      }, false);
+			                  }
+			              return xhrobj;
+			          },
+			          url: uploadURL,
+			          type: "POST",
+			          contentType:false,
+			          processData: false,
+			          cache: false,
+			          data: fd,
+			          success: function(data){
+			        	  if (data != "error"){
+				              $("#nl_progressbar").progressbar({
+				     			 value: 100
+				     		  });
+				              
+				              //Remove Spinner
+				              $(".nl_progressbar_label .fa-spinner").addClass("fa-check");
+				              $(".nl_progressbar_label .fa-spinner").removeClass("fa-spin fa-spinner");
+				              
+				              $("#myfile").val(data);
+				              
+			          	} else {
+			          		$("#nl_progressbar").progressbar({
+				     			 value: 0
+				     		});
+			          		$(".nl_progressbar_label .fa-spinner").addClass("fa-remove");
+				            $(".nl_progressbar_label .fa-spinner").removeClass("fa-spin fa-spinner");
+			          	}
+			          },
+			          error: function(){
+			        	  $("#nl_progressbar").progressbar({
+				     			 value: 0
+				     		});
+			          		$(".nl_progressbar_label .fa-spinner").addClass("fa-remove");
+				            $(".nl_progressbar_label .fa-spinner").removeClass("fa-spin fa-spinner");
+			          }
+			      });
+				
+				
+			} else {
+				//Chunked upload
+				r.on('complete', function(){
+					$("#nl_progressbar").progressbar({
 		     			 value: 100
 		     		  });
 		              
 		              //Remove Spinner
 		              $(".nl_progressbar_label .fa-spinner").addClass("fa-check");
 		              $(".nl_progressbar_label .fa-spinner").removeClass("fa-spin fa-spinner");
-		              
-		              $("#myfile").val(data);
-		              
-	          	} else {
-	          		$("#nl_progressbar").progressbar({
-		     			 value: 0
+				  });
+				
+				r.on('fileSuccess', function(file,message){
+					if(message != "error"){
+						$("#myfile").val(message);
+					} else {
+						$("#nl_progressbar").progressbar({
+			     			 value: 0,
+			     		});
+		          		$(".nl_progressbar_label .fa-spinner").addClass("fa-remove");
+			            $(".nl_progressbar_label .fa-spinner").removeClass("fa-spin fa-spinner");
+					}
+				});
+				
+				r.on('progress', function(){
+					percent = r.progress() * 100;
+
+                    //Set progress
+				      $("#nl_progressbar").progressbar({
+						 value: percent
+					  });
+					
+				});
+				r.on('error', function(message, file){
+					$("#nl_progressbar").progressbar({
+		     			 value: 0,
 		     		});
 	          		$(".nl_progressbar_label .fa-spinner").addClass("fa-remove");
 		            $(".nl_progressbar_label .fa-spinner").removeClass("fa-spin fa-spinner");
-	          	}
-	          },
-	          error: function(){
-	        	  $("#nl_progressbar").progressbar({
-		     			 value: 0
-		     		});
-	          		$(".nl_progressbar_label .fa-spinner").addClass("fa-remove");
-		            $(".nl_progressbar_label .fa-spinner").removeClass("fa-spin fa-spinner");
-	          }
-	      });
+				});
+				
+				r.addFile(file);
+
+				r.upload();
+			}
+	      
+	      
+	     
 	}
 		
 	$(document).ready(function(){
@@ -602,7 +662,7 @@ option.filevideoimage:after {
 		<!-- ENDIF -->
 	</ul>
 	<div id="settings">
-	<form id="editalbum" action="" method="post" enctype='multipart/form-data'>
+	<form id="editalbum" action="" method="post" enctype='multipart/form-data' name="editmedia">
 	<fieldset class="settings mediumsettings">
 		<!-- BEGIN fields -->
 		<dl>
@@ -663,6 +723,7 @@ option.filevideoimage:after {
 			<p class="drag-drop-buttons"><input type="button" class="button" value="{L_mc_select_files}" id="plupload-browse-button" style="position: relative; z-index: 1;" onclick="$('#fileupload').trigger('click')">
 			
 			<input id="fileupload" type="file" name="files[]" class="upload" multiple style="display:none;">
+			<br><p class="small" style="font-weight: normal; padding: 5px;">{L_mc_max_uploadsize}: {MAX_UPLOADSIZE}</p>
 			</p>
 			</div>
 		</div>
@@ -676,7 +737,6 @@ option.filevideoimage:after {
              <i class="fa fa-trash-o"></i>
              {L_reset}
         </button>
-		{L_mc_max_uploadsize}: {MAX_UPLOADSIZE}
 		</form>
 		
 		<!-- The container for the uploaded files -->

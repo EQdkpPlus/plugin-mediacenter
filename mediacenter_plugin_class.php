@@ -41,7 +41,7 @@ class mediacenter extends plugin_generic
     return array_merge(parent::$shortcuts, $shortcuts);
   }
 
-  public $version    = '2.0.3';
+  public $version    = '2.0.0';
   public $build      = '';
   public $copyright  = 'GodMod';
   public $vstatus    = 'Alpha';

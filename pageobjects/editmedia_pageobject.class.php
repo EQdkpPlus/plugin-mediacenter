@@ -54,6 +54,7 @@ class editmedia_pageobject extends pageobject {
       'reload_albums' => array('process' => 'ajax_reload_albums'),
       'media_types' => array('process' => 'ajax_media_types'),
       'upload' => array('process' => 'upload_file'),
+      'chunkupload' => array('process' => 'upload_chunked_file'),
       'massupload' => array('process' => 'upload_massupload'),
       'imageedit' => array(
 				array('process' => 'ajax_imageedit_rotate', 'value' => 'rotate'),
@@ -352,6 +353,30 @@ class editmedia_pageobject extends pageobject {
 		$myArray = $tmp;
   	}
   	echo new hdropdown('type', array('js' => 'onchange="handle_type(this.value)"', 'options' => $myArray));
+  	exit;
+  }
+  
+  public function upload_chunked_file(){
+  	$strChunkDir = md5($this->user->csrfGetToken('mediacenter_chunkupload'));
+  	
+  	$chunkUploader = register('chunkedUploadHelper', array($strChunkDir));
+  	$arrFields = $chunkUploader->getForm();
+  	
+  	$filename = $arrFields['filename'];
+  	 
+  	$arrAllowedExtensions = array_merge($this->extensions_file(), $this->extensions_image(), $this->extensions_video());
+  	 
+  	$fileEnding		= strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+  	if (!in_array($fileEnding, $arrAllowedExtensions)) {
+  		echo "error";
+  		exit();
+  	}
+  	
+  	$strResult = $chunkUploader->uploadChunk();
+  	if(!$strResult){
+  		header("HTTP/1.1 500 Internal Error");
+  		exit;
+  	}
   	exit;
   }
   
@@ -802,5 +827,213 @@ class editmedia_pageobject extends pageobject {
 		return $maxFileSize;
 	}
 
+}
+
+class chunkedUploadHelper extends gen_class {
+	
+	private $chunkDir = false;
+	private $globalChunkDir = false;
+	
+	public function __construct($strChunkDir) {
+		$this->globalChunkDir = $this->pfh->FolderPath('tmp', 'mediacenter');
+		$this->chunkDir = $this->globalChunkDir.$strChunkDir;
+		$this->pfh->FolderPath($this->chunkDir);
+	}
+	
+	/**
+	 * Main Method that handles the whole Chunk Upload
+	 */
+	public function uploadChunk(){
+		$arrFields = $this->getForm();
+		
+		if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+			if ($this->checkChunkExists($arrFields['identifier'], $arrFields['currentChunkNumber'])) {
+				header("HTTP/1.1 200 Ok");
+			} else {
+				// The 204 response MUST NOT include a message-body, and thus is always terminated by the first empty line after the header fields.
+				header("HTTP/1.1 204 No Content");
+				exit;
+			}
+		} else {
+			if ($this->validateChunk()) {
+				$destPath = $this->getChunkPath($arrFields['identifier'], $arrFields['currentChunkNumber']);
+				$this->pfh->FileMove($arrFields['file']['tmp_name'], $destPath, true);
+				header("HTTP/1.1 200 Ok");
+			} else {
+				// error, invalid chunk upload request, retry
+				header("HTTP/1.1 400 Bad Request");
+				exit;
+			}
+		}
+		$new_filename = md5(rand().rand().rand().unique_id());
+		$folder = $this->pfh->FolderPath('files', 'mediacenter');
+		$strDestination = $folder.$new_filename;
+  	
+		if ($this->validateUploadedFile() && $this->combineChunks($strDestination)) {
+			header('content-type: text/html; charset=UTF-8');
+			echo register('encrypt')->encrypt($new_filename);
+			$this->pruneChunkFolders();
+			return true;
+		}
+
+		return true;
+	}
+	
+	/**
+	 * Checks if Chunk for File already exists. True if exists, false if not exists.
+	 * 
+	 * @param string $strChunkIdentifier
+	 * @param string $strChunkNumber
+	 * @return boolean
+	 */
+	private function checkChunkExists($strChunkIdentifier, $strChunkNumber){
+		if(file_exists($this->getChunkPath($strChunkIdentifier, $strChunkNumber))){
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Returns the Path for a specific chunk
+	 * 
+	 * @param string $strChunkIdentifier
+	 * @param string $strChunkNumber
+	 * @return string
+	 */
+	private function getChunkPath($strChunkIdentifier, $strChunkNumber){
+		$strPath = $this->chunkDir.DIRECTORY_SEPARATOR.md5($strChunkIdentifier).DIRECTORY_SEPARATOR.'chunk_'.$strChunkNumber;
+		$this->pfh->FolderPath($this->chunkDir.DIRECTORY_SEPARATOR.md5($strChunkIdentifier));
+		return $strPath;
+	}
+	
+	
+	
+	/**
+	 * Prune Chunk Folders after 1 hour
+	 */
+	private function pruneChunkFolders(){
+		$expirationTime = 3600; //1 hour
+		
+		$arrFiles = scandir($this->chunkDir);
+		if($arrFiles){
+			foreach($arrFiles as $file){
+				
+				$filepath = $this->chunkDir.DIRECTORY_SEPARATOR.$file;
+				
+				if($file == "." || $file == "..") continue;
+				
+				if (is_dir($filepath)) {
+					if (time() - filemtime($filepath.DIRECTORY_SEPARATOR.'.') > $expirationTime) {
+						unlink($path);
+					}	
+				}
+			}
+		}
+	}
+	
+	
+	/**
+	 * Combines all Chunks to one file
+	 * 
+	 * @param string $strDestination
+	 */
+	private function combineChunks($strDestination){
+		//Touch file
+		$this->pfh->putContent($strDestination, "");
+		
+		$arrFields = $this->getForm();
+		$totalChunks = $arrFields['totalChunks'];
+		
+		//check lock
+		if(file_exists($this->getChunkPath($arrFields['identifier'], 'lock'))) return false;
+		
+		//Create lock file
+		$this->pfh->putContent($this->getChunkPath($arrFields['identifier'], 'lock'), 'lock');
+		
+		//Create Dest File from all Chunks
+		for ($i = 1; $i <= $totalChunks; $i++) {
+			$file = $this->getChunkPath($arrFields['identifier'], $i);
+			if(!file_exists($file)) return false;
+			
+			$data = file_get_contents($file);
+			$this->pfh->addContent($strDestination, $data);
+			
+			$this->pfh->Delete($file);
+		}
+		
+		//Delete Chunk Folder
+		$this->pfh->Delete($this->getChunkPath($arrFields['identifier'], 'lock'));
+		$this->pfh->Delete($this->chunkDir.DIRECTORY_SEPARATOR.md5($arrFields['identifier']).DIRECTORY_SEPARATOR);
+		
+		return true;
+	}
+
+	
+	/**
+	 * Validates if the File Upload is complete
+	 * 
+	 * @return boolean
+	 */
+	private function validateUploadedFile(){
+		$arrFields = $this->getForm();
+		$totalChunks = $arrFields['totalChunks'];
+		$totalChunksSize = 0;
+		$totalFileSize = $arrFields['totalSize'];
+		
+		for ($i = 1; $i <= $totalChunks; $i++) {
+			$file = $this->getChunkPath($arrFields['identifier'], $i);
+			if (!file_exists($file)) {
+				return false;
+			}
+			$totalChunksSize += filesize($file);
+		}
+		return $totalFileSize == $totalChunksSize;
+	}
+	
+	/**
+	 * Validates the current uploaded chunk
+	 * 
+	 * @return boolean
+	 */
+	private function validateChunk(){
+		$arrFields = $this->getForm();
+		$file = $arrFields['file'];
+		
+		if (!$file) {
+			return false;
+		}
+		if (!isset($file['tmp_name']) || !isset($file['size']) || !isset($file['error'])) {
+			return false;
+		}
+		if ($arrFields['currentChunkSize'] != $file['size']) {
+			return false;
+		}
+		if ($file['error'] !== UPLOAD_ERR_OK) {
+			return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * Returns all Fields from the Uploaded Chunk, including the chunk data
+	 * 
+	 * @return array
+	 */
+	public function getForm(){
+		$arrOut = array(
+			'file' 				=> (isset($_FILES['file'])) ? $_FILES['file'] : false,
+			'filename' 			=> $this->in->get('flowFilename'),
+			'totalSize' 		=> $this->in->get('flowTotalSize', 0),
+			'identifier' 		=> $this->in->get('flowIdentifier'),
+			'relativePath' 		=> $this->in->get('flowRelativePath'),
+			'totalChunks' 		=> $this->in->get('flowTotalChunks', 0),
+			'defaultChunkSize'	=> $this->in->get('flowChunkSize', 0),
+			'currentChunkNumber' => $this->in->get('flowChunkNumber', 0),
+			'currentChunkSize'	=> $this->in->get('flowCurrentChunkSize', 0),
+		);
+		
+		return $arrOut;
+	}
 }
 ?>
