@@ -219,8 +219,7 @@ class views_pageobject extends pageobject {
   			
   			if($this->config->get('watermark_enabled', 'mediacenter') && $strExtension !== 'gif'){
   				$strWatermarkFile = $strThumbfolder.'wm_'.$arrMediaData['previewimage'];
-  				if(false){
-  				//if(file_exists($strWatermarkFile)){
+  				if(file_exists($strWatermarkFile)){
 	  				$strImage = $strWatermarkFile;
 	  			} else {
 	  				$this->create_watermark($strThumbfolder.$arrMediaData['previewimage'], $strWatermarkFile, $arrMediaData);
