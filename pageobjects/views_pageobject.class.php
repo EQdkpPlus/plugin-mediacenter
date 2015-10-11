@@ -229,9 +229,10 @@ class views_pageobject extends pageobject {
   			} else {
   				$strImage = $strThumbfolder.$arrMediaData['previewimage'];
   			}
-  				
+
   			if (file_exists($strImage)){
-  				switch($strExtension){
+
+  				switch(strtolower($strExtension)){
   					case 'jpg':
   					case 'jpeg':
   						header('Content-Type: image/jpeg');
@@ -244,9 +245,13 @@ class views_pageobject extends pageobject {
   						break;
   					default: exit;
   				}
+
   				readfile($strImage);
   				exit;
   			}
+  			
+  			echo "File not found";
+  			exit;
   		}
   	}
   	 
@@ -577,19 +582,19 @@ class views_pageobject extends pageobject {
   					$strVideo = $arrAdditionalData['html'];
   					$blnIsEmbedly = true;
   				} else{
-  					$strExternalExtension = pathinfo($arrMediaData['externalfile'], PATHINFO_EXTENSION);
+  					$strExternalExtension = strtolower(pathinfo($arrMediaData['externalfile'], PATHINFO_EXTENSION));
   					if(strlen($arrMediaData['externalfile']) && in_array($strExternalExtension, $arrPlayableVideos)){
   						$this->tpl->css_file($this->root_path.'plugins/mediacenter/includes/videojs/video-js.min.css');
   						$this->tpl->js_file($this->root_path.'plugins/mediacenter/includes/videojs/video.js');
   						$this->tpl->add_js('videojs.options.flash.swf = "'.$this->server_path.'plugins/mediacenter/includes/videojs/video-js.swf"; ', 'docready');
   							
-  						switch($strExtension){
+  						switch($strExternalExtension){
   							case 'mp4': $strSource =  '  <source src="'.$arrMediaData['externalfile'].'" type=\'video/mp4\' />'; break;
   							case 'webm': $strSource =  '  <source src="'.$arrMediaData['externalfile'].'" type=\'video/webm\' />'; break;
   							case 'ogg': $strSource =  '   <source src="'.$arrMediaData['externalfile'].'" type=\'video/ogg\' />'; break;
   						}
   							
-  						$strVideo = '  <video id="example_video_1" class="video-js vjs-default-skin" controls preload="none" width="640" height="264"
+  						$strVideo = '  <video id="example_video_1" class="video-js vjs-default-skin" controls preload="none" width="640" height="364"
 						      poster="" data-setup="{}">
 						    '.$strSource.'
 						    <p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
@@ -609,7 +614,7 @@ class views_pageobject extends pageobject {
   							case 'ogg': $strSource =  '   <source src="'.$strLocalFile.'" type=\'video/ogg\' />'; break;
   						}
   							
-  						$strVideo = '  <video id="example_video_1" class="video-js vjs-default-skin" controls preload="none" width="640" height="264"
+  						$strVideo = '  <video id="example_video_1" class="video-js vjs-default-skin" controls preload="none" width="640" height="364"
 						      poster="" data-setup="{}">
 						    '.$strSource.'
 						    <p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>

@@ -331,6 +331,17 @@
 		  upload_singlefile(files[0]);
 		});
 		
+		//Check flow support
+      	var r = new Flow({
+		  target:'',
+		  forceChunkSize: true,
+		  withCredentials: true,
+		});
+      
+		// Resumable.js isn't supported, fall back to normal Ajax Request
+		if(r.support) {
+			$('.maxuploadsize_single').hide();
+		}
 	})
 	
 	
@@ -686,7 +697,7 @@ option.filevideoimage:after {
 		<p class="drag-drop-buttons"><input type="button" class="button" value="{L_mc_select_file}" id="plupload-browse-button" style="position: relative; z-index: 1;" onclick="$('#singlefileupload').trigger('click')">
 		
 		<input id="singlefileupload" type="file" name="file" class="upload" style="display:none;">
-		<br><p class="small" style="font-weight: normal; padding: 5px;">{L_mc_max_uploadsize}: {MAX_UPLOADSIZE}</p>
+		<br><p class="small maxuploadsize_single" style="font-weight: normal; padding: 5px;">{L_mc_max_uploadsize}: {MAX_UPLOADSIZE}</p>
 		</p>
 		</div>
 	</div>

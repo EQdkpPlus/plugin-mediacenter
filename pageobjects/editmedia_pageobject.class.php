@@ -557,12 +557,13 @@ class editmedia_pageobject extends pageobject {
   		}
   		$this->pdh->process_hook_queue();
   	}
-  	
-  	if ($mixResult){
+
+  	if ($mixResult !== false && is_numeric($mixResult)){
   		$this->core->message($this->user->lang('save_suc'), $this->user->lang('success'), 'green');
   		if ($this->in->get('simple_head')) $this->tpl->add_js('$.FrameDialog.closeDialog();', 'docready');
   	} else {
-  		$this->core->message($this->user->lang('save_nosuc'), $this->user->lang('error'), 'red');
+  		$strErrorMessage = (strpos($mixResult, 'error:') === 0) ? $this->user->lang('mc_editmedia_save_error_'.substr($mixResult, 6)) : $this->user->lang('save_nosuc');
+  		$this->core->message($strErrorMessage, $this->user->lang('error'), 'red');
   		$this->arrData = $arrValues;
   	}
 

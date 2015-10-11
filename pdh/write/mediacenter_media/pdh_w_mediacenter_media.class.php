@@ -70,7 +70,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			
 			//If type file now allowed: wrong type
 			if (!in_array($intType, $arrTypes)){
-				return false;
+				return "error:wrong_type";
 			}
 			
 			
@@ -78,7 +78,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				//File
 				if ($strFile == "" && $strExternalLink == ""){
 					//No Local and External File
-					return false;
+					return "error:no_file";
 				} elseif($strFile != "") {
 					$strFileFolder = $this->pfh->FolderPath('files', 'mediacenter');
 					$strLocalfile = register('encrypt')->decrypt($strFile);
@@ -86,7 +86,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 					
 					//Check Extension
 					$strExtension = strtolower(pathinfo($strFilename, PATHINFO_EXTENSION));
-					if (!in_array($strExtension, $this->extensions_file())) return false;
+					if (!in_array($strExtension, $this->extensions_file())) return "error:wrong_extension";;
 
 				}
 				
@@ -109,33 +109,45 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				if ($strExternalLink != "" && $strFile == ""){
 					if(!$this->config->get('embedly_key') || $this->config->get('embedly_key') == ""){
 						$this->core->message($this->user->lang('mc_embedly_hint'), "Embedly Key", 'red');
-						return false;
+						return "error:embedly_error";;
 					}
 					
 					//External File
 					$objEmbedly = register('embedly');
 					$arrEmbedlyDetails = $objEmbedly->getLinkDetails($strExternalLink);
-					if (!$arrEmbedlyDetails) return false;
-					
-					$arrAdditionalData = array(
-						'thumbnail_url' => $arrEmbedlyDetails[0]->thumbnail_url,
-						'provider_name' => $arrEmbedlyDetails[0]->provider_name,
-						'html' 			=> $arrEmbedlyDetails[0]->html,
-						'url' 			=> $arrEmbedlyDetails[0]->url,
-						'title' 		=> $arrEmbedlyDetails[0]->title,
-					);
-					
-					$strLocalPreviewImage = "";
-					//Download Previewimage
-					if (isset($arrEmbedlyDetails[0]->thumbnail_url)){
-						$binImage = register('urlfetcher')->fetch($arrEmbedlyDetails[0]->thumbnail_url);
-						$strExtension = strtolower(pathinfo($arrEmbedlyDetails[0]->thumbnail_url, PATHINFO_EXTENSION));
-						$filename = md5(rand().unique_id());
-						$this->pfh->putContent($strThumbfolder.$filename.'.'.$strExtension, $binImage);
+					if (!$arrEmbedlyDetails) {
+						//Check if the file is a video we can use
+						$strExtension = strtolower(pathinfo($strExternalLink, PATHINFO_EXTENSION));
+						if (!in_array($strExtension, $this->extensions_video())) {
+							return "error:embedly_error";
+						}
 						
-						$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.64.'.$strExtension, 64);
-						$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.240.'.$strExtension, 240);
-						$strLocalPreviewImage = $filename.'.'.$strExtension;
+						$arrAdditionalData = array(
+							'url' 			=> $strExternalLink,
+						);
+						
+					} else {
+					
+						$arrAdditionalData = array(
+							'thumbnail_url' => $arrEmbedlyDetails[0]->thumbnail_url,
+							'provider_name' => $arrEmbedlyDetails[0]->provider_name,
+							'html' 			=> $arrEmbedlyDetails[0]->html,
+							'url' 			=> $arrEmbedlyDetails[0]->url,
+							'title' 		=> $arrEmbedlyDetails[0]->title,
+						);
+						
+						$strLocalPreviewImage = "";
+						//Download Previewimage
+						if (isset($arrEmbedlyDetails[0]->thumbnail_url)){
+							$binImage = register('urlfetcher')->fetch($arrEmbedlyDetails[0]->thumbnail_url);
+							$strExtension = strtolower(pathinfo($arrEmbedlyDetails[0]->thumbnail_url, PATHINFO_EXTENSION));
+							$filename = md5(rand().unique_id());
+							$this->pfh->putContent($strThumbfolder.$filename.'.'.$strExtension, $binImage);
+							
+							$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.64.'.$strExtension, 64);
+							$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.240.'.$strExtension, 240);
+							$strLocalPreviewImage = $filename.'.'.$strExtension;
+						}
 					}
 					
 				} elseif ($strFile != ""){
@@ -144,22 +156,23 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 					if(file_exists($strFileFolder.$strLocalfile)) $arrAdditionalData['size'] = filesize($strFileFolder.$strLocalfile);
 					//Check Extension
 					$strExtension = strtolower(pathinfo($strFilename, PATHINFO_EXTENSION));
-					if (!in_array($strExtension, $this->extensions_video())) return false;
+					if (!in_array($strExtension, $this->extensions_video())) return "error:wrong_extension";
 				
-				} else return false;
+				} else return "error:no_file";
 				
 				
 			}else{
 				//Image
-				if ($strFile == "" || $strFilename == "") return false;
+				if ($strFile == "" || $strFilename == "") return "error:no_file";;
 				$strLocalfile = register('encrypt')->decrypt($strFile);
 				
 				$strExtension = strtolower(pathinfo($strFilename, PATHINFO_EXTENSION));
 				//Check Extension
-				if (!in_array($strExtension, $this->extensions_image())) return false;
+				if (!in_array($strExtension, $this->extensions_image())) return "error:wrong_extensions";;
 				
 				//Exif Data
 				$strFileFolder = $this->pfh->FolderPath('files', 'mediacenter');
+				if(!file_exists($strFileFolder.$strLocalfile)) return "error:no_file";
 				
 				//Check image Dimensions, because of memory usage
 				$imageInfo = getimagesize($strFileFolder.$strLocalfile);
@@ -169,7 +182,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				$neededMemory = $width * $height * ($strExtension == 'png' ? 4 : 3) * 2.1;
 					
 				if ($this->get_memory_limit() !== false && $this->get_memory_limit() != -1 && $this->get_memory_limit() < (memory_get_usage() + $neededMemory)) {
-					return false;
+					return "error:too_big";
 				}
 				
 				
@@ -183,7 +196,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				}
 				
 				//Preview Image
-				if (!in_array($strExtension, array('jpg', 'jpeg', 'png', 'gif'))) return false;
+				if (!in_array($strExtension, array('jpg', 'jpeg', 'png', 'gif'))) "error:wrong_extension";
 				$filename = md5(rand().unique_id());
 				$this->pfh->copy($strFileFolder.$strLocalfile, $strThumbfolder.$filename.'.'.$strExtension);
 				$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.64.'.$strExtension, 64);
@@ -294,7 +307,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				
 			//Check Type
 			$arrTypes = $this->pdh->get('mediacenter_categories', 'types', array($intCategoryID));
-			if (!$intCategoryID || !$arrTypes || (count($arrTypes) == 0)) return false;
+			if (!$intCategoryID || !$arrTypes || (count($arrTypes) == 0)) return "error:wrong_type";
 				
 			//If Type is not allowed, make type file
 			if (!in_array($intType, $arrTypes)){
@@ -303,7 +316,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				
 			//If type file now allowed: wrong type
 			if (!in_array($intType, $arrTypes)){
-				return false;
+				return "error:wrong_type";
 			}
 			
 			if ($intType == 0){
@@ -317,7 +330,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				
 					//Check Extension
 					$strExtension = strtolower(pathinfo($strLocalfilename, PATHINFO_EXTENSION));
-					if (!in_array($strExtension, $this->extensions_file())) return false;
+					if (!in_array($strExtension, $this->extensions_file())) return "error:wrong_extension";
 				}
 				
 				//If it's a image, we have a preview image
@@ -338,7 +351,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 					//External File
 					$objEmbedly = register('embedly');
 					$arrEmbedlyDetails = $objEmbedly->getLinkDetails($strExternalLink);
-					if (!$arrEmbedlyDetails) return false;
+					if (!$arrEmbedlyDetails) return "error:embedly_error";
 					
 					$arrAdditionalData = array(
 						'thumbnail_url' => $arrEmbedlyDetails[0]->thumbnail_url,
@@ -368,7 +381,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 					if(file_exists($strFileFolder.$strLocalfile)) $arrAdditionalData['size'] = filesize($strFileFolder.$strLocalfile);
 					//Check Extension
 					$strExtension = strtolower(pathinfo($strLocalfilename, PATHINFO_EXTENSION));
-					if (!in_array($strExtension, $this->extensions_video())) return false;
+					if (!in_array($strExtension, $this->extensions_video())) return "error:wrong_extension";
 				}
 				
 				
@@ -379,13 +392,13 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				if ($strFile != "" && $strFilename != ""){
 					$strLocalfile = register('encrypt')->decrypt($strFile);
 					$strLocalfilename = $strFilename;
-					if(!file_exists($strFileFolder.$strLocalfile)) return false;
+					if(!file_exists($strFileFolder.$strLocalfile)) return "error:no_file";
 					
 					$arrAdditionalData['size'] = filesize($strFileFolder.$strLocalfile);
 					
 					$strExtension = strtolower(pathinfo($strFilename, PATHINFO_EXTENSION));
 					//Check Extension
-					if (!in_array($strExtension, $this->extensions_image())) return false;
+					if (!in_array($strExtension, $this->extensions_image())) return "error:wrong_extension";
 					
 					//Check image Dimensions, because of memory usage
 					$imageInfo = getimagesize($strFileFolder.$strLocalfile);
@@ -395,7 +408,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 					$neededMemory = $width * $height * ($strExtension == 'png' ? 4 : 3) * 2.1;
 					
 					if ($this->get_memory_limit() !== false && $this->get_memory_limit() != -1 && $this->get_memory_limit() < (memory_get_usage() + $neededMemory)) {
-						return false;
+						return "error:too_big";
 					}
 					
 					//Exif Data

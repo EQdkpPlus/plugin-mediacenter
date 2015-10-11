@@ -244,7 +244,12 @@ $lang = array(
 	"mc_watermark_type_text" => "Text",
 	"mc_watermark_type_image" => "Image",
 	"mc_f_watermark_fontsize" => "Watermark fontsize",
-	
+		
+	"mc_editmedia_save_error_wrong_type" => "The type of the uploaded file is not allowed in this category.", 	
+	"mc_editmedia_save_error_wrong_extension" => "The extension of this file is not allowed for this filetype.",
+	"mc_editmedia_save_error_wrong_no_file" => "File not found.",
+	"mc_editmedia_save_error_too_big" => "Your uploaded file is too big.",
+	"mc_editmedia_save_error_embedly_error" => "The Video is not supported by embedly, or no embedly key found.",
 		
 	"plugin_statistics_mediacenter_media" => "MediaCenter: Uploads",
 	"plugin_statistics_mediacenter_views" => "MediaCenter: Views",

@@ -83,7 +83,7 @@ class IndexMediaFiles extends page_generic {
 				}
 				
 				//Try to find an image extension
-				$strExtension = pathinfo($strFile, PATHINFO_EXTENSION);
+				$strExtension = strtolower(pathinfo($strFile, PATHINFO_EXTENSION));
 				if(!$strExtension || $strExtension == ""){
 					$strExtension = $this->mimetype_to_extension($strMime);
 				}
