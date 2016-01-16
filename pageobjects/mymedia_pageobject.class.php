@@ -235,7 +235,7 @@ class mymedia_pageobject extends pageobject {
   					'MC_SORT_DD'		=> new hdropdown('selectsort', array('options' => $arrSortOptions, 'value' => $this->in->get('sort', '3|desc'), 'id' => 'selectsort', 'class' => 'dropdown')),
   					'MC_BASEURL_LAYOUT' => $strBaseLayoutURL,
   					'MC_BASEURL_SORT'	=> $strBaseSortURL,
-  					'MC_BUTTON_MENU'	=> $this->jquery->ButtonDropDownMenu('manage_members_menu', $arrMenuItems, array("input[name=\"selected_ids[]\"]"), '', $this->user->lang('mc_selected_media').'...', ''),
+  					'MC_BUTTON_MENU'	=> $this->jquery->ButtonDropDownMenu('manage_members_menu', $arrMenuItems, array("input[name=\"selected_ids[]\"]"), $this->user->lang('mc_selected_media').'...', ''),
   			));
 
 

@@ -270,7 +270,7 @@ class Manage_Media extends page_generic {
 			'CID' 			=> $intCategoryID,
 			'CATEGORY_NAME' => $this->pdh->get('mediacenter_categories', 'name', array($intCategoryID)),
 			'DD_FILTER'		=> new hdropdown('filter', array('options' => $arrFilter, 'js' => 'onchange="this.form.submit()"', 'value' => $strFilter)),
-			'BUTTON_MENU'	=> $this->jquery->ButtonDropDownMenu('manage_members_menu', $arrMenuItems, array("input[name=\"selected_ids[]\"]"), '', $this->user->lang('mc_selected_media').'...', ''),
+			'BUTTON_MENU'	=> $this->jquery->ButtonDropDownMenu('manage_members_menu', $arrMenuItems, array("input[name=\"selected_ids[]\"]"), $this->user->lang('mc_selected_media').'...', ''),
 		));
 				
 		$this->core->set_vars(array(

@@ -498,7 +498,7 @@ class views_pageobject extends pageobject {
   					'MC_EMBEDD_BBCODE'	=> htmlspecialchars("[url='".$strPermalink."']".$this->pdh->get('mediacenter_albums', 'name', array($intAlbumID))."[/url]"),
   					'S_MC_TOOLBAR'		=> ($arrPermissions['create'] || $this->user->check_auth('a_mediacenter_manage', false)),
   					'MC_TOOLBAR'		=> $jqToolbar['id'],
-  					'MC_BUTTON_MENU'	=> $this->jquery->ButtonDropDownMenu('manage_members_menu', $arrMenuItems, array("input[name=\"selected_ids[]\"]"), '', $this->user->lang('mc_selected_media').'...', ''),
+  					'MC_BUTTON_MENU'	=> $this->jquery->ButtonDropDownMenu('manage_members_menu', $arrMenuItems, array("input[name=\"selected_ids[]\"]"), $this->user->lang('mc_selected_media').'...', ''),
   					'S_MC_BUTTON_MENU'  => (count($arrMenuItems) > 0) ? true : false,
   					'MC_S_PERSONAL_ALBUM' => ($this->pdh->get('mediacenter_albums', 'personal_album', array($intAlbumID)) ? true : false),
   					'L_ALBUM_OWNER'		=> sprintf($this->user->lang('mc_personal_album_info'), $this->pdh->geth('user', 'name', array($this->pdh->get('mediacenter_albums', 'user_id', array($intAlbumID)), '', '', true))),
@@ -1180,7 +1180,7 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   					'MC_EMBEDD_BBCODE' => htmlspecialchars("[url='".$strPermalink."']".$this->pdh->get('mediacenter_categories', 'name', array($intCategoryId))."[/url]"),
   					'S_MC_TOOLBAR'		=> ($arrPermissions['create'] || $this->user->check_auth('a_mediacenter_manage', false)),
   					'MC_TOOLBAR'		=> $jqToolbar['id'],
-  					'MC_BUTTON_MENU'	=> $this->jquery->ButtonDropDownMenu('manage_members_menu', $arrMenuItems, array("input[name=\"selected_ids[]\"]"), '', $this->user->lang('mc_selected_media').'...', ''),
+  					'MC_BUTTON_MENU'	=> $this->jquery->ButtonDropDownMenu('manage_members_menu', $arrMenuItems, array("input[name=\"selected_ids[]\"]"), $this->user->lang('mc_selected_media').'...', ''),
   					'S_MC_BUTTON_MENU'  => (count($arrMenuItems) > 0) ? true : false,
   					'S_SHOW_MAP'		=> ($intMapCount && $this->config->get('show_maps', 'mediacenter')) ? true : false,
   			));
