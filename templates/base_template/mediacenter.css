@@ -321,6 +321,20 @@
 	margin-bottom: 4px;
 }
 
+.mcSidebar .contentSidebarRight {
+	padding: 10px !important;
+}
+
+.table.mcSidebar .td.first {
+	width: 83%;
+	padding: 0 2% 0 0;
+}
+
+.table.mcSidebar {
+	width: 100%;
+	table-layout:fixed;
+}
+
 .mcVideoContainer {
 	text-align: center;
 }
@@ -484,5 +498,18 @@
 	
 	.responsive .mcVideoContainer > iframe {
 		max-width: 100%;
+	}
+	
+	.responsive .table.mcSidebar {
+		display: block;
+	}
+	
+	.responsive .table.mcSidebar .td.first {
+		width: 100%;
+		display:block;
+	}
+	
+	.responsive .mcImageContainer img {
+		width: 100%;
 	}
 }

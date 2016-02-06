@@ -1,134 +1,136 @@
-<div class="grid contentSidebar mcSidebar">
-	<div class="col10">
-		<div class="mcImageContainer">
-		<nav>
-			<!-- IF S_PREV_MEDIA -->
-			<a href="{U_PREV_MEDIA}" title="{MEDIA_PREV_TITLE}" class="floatLeft mcNavPrev"><i class="fa fa-chevron-left"></i> {MEDIA_PREV_TITLE}</a>
-			<!-- ENDIF -->
-	
-			<!-- IF S_NEXT_MEDIA -->
-			<a href="{U_NEXT_MEDIA}" title="{MEDIA_NEXT_TITLE}" class="floatRight mcNavNext">{MEDIA_NEXT_TITLE} <i class="fa fa-chevron-right"></i></a>
-			<!-- ENDIF -->
-			<div class="clear"></div>
-			<br />
-		</nav>
-			<a href="{MC_MEDIA_LINK}&image" rel="{MC_LIGHTBOX}" class="lightbox_{MC_LIGHTBOX}" title="{MC_MEDIA_NAME}" data-desc="{MC_DESC_STRIPPED}">
-				<!-- IF MC_S_PUBLISHED -->
-				<img src="{MC_MEDIA_LINK}&image" />
-				<!-- ELSE -->
-				<img src="{MC_IMAGE}" />
+<div class="table contentSidebar mcSidebar">
+	<div class="tr">
+		<div class="td first">
+			<div class="mcImageContainer">
+			<nav>
+				<!-- IF S_PREV_MEDIA -->
+				<a href="{U_PREV_MEDIA}" title="{MEDIA_PREV_TITLE}" class="floatLeft mcNavPrev"><i class="fa fa-chevron-left"></i> {MEDIA_PREV_TITLE}</a>
 				<!-- ENDIF -->
-			</a>
-		</div>
-		<div class="mcSocialShare">
-			<div class="mcSocialButtons floatLeft">
-				{MC_MEDIA_SOCIAL_BUTTONS}
+		
+				<!-- IF S_NEXT_MEDIA -->
+				<a href="{U_NEXT_MEDIA}" title="{MEDIA_NEXT_TITLE}" class="floatRight mcNavNext">{MEDIA_NEXT_TITLE} <i class="fa fa-chevron-right"></i></a>
+				<!-- ENDIF -->
+				<div class="clear"></div>
+				<br />
+			</nav>
+				<a href="{MC_MEDIA_LINK}&image" rel="{MC_LIGHTBOX}" class="lightbox_{MC_LIGHTBOX}" title="{MC_MEDIA_NAME}" data-desc="{MC_DESC_STRIPPED}">
+					<!-- IF MC_S_PUBLISHED -->
+					<img src="{MC_MEDIA_LINK}&image" />
+					<!-- ELSE -->
+					<img src="{MC_IMAGE}" />
+					<!-- ENDIF -->
+				</a>
 			</div>
-			<div class="mcRating floatRight">
-				{MC_MEDIA_RATING}
+			<div class="mcSocialShare">
+				<div class="mcSocialButtons floatLeft">
+					{MC_MEDIA_SOCIAL_BUTTONS}
+				</div>
+				<div class="mcRating floatRight">
+					{MC_MEDIA_RATING}
+				</div>
+				<div class="clear"></div>
 			</div>
-			<div class="clear"></div>
+			
+			<!-- IF MC_MEDIA_DESCRIPTION != "" -->
+			<div class="mcDescription">
+				<h3>{L_mc_f_description}</h3>
+				{MC_MEDIA_DESCRIPTION}
+				<br />
+			</div>
+			<!-- ENDIF -->
+			
+			<br /><br />
+			<!-- IF S_MC_COMMENTS -->
+			<span id="comments"></span>
+			{MC_COMMENTS}
+			<!-- ENDIF -->
+			
+			
+			<div style="display:none;">
+				{MC_OTHER_IMAGES}
+			</div>
 		</div>
 		
-		<!-- IF MC_MEDIA_DESCRIPTION != "" -->
-		<div class="mcDescription">
-			<h3>{L_mc_f_description}</h3>
-			{MC_MEDIA_DESCRIPTION}
+		<div class="td last contentSidebarRight">
+			<h3>{L_mc_image_info}</h3>
+			<dl>
+				<dt>{L_mc_author}:</dt> <dd>{MC_MEDIA_AUTHOR}</dd>
+				<dt>{L_mc_date}:</dt> <dd>{MC_MEDIA_DATE}</dd>
+				<!-- IF MC_MEDIA_ALBUM != "" -->
+				<dt>{L_mc_f_album}:</dt> <dd>{MC_MEDIA_ALBUM}</dd>
+				<!-- ENDIF -->
+				<dt>{L_mc_f_views}:</dt> <dd>{MC_MEDIA_VIEWS}</dd>
+				<dt>&nbsp;</dt> <dd>&nbsp;</dd>
+				<dt>{L_mc_f_filename}:</dt> <dd>{MC_MEDIA_FILENAME}</dd>
+				<dt>{L_mc_imagedimensions}:</dt> <dd>{MC_MEDIA_IMAGEDIMENSIONS}</dd>
+				<!-- BEGIN mc_more_image_details -->
+				<dt>{mc_more_image_details.LABEL}:</dt> <dd>{mc_more_image_details.VALUE}</dd>
+				<!-- END mc_more_image_details -->
+			</dl>
+			<div class="clear"></div>
+			<br />
+					
+			<h3>{L_tags}</h3>
+			<!-- IF S_MC_TAGS -->
+			 <ul class="tags">
+				<!-- BEGIN tag_row -->
+				<li><a href="{tag_row.U_TAG}">{tag_row.TAG}</a></li>
+				<!-- END tag_row -->
+			</ul>
+			<!-- ENDIF -->
+			<div class="clear"></div>
+			<br />
+			
+			<!-- IF S_MC_COORDS -->
+			<script src="https://maps.googleapis.com/maps/api/js"></script>
+			<script>
+			function initialize_gmap() {
+				var latlng = new google.maps.LatLng({MC_MEDIA_LATITUDE},{MC_MEDIA_LONGITUDE});
+				
+			  var mapProp = {
+			    center: latlng,
+			    zoom:5,
+			    mapTypeId:google.maps.MapTypeId.ROADMAP
+			  };
+			  var map=new google.maps.Map(document.getElementById("imageMap"),mapProp);
+			  
+			  var marker=new google.maps.Marker({
+				  position: latlng,
+				  map: map,
+			});
+			  
+			  var geocoder = new google.maps.Geocoder();
+			  geocoder.geocode({'latLng': latlng}, function(results, status) {
+			      if (status == google.maps.GeocoderStatus.OK) {
+			        if (results[1]) {
+			          $('#imageMapLocation').html(results[1].formatted_address);
+			        }
+			      } else {
+			       // alert("Geocoder failed due to: " + status);
+			      }
+			    });
+	
+			}
+			google.maps.event.addDomListener(window, 'load', initialize_gmap);
+			</script>
+			<h3>{L_mc_coords}</h3>
+			<fieldset>
+				<legend id="imageMapLocation"></legend>
+				<div class="mcSidebarGoogleMap" id="imageMap"></div>
+			</fieldset>
+			<div class="clear"></div>
+			<br />
+			<!-- ENDIF -->
+			
+			<h3>{L_mc_more_actions}</h3>
+			<ul>
+			<li><a href="javascript:embedd_media();"><i class="fa fa-chain fa-lg"></i> {L_mc_embedd_image}</a></li>
+			<!-- IF S_LOGGED_IN -->
+			<li><a href="javascript:report_media();"><i class="fa fa-exclamation-triangle fa-lg"></i> {L_mc_report_media}</a></li>
+			<!-- ENDIF -->
+			</ul>
 			<br />
 		</div>
-		<!-- ENDIF -->
-		
-		<br /><br />
-		<!-- IF S_MC_COMMENTS -->
-		<span id="comments"></span>
-		{MC_COMMENTS}
-		<!-- ENDIF -->
-		
-		
-		<div style="display:none;">
-			{MC_OTHER_IMAGES}
-		</div>
-	</div>
-	
-	<div class="col2 last contentSidebarRight">
-		<h3>{L_mc_image_info}</h3>
-		<dl>
-			<dt>{L_mc_author}:</dt> <dd>{MC_MEDIA_AUTHOR}</dd>
-			<dt>{L_mc_date}:</dt> <dd>{MC_MEDIA_DATE}</dd>
-			<!-- IF MC_MEDIA_ALBUM != "" -->
-			<dt>{L_mc_f_album}:</dt> <dd>{MC_MEDIA_ALBUM}</dd>
-			<!-- ENDIF -->
-			<dt>{L_mc_f_views}:</dt> <dd>{MC_MEDIA_VIEWS}</dd>
-			<dt>&nbsp;</dt> <dd>&nbsp;</dd>
-			<dt>{L_mc_f_filename}:</dt> <dd>{MC_MEDIA_FILENAME}</dd>
-			<dt>{L_mc_imagedimensions}:</dt> <dd>{MC_MEDIA_IMAGEDIMENSIONS}</dd>
-			<!-- BEGIN mc_more_image_details -->
-			<dt>{mc_more_image_details.LABEL}:</dt> <dd>{mc_more_image_details.VALUE}</dd>
-			<!-- END mc_more_image_details -->
-		</dl>
-		<div class="clear"></div>
-		<br />
-				
-		<h3>{L_tags}</h3>
-		<!-- IF S_MC_TAGS -->
-		 <ul class="tags">
-			<!-- BEGIN tag_row -->
-			<li><a href="{tag_row.U_TAG}">{tag_row.TAG}</a></li>
-			<!-- END tag_row -->
-		</ul>
-		<!-- ENDIF -->
-		<div class="clear"></div>
-		<br />
-		
-		<!-- IF S_MC_COORDS -->
-		<script src="https://maps.googleapis.com/maps/api/js"></script>
-		<script>
-		function initialize_gmap() {
-			var latlng = new google.maps.LatLng({MC_MEDIA_LATITUDE},{MC_MEDIA_LONGITUDE});
-			
-		  var mapProp = {
-		    center: latlng,
-		    zoom:5,
-		    mapTypeId:google.maps.MapTypeId.ROADMAP
-		  };
-		  var map=new google.maps.Map(document.getElementById("imageMap"),mapProp);
-		  
-		  var marker=new google.maps.Marker({
-			  position: latlng,
-			  map: map,
-		});
-		  
-		  var geocoder = new google.maps.Geocoder();
-		  geocoder.geocode({'latLng': latlng}, function(results, status) {
-		      if (status == google.maps.GeocoderStatus.OK) {
-		        if (results[1]) {
-		          $('#imageMapLocation').html(results[1].formatted_address);
-		        }
-		      } else {
-		       // alert("Geocoder failed due to: " + status);
-		      }
-		    });
-
-		}
-		google.maps.event.addDomListener(window, 'load', initialize_gmap);
-		</script>
-		<h3>{L_mc_coords}</h3>
-		<fieldset>
-			<legend id="imageMapLocation"></legend>
-			<div class="mcSidebarGoogleMap" id="imageMap"></div>
-		</fieldset>
-		<div class="clear"></div>
-		<br />
-		<!-- ENDIF -->
-		
-		<h3>{L_mc_more_actions}</h3>
-		<ul>
-		<li><a href="javascript:embedd_media();"><i class="fa fa-chain fa-lg"></i> {L_mc_embedd_image}</a></li>
-		<!-- IF S_LOGGED_IN -->
-		<li><a href="javascript:report_media();"><i class="fa fa-exclamation-triangle fa-lg"></i> {L_mc_report_media}</a></li>
-		<!-- ENDIF -->
-		</ul>
-		<br />
 	</div>
 </div>
 
