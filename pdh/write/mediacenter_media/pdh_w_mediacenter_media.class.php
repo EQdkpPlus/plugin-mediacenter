@@ -361,17 +361,25 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 						'title' 		=> $arrEmbedlyDetails[0]->title,
 					);
 					
+					$strOldLocalPreviewImage = $strLocalPreviewImage;
 					$strLocalPreviewImage = "";
 					//Download Previewimage
 					if (isset($arrEmbedlyDetails[0]->thumbnail_url)){
 						$binImage = register('urlfetcher')->fetch($arrEmbedlyDetails[0]->thumbnail_url);
 						$strExtension = strtolower(pathinfo($arrEmbedlyDetails[0]->thumbnail_url, PATHINFO_EXTENSION));
 						$filename = md5(rand().unique_id());
-						$this->pfh->putContent($strThumbfolder.$filename, $binImage);
+						$this->pfh->putContent($strThumbfolder.$filename.'.'.$strExtension, $binImage);
 						
 						$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.64.'.$strExtension, 64);
 						$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.240.'.$strExtension, 240);
 						$strLocalPreviewImage = $filename.'.'.$strExtension;
+						
+						//Delete old PreviewImages
+						if($strOldLocalPreviewImage != "") {
+							$this->pfh->Delete('thumbs/'.$strOldLocalPreviewImage, 'mediacenter');
+							$this->pfh->Delete('thumbs/'.str_replace('.', '.64.', $strOldLocalPreviewImage), 'mediacenter');
+							$this->pfh->Delete('thumbs/'.str_replace('.', '.240.', $strOldLocalPreviewImage), 'mediacenter');
+						}
 					}
 					
 				} elseif ($strFile != ""){

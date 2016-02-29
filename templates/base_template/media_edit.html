@@ -127,7 +127,7 @@
 		var albumid = $('#album_id').val();
 		$('#albums_massupload').val(albumid);
 		
-		$.get("{EQDKP_CONTROLLER_PATH}/AddMedia/{SID}&media_types&album="+albumid,
+		$.get("{EQDKP_CONTROLLER_PATH}/AddMedia/{SID}&media_types&album="+albumid+"&media={IMAGE_ID}",
 			function(data){
 				var myobj = $('#type');
 				myobj.after(data);

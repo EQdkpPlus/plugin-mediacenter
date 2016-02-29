@@ -331,6 +331,9 @@ class editmedia_pageobject extends pageobject {
   public function ajax_media_types(){
   	header('content-type: text/html; charset=UTF-8');
   	$strAlbumID = $this->in->get('album');
+  	$intMediaID = $this->in->get('media', 0);
+  	$option = ($intMediaID) ? $this->pdh->get('mediacenter_media', 'type', array($intMediaID)) : 0;
+  	
   	if(substr($strAlbumID, 0, 1) == 'c'){
   		$intCategoryID = (int)substr($strAlbumID, 1);
   		$intAlbumID = 0;
@@ -352,7 +355,7 @@ class editmedia_pageobject extends pageobject {
 		}
 		$myArray = $tmp;
   	}
-  	echo new hdropdown('type', array('js' => 'onchange="handle_type(this.value)"', 'options' => $myArray));
+  	echo new hdropdown('type', array('js' => 'onchange="handle_type(this.value)"', 'options' => $myArray, 'value' => $option));
   	exit;
   }
   
