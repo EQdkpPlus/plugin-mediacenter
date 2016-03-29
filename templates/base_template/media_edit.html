@@ -321,7 +321,10 @@
 		$('#singlefileupload').on('change', function(evt){
 			evt.preventDefault();
 			var file = evt.target.files[0];
-			upload_singlefile(file);		
+			evt.target.value = '';
+			evt.target.type = "text";
+			evt.target.type = "file";
+			upload_singlefile(file);
 		});
 		
 
