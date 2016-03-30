@@ -29,7 +29,7 @@ class mymedia_pageobject extends pageobject {
   {
     $shortcuts = array('social' => 'socialplugins');
    	return array_merge(parent::__shortcuts(), $shortcuts);
-  }  
+  }
   
   /**
    * Constructor
@@ -200,27 +200,28 @@ class mymedia_pageobject extends pageobject {
   			}
   			
   			$arrMenuItems = array(
-  					0 => array(
-  							'name'	=> $this->user->lang('delete'),
-  							'type'	=> 'button', //link, button, javascript
-  							'icon'	=> 'fa-trash-o',
-  							'perm'	=> true,
-  							'link'	=> '#del_articles',
-  					),
-  					1 => array(
-  							'name'	=> $this->user->lang('mc_change_state_publish'),
-  							'type'	=> 'button', //link, button, javascript
-  							'icon'	=> 'fa-eye',
-  							'perm'	=> true,
-  							'link'	=> '#set_published',
-  					),
-  					2 => array(
-  							'name'	=> $this->user->lang('mc_change_state_unpublish'),
-  							'type'	=> 'button', //link, button, javascript
-  							'icon'	=> 'fa-eye-slash',
-  							'perm'	=> true,
-  							'link'	=> '#set_unpublished',
-  					),
+                0 => array(
+    				'type'	=> 'javascript',
+    				'icon'	=> 'fa-trash-o',
+    				'text'	=> $this->user->lang('delete'),
+    				'perm'	=> true,
+    				'js'	=> "$('#del_articles').click();",
+    				'append'=> '<input name="del" onclick="delete_warning();" id="del_articles" class="mainoption" type="button" style="display:none;" />',
+    			),
+				1 => array(
+                    'type'	=> 'button',
+                    'icon'	=> 'fa-eye',
+                    'text'	=> $this->user->lang('mc_change_state_publish'),
+					'perm'	=> true,
+					'name'	=> 'set_published',
+				),
+				2 => array(
+                    'type'	=> 'button',
+                    'icon'	=> 'fa-eye-slash',
+                    'text'	=> $this->user->lang('mc_change_state_unpublish'),
+					'perm'	=> true,
+					'name'	=> 'set_unpublished',
+				),
   			);
   			
   			$this->jquery->Dialog('addmedia', $this->user->lang('mc_add_media'), array('withid' => 'albumid', 'url'=> $this->controller_path.'AddMedia/'.$this->SID.'&simple_head=1&aid=\'+albumid+\'', 'width'=>'900', 'height'=>'780', 'onclose' => $this->env->buildlink().$this->routing->build('MyMedia', '', '', true, true)));
@@ -235,7 +236,7 @@ class mymedia_pageobject extends pageobject {
   					'MC_SORT_DD'		=> new hdropdown('selectsort', array('options' => $arrSortOptions, 'value' => $this->in->get('sort', '3|desc'), 'id' => 'selectsort', 'class' => 'dropdown')),
   					'MC_BASEURL_LAYOUT' => $strBaseLayoutURL,
   					'MC_BASEURL_SORT'	=> $strBaseSortURL,
-  					'MC_BUTTON_MENU'	=> $this->jquery->ButtonDropDownMenu('manage_members_menu', $arrMenuItems, array("input[name=\"selected_ids[]\"]"), $this->user->lang('mc_selected_media').'...', ''),
+  					'MC_BUTTON_MENU'	=> $this->core->build_dropdown_menu($this->user->lang('mc_selected_media').'...', $arrMenuItems, '', 'manage_members_menu', array("input[name=\"selected_ids[]\"]")),
   			));
 
 
