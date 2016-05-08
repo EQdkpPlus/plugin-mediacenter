@@ -29,7 +29,7 @@ class views_pageobject extends pageobject {
   {
     $shortcuts = array('social' => 'socialplugins');
    	return array_merge(parent::__shortcuts(), $shortcuts);
-  }  
+  }
   
   /**
    * Constructor
@@ -45,7 +45,7 @@ class views_pageobject extends pageobject {
     $handler = array(
     	'myalbums' 			=> array('process' => 'view_myalbums'),
     	'download'			=> array('process' => 'download'),
-    	'image'				=> array('process' => 'image'),	
+    	'image'				=> array('process' => 'image'),
     	'report'			=> array('process' => 'report'),
     	'set_published'		=> array('process' => 'set_published', 'csrf' => true),
     	'set_unpublished'	=> array('process' => 'set_unpublished', 'csrf' => true),
@@ -456,28 +456,29 @@ class views_pageobject extends pageobject {
   			$arrMenuItems = array();
   			if ($arrPermissions['delete']){
   				$arrMenuItems[] = array(
-  						'name'	=> $this->user->lang('delete'),
-  						'type'	=> 'button', //link, button, javascript
-  						'icon'	=> 'fa-trash-o',
-  						'perm'	=> true,
-  						'link'	=> '#del_articles',
+                    'type'	=> 'javascript',
+    				'icon'	=> 'fa-trash-o',
+    				'text'	=> $this->user->lang('delete'),
+    				'perm'	=> true,
+    				'js'	=> "$('#del_articles').click();",
+    				'append'=> '<input name="del" onclick="delete_warning();" id="del_articles" class="mainoption" type="button" style="display:none;" />',
   				);
   			}
   				
   			if ($arrPermissions['change_state']){
   				$arrMenuItems[] =  array(
-  						'name'	=> $this->user->lang('mc_change_state_publish'),
-  						'type'	=> 'button', //link, button, javascript
-  						'icon'	=> 'fa-eye',
-  						'perm'	=> true,
-  						'link'	=> '#set_published',
+                    'type'	=> 'button',
+    				'icon'	=> 'fa-eye',
+    				'text'	=> $this->user->lang('mc_change_state_publish'),
+    				'perm'	=> true,
+    				'name'	=> 'set_published',
   				);
   				$arrMenuItems[] = array(
-  						'name'	=> $this->user->lang('mc_change_state_unpublish'),
-  						'type'	=> 'button', //link, button, javascript
-  						'icon'	=> 'fa-eye-slash',
-  						'perm'	=> true,
-  						'link'	=> '#set_unpublished',
+                    'type'	=> 'button',
+    				'icon'	=> 'fa-eye-slash',
+    				'text'	=> $this->user->lang('mc_change_state_unpublish'),
+    				'perm'	=> true,
+    				'name'	=> 'set_unpublished',
   				);
   			}
   				
@@ -498,11 +499,11 @@ class views_pageobject extends pageobject {
   					'MC_EMBEDD_BBCODE'	=> htmlspecialchars("[url='".$strPermalink."']".$this->pdh->get('mediacenter_albums', 'name', array($intAlbumID))."[/url]"),
   					'S_MC_TOOLBAR'		=> ($arrPermissions['create'] || $this->user->check_auth('a_mediacenter_manage', false)),
   					'MC_TOOLBAR'		=> $jqToolbar['id'],
-  					'MC_BUTTON_MENU'	=> $this->jquery->ButtonDropDownMenu('manage_members_menu', $arrMenuItems, array("input[name=\"selected_ids[]\"]"), $this->user->lang('mc_selected_media').'...', ''),
+  					'MC_BUTTON_MENU'	=> $this->core->build_dropdown_menu($this->user->lang('mc_selected_media').'...', $arrMenuItems, '', 'manage_members_menu', array("input[name=\"selected_ids[]\"]")),
   					'S_MC_BUTTON_MENU'  => (count($arrMenuItems) > 0) ? true : false,
   					'MC_S_PERSONAL_ALBUM' => ($this->pdh->get('mediacenter_albums', 'personal_album', array($intAlbumID)) ? true : false),
   					'L_ALBUM_OWNER'		=> sprintf($this->user->lang('mc_personal_album_info'), $this->pdh->geth('user', 'name', array($this->pdh->get('mediacenter_albums', 'user_id', array($intAlbumID)), '', '', true))),
-  					'S_SHOW_MAP'		=> ($intMapCount && $this->config->get('show_maps', 'mediacenter')) ? true : false,	
+  					'S_SHOW_MAP'		=> ($intMapCount && $this->config->get('show_maps', 'mediacenter')) ? true : false,
   			));
 
   	// -- EQDKP ---------------------------------------------------------------
@@ -627,7 +628,7 @@ class views_pageobject extends pageobject {
   				$this->tpl->assign_vars(array(
   					'MC_VIDEO'	=> $strVideo,
   					'MC_EMBEDD_HTML' => htmlspecialchars($strEmbeddHTML),
-  					'MC_EMBEDD_BBCODE' => htmlspecialchars("[url='".$strPermalink."']".$this->pdh->get('mediacenter_media', 'name', array($intMediaID))."[/url]"),	
+  					'MC_EMBEDD_BBCODE' => htmlspecialchars("[url='".$strPermalink."']".$this->pdh->get('mediacenter_media', 'name', array($intMediaID))."[/url]"),
   				));
   			} else {
   				//Image
@@ -691,7 +692,7 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   					
   					$this->tpl->assign_block_vars('mc_more_image_details', array(
   						'LABEL' => $this->user->lang('mc_'.$key),
-  						'VALUE'	=> (strlen($val)) ? sanitize($val) : '&nbsp;',	
+  						'VALUE'	=> (strlen($val)) ? sanitize($val) : '&nbsp;',
   					));
   				}
   				
@@ -955,7 +956,7 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   			
   			//Check Permissions
   			$arrPermissions = $this->pdh->get('mediacenter_categories', 'user_permissions', array($intCategoryId, $this->user->id));
-  			if (!$arrPermissions['read']) message_die($this->user->lang('category_noauth'), $this->user->lang('noauth_default_title'), 'access_denied', true);  			
+  			if (!$arrPermissions['read']) message_die($this->user->lang('category_noauth'), $this->user->lang('noauth_default_title'), 'access_denied', true);
   			
   			if($this->in->exists('map') && (int)$this->config->get('show_maps', 'mediacenter') == 1){
   				$arrMediaInCategory = $this->pdh->get('mediacenter_media', 'id_list_for_category', array($intCategoryId, (($blnShowUnpublished) ? false : true), true));
@@ -981,7 +982,7 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   						'MC_CATEGORY_ID'	=> $intCategoryId,
   						'MC_BREADCRUMB'		=> $this->pdh->get('mediacenter_categories', 'breadcrumb', array($intCategoryId)),
   						'MC_CATEGORY_MEDIA_COUNT' => $intCount,
-  				));	
+  				));
   					
   				// -- EQDKP ---------------------------------------------------------------
   				$this->core->set_vars(array (
@@ -999,7 +1000,7 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   					if(isset($arrAdditionalData['Longitude']) && isset($arrAdditionalData['Latitude'])){
   						$intMapCount++;
   					}
-  				}				
+  				}
   			}
   			
   			
@@ -1138,28 +1139,29 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   			$arrMenuItems = array();
   			if ($arrPermissions['delete']){
   				$arrMenuItems[] = array(
-  					'name'	=> $this->user->lang('delete'),
-  					'type'	=> 'button', //link, button, javascript
-  					'icon'	=> 'fa-trash-o',
-  					'perm'	=> true,
-  					'link'	=> '#del_articles',
+                    'type'	=> 'javascript',
+    				'icon'	=> 'fa-trash-o',
+    				'text'	=> $this->user->lang('delete'),
+    				'perm'	=> true,
+    				'js'	=> "$('#del_articles').click();",
+    				'append'=> '<input name="del" onclick="delete_warning();" id="del_articles" class="mainoption" type="button" style="display:none;" />',
   				);
   			}
   			
   			if ($arrPermissions['change_state']){
   				$arrMenuItems[] =  array(
-  					'name'	=> $this->user->lang('mc_change_state_publish'),
-  					'type'	=> 'button', //link, button, javascript
-  					'icon'	=> 'fa-eye',
-  					'perm'	=> true,
-  					'link'	=> '#set_published',
+                    'type'	=> 'button',
+    				'icon'	=> 'fa-eye',
+    				'text'	=> $this->user->lang('mc_change_state_publish'),
+    				'perm'	=> true,
+    				'name'	=> 'set_published',
   				);
   				$arrMenuItems[] = array(
-  					'name'	=> $this->user->lang('mc_change_state_unpublish'),
-  					'type'	=> 'button', //link, button, javascript
-  					'icon'	=> 'fa-eye-slash',
-  					'perm'	=> true,
-  					'link'	=> '#set_unpublished',
+                    'type'	=> 'button',
+    				'icon'	=> 'fa-eye-slash',
+    				'text'	=> $this->user->lang('mc_change_state_unpublish'),
+    				'perm'	=> true,
+    				'name'	=> 'set_unpublished',
   				);
   			}
   			
@@ -1180,7 +1182,7 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   					'MC_EMBEDD_BBCODE' => htmlspecialchars("[url='".$strPermalink."']".$this->pdh->get('mediacenter_categories', 'name', array($intCategoryId))."[/url]"),
   					'S_MC_TOOLBAR'		=> ($arrPermissions['create'] || $this->user->check_auth('a_mediacenter_manage', false)),
   					'MC_TOOLBAR'		=> $jqToolbar['id'],
-  					'MC_BUTTON_MENU'	=> $this->jquery->ButtonDropDownMenu('manage_members_menu', $arrMenuItems, array("input[name=\"selected_ids[]\"]"), $this->user->lang('mc_selected_media').'...', ''),
+  					'MC_BUTTON_MENU'	=> $this->core->build_dropdown_menu($this->user->lang('mc_selected_media').'...', $arrMenuItems, '', 'manage_members_menu', array("input[name=\"selected_ids[]\"]")),
   					'S_MC_BUTTON_MENU'  => (count($arrMenuItems) > 0) ? true : false,
   					'S_SHOW_MAP'		=> ($intMapCount && $this->config->get('show_maps', 'mediacenter')) ? true : false,
   			));

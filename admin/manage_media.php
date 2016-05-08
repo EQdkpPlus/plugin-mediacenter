@@ -224,36 +224,36 @@ class Manage_Media extends page_generic {
 		}
 		
 		$arrMenuItems = array(
-				0 => array(
-						'name'	=> $this->user->lang('delete'),
-						'type'	=> 'button', //link, button, javascript
-						'icon'	=> 'fa-trash-o',
-						'perm'	=> true,
-						'link'	=> '#del_articles',
-				),
-					
-				1 => array(
-						'name'	=> $this->user->lang('mass_stat_change').': '.$this->user->lang('published'),
-						'type'	=> 'button', //link, button, javascript
-						'icon'	=> 'fa-eye',
-						'perm'	=> true,
-						'link'	=> '#set_published',
-				),
-				2 => array(
-						'name'	=> $this->user->lang('mass_stat_change').': '.$this->user->lang('not_published'),
-						'type'	=> 'button', //link, button, javascript
-						'icon'	=> 'fa-eye-slash',
-						'perm'	=> true,
-						'link'	=> '#set_unpublished',
-				),
-				3 => array(
-						'name'	=> $this->user->lang('mc_move_album').':',
-						'type'	=> 'button', //link, button, javascript
-						'icon'	=> 'fa-refresh',
-						'perm'	=> true,
-						'link'	=> '#change_category',
-						'append' => new hdropdown('new_category', array('options' => $this->pdh->get('mediacenter_albums', 'category_tree'))),
-				),
+			0 => array(
+				'type'	=> 'javascript',
+				'icon'	=> 'fa-trash-o',
+				'text'	=> $this->user->lang('delete'),
+				'perm'	=> true,
+				'js'	=> "$('#del_articles').click();",
+				'append'=> '<input name="del" onclick="delete_warning();" id="del_articles" class="mainoption" type="button" style="display:none;" />',
+			),
+			1 => array(
+				'type'	=> 'button',
+				'icon'	=> 'fa-eye',
+				'text'	=> $this->user->lang('mass_stat_change').': '.$this->user->lang('published'),
+				'perm'	=> true,
+				'name'	=> 'set_published',
+			),
+			2 => array(
+				'type'	=> 'button',
+				'icon'	=> 'fa-eye-slash',
+				'text'	=> $this->user->lang('mass_stat_change').': '.$this->user->lang('not_published'),
+				'perm'	=> true,
+				'name'	=> 'set_unpublished',
+			),
+			3 => array(
+				'type'	=> 'select',
+				'icon'	=> 'fa-refresh',
+				'text'	=> $this->user->lang('mc_move_album').':',
+				'perm'	=> true,
+				'name'	=> 'change_album',
+				'options' => array('new_category', $this->pdh->get('mediacenter_albums', 'category_tree')),
+			),
 		);
 		
 		$this->confirm_delete($this->user->lang('mc_confirm_delete_media'));
@@ -270,7 +270,7 @@ class Manage_Media extends page_generic {
 			'CID' 			=> $intCategoryID,
 			'CATEGORY_NAME' => $this->pdh->get('mediacenter_categories', 'name', array($intCategoryID)),
 			'DD_FILTER'		=> new hdropdown('filter', array('options' => $arrFilter, 'js' => 'onchange="this.form.submit()"', 'value' => $strFilter)),
-			'BUTTON_MENU'	=> $this->jquery->ButtonDropDownMenu('manage_members_menu', $arrMenuItems, array("input[name=\"selected_ids[]\"]"), $this->user->lang('mc_selected_media').'...', ''),
+			'BUTTON_MENU'	=> $this->core->build_dropdown_menu($this->user->lang('mc_selected_media').'...', $arrMenuItems, '', 'manage_members_menu', array("input[name=\"selected_ids[]\"]")),
 		));
 				
 		$this->core->set_vars(array(
