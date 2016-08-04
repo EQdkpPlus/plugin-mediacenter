@@ -763,13 +763,13 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   					$arrToolbarItems[] = array(
   							'icon'	=> 'fa-eye-slash',
   							'js'	=> 'onclick="$(\'#set_unpublished\').click()"',
-  							'title'	=> $this->user->lang('article_unpublish'),
+  							'title'	=> $this->user->lang('mc_unpublish_media'),
   					);
   				} else {
   					$arrToolbarItems[] = array(
   							'icon'	=> 'fa-eye',
   							'js'	=> 'onclick="$(\'#set_published\').click()"',
-  							'title'	=> $this->user->lang('article_publish'),
+  							'title'	=> $this->user->lang('mc_publish_media'),
   					);
   				}
   			}
