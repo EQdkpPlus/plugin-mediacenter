@@ -78,7 +78,7 @@
 {CSRF_TOKEN}
 </form>
 <script>
-$(document).ready(function() {
+$(function(){
 	$('#selectsort').change(function() {
 		var base_sort_url = '{MC_BASEURL_SORT}';
 		window.location=base_sort_url+$(this).val();

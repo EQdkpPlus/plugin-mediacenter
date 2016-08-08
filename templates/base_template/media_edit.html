@@ -100,7 +100,7 @@
 	  jcrop_api.setImage(image);
   }
   
-  $(document).ready(function(){
+  $(function(){
 	  reload_image();
   });
 </script>
@@ -309,7 +309,7 @@
 	     
 	}
 		
-	$(document).ready(function(){
+	$(function(){
 		handle_type($("#type").val());
 		
 		load_mediatypes();
@@ -351,7 +351,7 @@
 	//Massupload
 	var storedFiles = [];
 	
-	$(document).ready(function(){
+	$(function(){
 		function massupload_add_files(files){
 			var filesArr = Array.prototype.slice.call(files);
 			filesArr.forEach(function(f) {			
