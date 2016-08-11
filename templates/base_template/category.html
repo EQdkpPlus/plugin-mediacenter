@@ -97,7 +97,7 @@
 </form>
 
 <script>
-$(document).ready(function() {
+$(function(){
 	$('#selectsort').change(function() {
 		var base_sort_url = '{MC_BASEURL_SORT}';
 		window.location=base_sort_url+$(this).val();
@@ -140,7 +140,7 @@ $(document).ready(function() {
 </div>
 
 <script>
-$(document).ready(function() {
+$(function(){
 	$( ".mcEmbeddDialog" ).dialog({
 		height: 380,
 		width: 500,
