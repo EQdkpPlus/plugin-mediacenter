@@ -160,7 +160,8 @@
 		$('#drag-drop-area-single').show();
 		$("#myfile").val("");
 		$("#myfilename").val("");
-		$(".nl_progressbar_label .fa-spinner").addClass("fa-check");
+		$(".nl_progressbar_label .fa-spinner").removeClass("fa-remove");
+		$(".nl_progressbar_label .fa-spinner").addClass("fa-spin fa-spinner");
 		document.getElementById("editalbum").reset();
 	}
 	
