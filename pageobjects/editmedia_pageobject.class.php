@@ -362,7 +362,7 @@ class editmedia_pageobject extends pageobject {
   public function upload_chunked_file(){
   	$strChunkDir = md5($this->user->csrfGetToken('mediacenter_chunkupload'));
   	
-  	$chunkUploader = register('chunkedUploadHelper', array($strChunkDir));
+  	$chunkUploader = register('chunkedUploadHelper', array($strChunkDir, $this->extensions_video()));
   	$arrFields = $chunkUploader->getForm();
   	
   	$filename = $arrFields['filename'];
@@ -427,8 +427,13 @@ class editmedia_pageobject extends pageobject {
   		echo "error tempname";
   		exit();
   	}
-  	   	 
+  	
+  	$strExtension = pathinfo($filename, PATHINFO_EXTENSION);
   	$new_filename = md5(rand().rand().rand().unique_id());
+  	
+  	if(in_array(utf8_strtolower($strExtension), $this->extensions_video())){
+  		$new_filename .= '.'.utf8_strtolower($strExtension);
+  	}
   	 
   	$this->pfh->FileMove($tempname, $folder.$new_filename, true);
   	
@@ -466,6 +471,10 @@ class editmedia_pageobject extends pageobject {
   	}
   	
   	$new_filename = md5(rand().rand().rand().unique_id());
+  	
+  	if(in_array($fileEnding, $this->extensions_video())){
+  		$new_filename .= '.'.$fileEnding;
+  	}
   	
   	$this->pfh->FileMove($tempname, $folder.$new_filename, true);
   	
@@ -837,10 +846,12 @@ class chunkedUploadHelper extends gen_class {
 	
 	private $chunkDir = false;
 	private $globalChunkDir = false;
+	private $arrVideoExtensions = array();
 	
-	public function __construct($strChunkDir) {
+	public function __construct($strChunkDir, $arrVideoExtensions) {
 		$this->globalChunkDir = $this->pfh->FolderPath('tmp', 'mediacenter');
 		$this->chunkDir = $this->globalChunkDir.$strChunkDir;
+		$this->arrVideoExtensions = $arrVideoExtensions;
 		$this->pfh->FolderPath($this->chunkDir);
 	}
 	
@@ -870,9 +881,15 @@ class chunkedUploadHelper extends gen_class {
 			}
 		}
 		$new_filename = md5(rand().rand().rand().unique_id());
+		$fileEnding = utf8_strtolower(pathinfo($arrFields['filename'], PATHINFO_EXTENSION));
+
+	  	if(in_array($fileEnding, $this->arrVideoExtensions)){
+	  		$new_filename .= '.'.$fileEnding;
+	  	}
+		
 		$folder = $this->pfh->FolderPath('files', 'mediacenter');
 		$strDestination = $folder.$new_filename;
-  	
+		
 		if ($this->validateUploadedFile() && $this->combineChunks($strDestination)) {
 			header('content-type: text/html; charset=UTF-8');
 			echo register('encrypt')->encrypt($new_filename);
@@ -950,7 +967,10 @@ class chunkedUploadHelper extends gen_class {
 		$totalChunks = $arrFields['totalChunks'];
 		
 		//check lock
-		if(file_exists($this->getChunkPath($arrFields['identifier'], 'lock'))) return false;
+		if(file_exists($this->getChunkPath($arrFields['identifier'], 'lock'))) {
+			echo "lock exists";
+			return false;
+		}
 		
 		//Create lock file
 		$this->pfh->putContent($this->getChunkPath($arrFields['identifier'], 'lock'), 'lock');
