@@ -189,14 +189,14 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				if ($strExtension == 'jpg'){
 					$arrExif = $this->exif_data($strFileFolder.$strLocalfile);
 					if ($arrExif) $arrAdditionalData = array_merge($arrAdditionalData, $arrExif);
-					
+
 					if(isset($arrExif['Orientation'])){
 						$this->rotate_image($strFileFolder.$strLocalfile, $arrExif['Orientation']);
 					}
 				}
 				
 				//Preview Image
-				if (!in_array($strExtension, array('jpg', 'jpeg', 'png', 'gif'))) "error:wrong_extension";
+				if (!in_array($strExtension, array('jpg', 'jpeg', 'png', 'gif'))) return "error:wrong_extension";
 				$filename = md5(rand().unique_id());
 				$this->pfh->copy($strFileFolder.$strLocalfile, $strThumbfolder.$filename.'.'.$strExtension);
 				$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.64.'.$strExtension, 64);
@@ -953,6 +953,8 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 					}
 					if(isset($arrExifData['COMPUTED']['Orientation'])){
 						$arrOut['Orientation'] = intval($arrExifData['COMPUTED']['Orientation']);
+					} elseif(isset($arrExifData['IFD0']['Orientation'])){
+						$arrOut['Orientation'] = intval($arrExifData['IFD0']['Orientation']);
 					}
 				}
 				
@@ -1048,7 +1050,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 		}
 		
 		private function rotate_image($strImage, $intOrientation){
-			$image = ImageCreateFromGIF($strImage);
+			$image = imagecreatefromjpeg($strImage);
 			$blnSave = true;
 			
 			switch((int)$intOrientation) {
@@ -1066,7 +1068,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			}
 			
 			if($blnSave){
-				ImageJPEG($image, $strImage, 100);
+				imagejpeg($image, $strImage, 100);
 			}
 			
 			imagedestroy($image);
