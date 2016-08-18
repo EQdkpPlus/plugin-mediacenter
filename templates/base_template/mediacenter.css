@@ -292,8 +292,13 @@
 	text-align: center;
 }
 
-.mcImageContainer img {
+.mcImageContainer .orient_horizontal img {
 	max-width: 100%;
+}
+
+.mcImageContainer .orient_vertical img {
+	max-height: 700px;
+	max-widht: 100%;
 }
 
 .mcSidebar .contentSidebarRight h3, .mcDescription h3 {

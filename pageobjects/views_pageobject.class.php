@@ -673,6 +673,7 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   					'MC_EMBEDD_HTML_SMALL' 		=> htmlspecialchars('<a href="'.$strPermalink.'"><img src="'.$this->pdh->geth('mediacenter_media', 'previewimage', array($intMediaID, 2, true)).'" alt="" /></a>'),
   					'MC_EMBEDD_BBCODE_SMALL' 	=> htmlspecialchars("[url='".$strPermalink."'][img]".$this->pdh->geth('mediacenter_media', 'previewimage', array($intMediaID, 2, true))."[/img][/url]"),
   					'MC_EMBEDD_BBCODE_BIG' 		=> htmlspecialchars("[url='".$strPermalink."'][img]".$strPermalink."?image[/img][/url]"),
+  					'MC_IMAGE_ORIENTATION'		=> ($arrImageDimesions[1] > $arrImageDimesions[0]) ? 'vertical' : 'horizontal',
   				));
   				
   				foreach($arrAdditionalData as $key => $val){
