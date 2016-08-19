@@ -31,6 +31,9 @@
 
 <!-- IF S_LOGGED_IN -->
 <div class="mcReportDialog" style="display:none;" title="{L_mc_report_media}">
+	<!-- IF MC_S_REPORTED -->
+	{L_mc_already_reported}
+	<!-- ELSE -->
 	<form method="post" action="{MC_MEDIA_LINK}&report">
 	<fieldset class="settings mediumsettings">
 		<div style="font-weight: bold;">{L_mc_report_reason}:</div>
@@ -39,6 +42,7 @@
 	<button type="submit"><i class="fa fa-check fa-lg"></i> {L_submit}</button>
 	{CSRF_TOKEN}
 	</form>
+	<!-- ENDIF -->
 </div>
 <!-- ENDIF -->
 

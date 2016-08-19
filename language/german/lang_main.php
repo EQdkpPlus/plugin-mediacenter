@@ -167,6 +167,7 @@ $lang = array(
 	'mc_report_media'			=> 'Inhalt melden',
 	'mc_report_reason'			=> 'Grund der Meldung',
 	'mc_report_success'			=> 'Der Inhalt wurde erfolgreich gemeldet',
+	'mc_already_reported'		=> 'Dieser Inhalt wurde bereits gemeldet.',
 	'mc_delete_report'			=> 'Meldung löschen',
 		
 	'mc_sort_options'			=> array(

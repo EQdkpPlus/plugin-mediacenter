@@ -813,6 +813,7 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   					'MC_CATEGORY_ID'				=> $intCategoryId,
   					'MC_PERMALINK'					=> $strPermalink,
   					'MC_S_PUBLISHED'				=> ($this->pdh->get('mediacenter_media', 'published', array($intMediaID)) ? true : false),
+  					'MC_S_REPORTED'					=> ($this->pdh->get('mediacenter_media', 'reported', array($intMediaID)) ? true : false),
   			));
   			
   			$this->social->callSocialPlugins($this->pdh->get('mediacenter_media', 'name', array($intMediaID)), truncate($this->bbcode->remove_bbcode($this->pdh->get('mediacenter_media', 'description', array($intMediaID))), 200), $this->pdh->geth('mediacenter_media', 'previewimage', array($intMediaID, 2, true)));

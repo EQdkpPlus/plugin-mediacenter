@@ -168,6 +168,7 @@ $lang = array(
 	'mc_report_reason'			=> 'Reason for reporting',
 	'mc_report_success'			=> 'The media has been reported successfully',
 	'mc_delete_report'			=> 'Delete report',
+	'mc_already_reported'		=> 'The medie already has been reported.',
 		
 	'mc_sort_options'			=> array(
   				'1|asc' => 'Name ascending',
