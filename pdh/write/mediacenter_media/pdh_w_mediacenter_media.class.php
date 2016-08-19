@@ -168,11 +168,13 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				
 				$strExtension = strtolower(pathinfo($strFilename, PATHINFO_EXTENSION));
 				//Check Extension
-				if (!in_array($strExtension, $this->extensions_image())) return "error:wrong_extensions";;
+				if (!in_array($strExtension, $this->extensions_image())) return "error:wrong_extensions";
 				
 				//Exif Data
 				$strFileFolder = $this->pfh->FolderPath('files', 'mediacenter');
 				if(!file_exists($strFileFolder.$strLocalfile)) return "error:no_file";
+				
+				$arrAdditionalData['size'] = filesize($strFileFolder.$strLocalfile);
 				
 				//Check image Dimensions, because of memory usage
 				$imageInfo = getimagesize($strFileFolder.$strLocalfile);
@@ -190,7 +192,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 					$arrExif = $this->exif_data($strFileFolder.$strLocalfile);
 					if ($arrExif) $arrAdditionalData = array_merge($arrAdditionalData, $arrExif);
 
-					if(isset($arrExif['Orientation'])){
+					if(isset($arrExif['Orientation']) && $this->config->get('rotate_exif', 'mediacenter')){
 						$this->rotate_image($strFileFolder.$strLocalfile, $arrExif['Orientation']);
 					}
 				}
@@ -424,7 +426,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 						$arrExif = $this->exif_data($strFileFolder.$strLocalfile);
 						if ($arrExif) $arrAdditionalData = array_merge($arrAdditionalData, $arrExif);
 						
-						if(isset($arrExif['Orientation'])){
+						if(isset($arrExif['Orientation'])  && $this->config->get('rotate_exif', 'mediacenter')){
 							$this->rotate_image($strFileFolder.$strLocalfile, $arrExif['Orientation']);
 						}
 					}
@@ -588,7 +590,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 						$arrExif = $this->exif_data($strFileFolder.$strLocalfile);
 						if($arrExif) $arrAdditionalData = array_merge($arrAdditionalData, $arrExif);
 						
-						if(isset($arrExif['Orientation'])){
+						if(isset($arrExif['Orientation'])  && $this->config->get('rotate_exif', 'mediacenter')){
 							$this->rotate_image($strFileFolder.$strLocalfile, $arrExif['Orientation']);
 						}
 					}

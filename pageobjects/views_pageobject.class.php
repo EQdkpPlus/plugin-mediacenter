@@ -539,6 +539,7 @@ class views_pageobject extends pageobject {
   			$intMediaID = $this->url_id;
   			$intCategoryId = $this->pdh->get('mediacenter_media', 'category_id', array($this->url_id));
   			$intAlbumID = $this->pdh->get('mediacenter_media', 'album_id', array($this->url_id));
+  			$arrPermissions = $this->pdh->get('mediacenter_categories', 'user_permissions', array($intCategoryId, $this->user->id));
   			$blnShowUnpublished = ($arrPermissions['change_state'] || $this->user->check_auth('a_mediacenter_manage', false));
   			
   			if(!$arrMediaData['published'] && !$blnShowUnpublished) message_die($this->user->lang('article_unpublished'));
@@ -549,7 +550,7 @@ class views_pageobject extends pageobject {
   			if (!$intPublished && !$this->user->check_auth('a_mediacenter_manage', false)) message_die($this->user->lang('category_unpublished'));
   				
   			//Check Permissions
-  			$arrPermissions = $this->pdh->get('mediacenter_categories', 'user_permissions', array($intCategoryId, $this->user->id));
+  			
   			if (!$arrPermissions['read']) message_die($this->user->lang('category_noauth'), $this->user->lang('noauth_default_title'), 'access_denied', true);
   	
   			
@@ -677,35 +678,35 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   					'MC_IMAGE_ORIENTATION'		=> ($arrImageDimesions[1] > $arrImageDimesions[0]) ? 'vertical' : 'horizontal',
   				));
   				
-  				foreach($arrAdditionalData as $key => $val){
-  					if($key === 'size'){
-  						$val = human_filesize($val);
-  					} elseif($key === 'CreationTime'){
-  						if($val === 0) continue;
-  						$val = $this->time->createTimeTag((int)$val, $this->time->user_date($val, true));
-  					} elseif($key === 'FNumber'){
-  						$val = 'f/'.$val;
-  					}
-  					
-  					if($key == 'Longitude' || $key == 'Latitude' || $key == 'Orientation') continue;
-  					
-  					if(!strlen($val)) continue;
-  					
-  					$this->tpl->assign_block_vars('mc_more_image_details', array(
-  						'LABEL' => $this->user->lang('mc_'.$key),
-  						'VALUE'	=> (strlen($val)) ? sanitize($val) : '&nbsp;',
-  					));
+  				if($this->config->get('show_exif', 'mediacenter')){
+	  				foreach($arrAdditionalData as $key => $val){
+	  					if($key === 'size'){
+	  						$val = human_filesize($val);
+	  					} elseif($key === 'CreationTime'){
+	  						if($val === 0) continue;
+	  						$val = $this->time->createTimeTag((int)$val, $this->time->user_date($val, true));
+	  					} elseif($key === 'FNumber'){
+	  						$val = 'f/'.$val;
+	  					}
+	  					
+	  					if($key == 'Longitude' || $key == 'Latitude' || $key == 'Orientation') continue;
+	  					
+	  					if(!strlen($val)) continue;
+	  					
+	  					$this->tpl->assign_block_vars('mc_more_image_details', array(
+	  						'LABEL' => $this->user->lang('mc_'.$key),
+	  						'VALUE'	=> (strlen($val)) ? sanitize($val) : '&nbsp;',
+	  					));
+	  				}
+	  				
+	  				if(isset($arrAdditionalData['Longitude']) && isset($arrAdditionalData['Latitude']) && (int)$this->config->get('show_maps', 'mediacenter') == 1) {
+	  					$this->tpl->assign_vars(array(
+	  							'S_MC_COORDS' 			=> true,
+	  							'MC_MEDIA_LONGITUDE'	=> $arrAdditionalData['Longitude'],
+	  							'MC_MEDIA_LATITUDE'		=> $arrAdditionalData['Latitude'],
+	  					));
+	  				}
   				}
-  				
-  				if(isset($arrAdditionalData['Longitude']) && isset($arrAdditionalData['Latitude']) && (int)$this->config->get('show_maps', 'mediacenter') == 1) {
-  					$this->tpl->assign_vars(array(
-  							'S_MC_COORDS' 			=> true,
-  							'MC_MEDIA_LONGITUDE'	=> $arrAdditionalData['Longitude'],
-  							'MC_MEDIA_LATITUDE'		=> $arrAdditionalData['Latitude'],
-  					));
-  				}
-
-  				
   			}
   			
   			$nextID = $this->pdh->get('mediacenter_media', 'next_media', array($intMediaID, (($strRef != "") ? true : false)));

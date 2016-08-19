@@ -118,11 +118,6 @@ class MediaCenterSettings extends page_generic
   				'default' => 25,
   			),	
   		),
-  		'maps' => array(
-  			'show_maps' => array(
-  				'type' => 'radio',
-  			),
-  		),
   		'index_page' => array(
   			'show_featured' => array(
   				'type' => 'radio',
@@ -158,6 +153,19 @@ class MediaCenterSettings extends page_generic
 	  			'type' => 'text',
 	  			'size' => 50,
 	  		),
+  		),
+  		'maps' => array(
+  			'show_maps' => array(
+  				'type' => 'radio',
+  			),
+  		),
+  		'exif' => array(
+  			'show_exif' => array(
+  				'type' => 'radio',	
+  			),
+  			'rotate_exif' => array(
+  				'type' => 'radio',	
+  			)
   		),
   		'watermark' => array(
 	  		'watermark_enabled' => array(

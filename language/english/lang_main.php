@@ -253,6 +253,10 @@ $lang = array(
 	"mc_editmedia_save_error_too_big" => "Your uploaded file is too big.",
 	"mc_editmedia_save_error_embedly_error" => "The Video is not supported by embedly, or no embedly key found.",
 		
+	"mc_fs_exif" => "EXIF",
+	"mc_f_show_exif" => "Show EXIF-Data of images, if available",
+	"mc_f_rotate_exif" => "Rotate images accordingly to their EXIF-data",
+		
 	"plugin_statistics_mediacenter_media" => "MediaCenter: Uploads",
 	"plugin_statistics_mediacenter_views" => "MediaCenter: Views",
 	"plugin_statistics_mediacenter_downloads" => "MediaCenter: Downloads",

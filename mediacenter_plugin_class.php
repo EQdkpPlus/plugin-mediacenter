@@ -162,6 +162,8 @@ class mediacenter extends plugin_generic
   		'show_mostviewed' => 1,
   		'show_latestcomments' => 1,
   		'show_maps'	=> 1,
+  		'show_exif' => 1,
+  		'rotate_exif' => 1,
   	);
   	
   	$this->config->set($arrSave, '', 'mediacenter');
