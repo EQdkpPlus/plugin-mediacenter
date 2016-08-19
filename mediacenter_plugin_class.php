@@ -41,7 +41,8 @@ class mediacenter extends plugin_generic
     return array_merge(parent::$shortcuts, $shortcuts);
   }
 
-  public $version    = '2.1.6';
+//This Version is for EQdkp Plus 2.3.x
+  public $version    = '2.2.0';
   public $build      = '';
   public $copyright  = 'GodMod';
   public $vstatus    = 'Alpha';
