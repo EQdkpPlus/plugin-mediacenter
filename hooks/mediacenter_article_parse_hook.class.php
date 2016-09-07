@@ -51,8 +51,9 @@ if (!class_exists('mediacenter_article_parse_hook'))
 		
 		//Parse all links
 		$arrLinks = array();
-		$intLinks = preg_match_all('@((("|:)?)https?:\/\/([-\w\.]+)+(:\d+)?(\/([\w\/_\-\.]*(\?[^<\s]+|\?)?)?)?)@', $strContent, $arrLinks);
-		
+		if(stripos($strContent, 'mediacenter') !== false){
+			$intLinks = preg_match_all('@((("|:)?)https?:\/\/([-\w\.]+)+(:\d+)?(\/([\w\/_\-\.]*(\?[^<\s]+|\?)?)?)?)@', $strContent, $arrLinks);
+		} else $intLinks = 0;
 		$arrDecodedLinks = array();
 		if ($intLinks){
 			$key = 0;
@@ -100,63 +101,72 @@ if (!class_exists('mediacenter_article_parse_hook'))
 		}
 
 		//Replace Album
-		$arrAlbumObjects = array();
-		preg_match_all('#<p(.*)class="system-block mediacenter-album"(.*) data-album-id="(.*)">(.*)</p>#iU', $strContent, $arrAlbumObjects, PREG_PATTERN_ORDER);
-		if (count($arrAlbumObjects[0])){
-			foreach($arrAlbumObjects[3] as $key => $val){
-				$intAlbumID = intval($val);
-				
-				$strMediaContent = $this->createAlbum($intAlbumID);
-				$strContent = str_replace($arrAlbumObjects[0][$key], $strMediaContent, $strContent);
+		if(stripos($strContent, 'mediacenter-album') !== false){
+			$arrAlbumObjects = array();
+			preg_match_all('#<p(.*)class="system-block mediacenter-album"(.*) data-album-id="(.*)">(.*)</p>#iU', $strContent, $arrAlbumObjects, PREG_PATTERN_ORDER);
+			if (count($arrAlbumObjects[0])){
+				foreach($arrAlbumObjects[3] as $key => $val){
+					$intAlbumID = intval($val);
+					
+					$strMediaContent = $this->createAlbum($intAlbumID);
+					$strContent = str_replace($arrAlbumObjects[0][$key], $strMediaContent, $strContent);
+				}
 			}
 		}
 		
 		//Replace Media
-		$arrMediaObjects = array();
-		preg_match_all('#<p(.*)class="system-block mediacenter-media"(.*) data-media-id="(.*)">(.*)</p>#iU', $strContent, $arrMediaObjects, PREG_PATTERN_ORDER);
-		if (count($arrMediaObjects[0])){
-			foreach($arrMediaObjects[3] as $key => $val){
-
-
-				$intMediaID = intval($val);
-				$strMediaContent = $this->createMedia($intMediaID);
-				$strContent = str_replace($arrMediaObjects[0][$key], $strMediaContent, $strContent);
+		if(stripos($strContent, 'mediacenter-media') !== false){
+			$arrMediaObjects = array();
+			preg_match_all('#<p(.*)class="system-block mediacenter-media"(.*) data-media-id="(.*)">(.*)</p>#iU', $strContent, $arrMediaObjects, PREG_PATTERN_ORDER);
+			if (count($arrMediaObjects[0])){
+				foreach($arrMediaObjects[3] as $key => $val){
+	
+	
+					$intMediaID = intval($val);
+					$strMediaContent = $this->createMedia($intMediaID);
+					$strContent = str_replace($arrMediaObjects[0][$key], $strMediaContent, $strContent);
+				}
 			}
 		}
 		
 		//Replace Media BBCode
-		$arrMediaObjects = array();
-		preg_match_all('#\[media\](.*)\[\/media\]#iU', $strContent, $arrMediaObjects, PREG_PATTERN_ORDER);
-		if (count($arrMediaObjects[0])){
-			foreach($arrMediaObjects[1] as $key => $val){
-		
-				$intMediaID = intval($val);
-				$strMediaContent = $this->createMedia($intMediaID);
-				$strContent = str_replace($arrMediaObjects[0][$key], $strMediaContent, $strContent);
+		if(stripos($strContent, '[media') !== false){
+			$arrMediaObjects = array();
+			preg_match_all('#\[media\](.*)\[\/media\]#iU', $strContent, $arrMediaObjects, PREG_PATTERN_ORDER);
+			if (count($arrMediaObjects[0])){
+				foreach($arrMediaObjects[1] as $key => $val){
+			
+					$intMediaID = intval($val);
+					$strMediaContent = $this->createMedia($intMediaID);
+					$strContent = str_replace($arrMediaObjects[0][$key], $strMediaContent, $strContent);
+				}
 			}
 		}
 		
 		//Replace Album BBCode
 		$arrMediaObjects = array();
-		preg_match_all('#\[album\](.*)\[\/album\]#iU', $strContent, $arrMediaObjects, PREG_PATTERN_ORDER);
-		if (count($arrMediaObjects[0])){
-			foreach($arrMediaObjects[1] as $key => $val){
-		
-				$intAlbumID = intval($val);
-				$strMediaContent = $this->createAlbum($intAlbumID);
-				$strContent = str_replace($arrMediaObjects[0][$key], $strMediaContent, $strContent);
+		if(stripos($strContent, '[album') !== false){
+			preg_match_all('#\[album\](.*)\[\/album\]#iU', $strContent, $arrMediaObjects, PREG_PATTERN_ORDER);
+			if (count($arrMediaObjects[0])){
+				foreach($arrMediaObjects[1] as $key => $val){
+			
+					$intAlbumID = intval($val);
+					$strMediaContent = $this->createAlbum($intAlbumID);
+					$strContent = str_replace($arrMediaObjects[0][$key], $strMediaContent, $strContent);
+				}
 			}
 		}
-		
 		//Replace Category BBCode
 		$arrMediaObjects = array();
-		preg_match_all('#\[category\](.*)\[\/category\]#iU', $strContent, $arrMediaObjects, PREG_PATTERN_ORDER);
-		if (count($arrMediaObjects[0])){
-			foreach($arrMediaObjects[1] as $key => $val){
-		
-				$intCategoryID = intval($val);
-				$strMediaContent = $this->createCategory($intCategoryID);
-				$strContent = str_replace($arrMediaObjects[0][$key], $strMediaContent, $strContent);
+		if(stripos($strContent, '[category') !== false){
+			preg_match_all('#\[category\](.*)\[\/category\]#iU', $strContent, $arrMediaObjects, PREG_PATTERN_ORDER);
+			if (count($arrMediaObjects[0])){
+				foreach($arrMediaObjects[1] as $key => $val){
+			
+					$intCategoryID = intval($val);
+					$strMediaContent = $this->createCategory($intCategoryID);
+					$strContent = str_replace($arrMediaObjects[0][$key], $strMediaContent, $strContent);
+				}
 			}
 		}
 
