@@ -250,7 +250,7 @@ $lang = array(
 		
 	"mc_editmedia_save_error_wrong_type" => "The type of the uploaded file is not allowed in this category.", 	
 	"mc_editmedia_save_error_wrong_extension" => "The extension of this file is not allowed for this filetype.",
-	"mc_editmedia_save_error_wrong_no_file" => "File not found.",
+	"mc_editmedia_save_error_no_file" => "File not found.",
 	"mc_editmedia_save_error_too_big" => "Your uploaded file is too big.",
 	"mc_editmedia_save_error_embedly_error" => "The Video is not supported by embedly, or no embedly key found.",
 		

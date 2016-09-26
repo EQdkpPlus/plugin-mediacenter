@@ -132,11 +132,11 @@ if(!class_exists('pdh_w_mediacenter_categories')) {
 		}
 		
 		public function update($id, $strName, $strDescription, $strAlias, $intPublished, $intParentCategory, $intArticlePublishedState, 
-				$arrPermissions, $intNotifyUnpublishedArticles, $intAllowComments, $intDefaultLayout, $arrTypes, $intAllowVoting, $intPerPage){
+			$arrPermissions, $intNotifyUnpublishedArticles, $intAllowComments, $intDefaultLayout, $arrTypes, $intAllowVoting, $intPerPage){
 			
-			if ($strAlias == "" || $strAlias != $this->pdh->get('mediacenter_categories', 'alias', array($id))){
+			if($strAlias == ""){
 				$strAlias = $this->create_alias($strName);
-			} else {
+			} elseif( $strAlias != $this->pdh->get('mediacenter_categories', 'alias', array($id))) {
 				$strAlias = $this->create_alias($strAlias);
 			}
 			

@@ -249,7 +249,7 @@ $lang = array(
 		
 	"mc_editmedia_save_error_wrong_type" => "Der Typ der hochgeladenen Datei ist in dieser Kategorie nicht erlaubt.",
 	"mc_editmedia_save_error_wrong_extension" => "Die Erweiterung der Datei ist für diesen Typ nicht erlaubt.",
-	"mc_editmedia_save_error_wrong_no_file" => "Datei konnte nicht gefunden werden.",
+	"mc_editmedia_save_error_no_file" => "Datei konnte nicht gefunden werden.",
 	"mc_editmedia_save_error_too_big" => "Die hochgeladene Datei ist zu groß.",
 	"mc_editmedia_save_error_embedly_error" => "Dieses Video wird von Embedly nicht unterstützt, oder kein Embedly-Key gefunden.",
 		

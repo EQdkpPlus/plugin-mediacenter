@@ -574,7 +574,7 @@ class editmedia_pageobject extends pageobject {
   		$this->core->message($this->user->lang('save_suc'), $this->user->lang('success'), 'green');
   		if ($this->in->get('simple_head')) $this->tpl->add_js('$.FrameDialog.closeDialog();', 'docready');
   	} else {
-  		$strErrorMessage = (strpos($mixResult, 'error:') === 0) ? $this->user->lang('mc_editmedia_save_error_'.substr($mixResult, 6)) : $this->user->lang('save_nosuc');
+  		$strErrorMessage = (strpos($mixResult, 'error:') === 0) ? (($this->user->lang('mc_editmedia_save_error_'.substr($mixResult, 6))) ? $this->user->lang('mc_editmedia_save_error_'.substr($mixResult, 6)) :  $mixResult) : $this->user->lang('save_nosuc');
   		$this->core->message($strErrorMessage, $this->user->lang('error'), 'red');
   		$this->arrData = $arrValues;
   	}

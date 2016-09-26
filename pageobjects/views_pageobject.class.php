@@ -1016,7 +1016,7 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   						'CATEGORY_NAME' => 	$this->pdh->get('mediacenter_categories', 'name', array($intChildID)),
   						'CATEGORY_ID' => 	$intChildID,
   						'CATEGORY_LINK' => 	$this->controller_path.$this->pdh->get('mediacenter_categories', 'path', array($intChildID)),
-  						'MEDIA_COUNT' => 	$this->pdh->get('mediacenter_categories', 'media_count', array($intChildID)),
+  						'MEDIA_COUNT' => 	$this->pdh->get('mediacenter_categories', 'media_count', array($intChildID, true, true, true)),
   						'S_HAS_CHILDS'	=> (count($this->pdh->get('mediacenter_categories', 'childs', array($intChildID))) > 0) ? true : false,
   				));
   			}
@@ -1220,7 +1220,7 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
 		', 'docready');
   		
   		
-  		//Get Categorys
+  		//Get Categorys  		
   		$arrCategories = $this->pdh->get('mediacenter_categories', 'published_id_list', array($this->user->id));
   		foreach($arrCategories as $intCategoryId){
   			if($this->pdh->get('mediacenter_categories', 'parent', array($intCategoryId)) == 0){
@@ -1228,7 +1228,7 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   					'CATEGORY_NAME' => 	$this->pdh->get('mediacenter_categories', 'name', array($intCategoryId)),
   					'CATEGORY_ID' => 	$intCategoryId,
   					'CATEGORY_LINK' => 	$this->controller_path.$this->pdh->get('mediacenter_categories', 'path', array($intCategoryId)),
-  					'MEDIA_COUNT' => 	$this->pdh->get('mediacenter_categories', 'media_count', array($intCategoryId)),
+  					'MEDIA_COUNT' => 	$this->pdh->get('mediacenter_categories', 'media_count', array($intCategoryId, true, true, true)),
   					'S_HAS_CHILDS'	=> (count($this->pdh->get('mediacenter_categories', 'childs', array($intCategoryId))) > 0) ? true : false,
   				));
   				
@@ -1238,7 +1238,7 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   						'CATEGORY_NAME' => 	$this->pdh->get('mediacenter_categories', 'name', array($intChildID)),
   						'CATEGORY_ID' => 	$intChildID,
   						'CATEGORY_LINK' => 	$this->controller_path.$this->pdh->get('mediacenter_categories', 'path', array($intChildID)),
-  						'MEDIA_COUNT' => 	$this->pdh->get('mediacenter_categories', 'media_count', array($intChildID)),
+  						'MEDIA_COUNT' => 	$this->pdh->get('mediacenter_categories', 'media_count', array($intChildID, true, true, true)),
   						'S_HAS_CHILDS'	=> (count($this->pdh->get('mediacenter_categories', 'childs', array($intChildID))) > 0) ? true : false,
   					));
   				}
