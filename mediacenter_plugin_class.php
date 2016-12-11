@@ -69,12 +69,12 @@ class mediacenter extends plugin_generic
       'long_description'  => $this->user->lang('mediacenter_long_desc'),
       'homepage'          => EQDKP_PROJECT_URL,
       'manuallink'        => false,
-      'plus_version'      => '2.1',
+      'plus_version'      => '2.3',
       'build'             => $this->build,
     ));
 
     $this->add_dependency(array(
-      'plus_version'      => '2.1'
+      'plus_version'      => '2.3'
     ));
 
     // -- Register our permissions ------------------------
