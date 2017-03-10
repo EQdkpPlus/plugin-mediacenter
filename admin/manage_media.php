@@ -69,7 +69,7 @@ class Manage_Media extends page_generic {
 	
 	public function change_album(){
 		if(count($this->in->getArray('selected_ids', 'int')) > 0) {
-			$intCategory = $this->in->get('new_category',0);
+			$intCategory = $this->in->get('new_category');
 			$this->pdh->put('mediacenter_media', 'change_album', array($this->in->getArray('selected_ids', 'int'), $intCategory));
 			$this->pdh->process_hook_queue();
 			$this->core->message($this->user->lang('pk_succ_saved'), $this->user->lang('success'), 'green');
@@ -223,6 +223,19 @@ class Manage_Media extends page_generic {
 			));
 		}
 		
+		
+		$arrCategoryAlbumTree = $this->pdh->get('mediacenter_albums', 'category_tree');
+		$arrCategoryTree = $this->pdh->get('mediacenter_categories', 'category_tree', array(true, false));
+		$arrAlbumsToMove = array();
+		foreach($arrCategoryTree as $myCategoryID => $strCategoryName){
+			$arrAlbumsToMove['c'.$myCategoryID] = $strCategoryName;
+			if(isset($arrCategoryAlbumTree[$strCategoryName]) && is_array($arrCategoryAlbumTree[$strCategoryName])){
+				foreach ($arrCategoryAlbumTree[$strCategoryName] as $intMyAlbumID => $strAlbumName){
+					$arrAlbumsToMove[$intAlbumID] = $strAlbumName;
+				}
+			}
+		}
+		
 		$arrMenuItems = array(
 			0 => array(
 				'type'	=> 'javascript',
@@ -252,7 +265,7 @@ class Manage_Media extends page_generic {
 				'text'	=> $this->user->lang('mc_move_album').':',
 				'perm'	=> true,
 				'name'	=> 'change_album',
-				'options' => array('new_category', $this->pdh->get('mediacenter_albums', 'category_tree')),
+				'options' => array('new_category', $arrAlbumsToMove),
 			),
 		);
 		

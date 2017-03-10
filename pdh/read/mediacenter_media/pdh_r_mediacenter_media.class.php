@@ -908,38 +908,40 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 				'size' => 0,
 				'comments' => 0,
 			);
-			foreach($this->mediacenter_media as $intMediaID => $arrMediaData){
-				if($arrMediaData['published']){
-					$arrOut['media_count'] = $arrOut['media_count'] + 1;
-					$arrAdditional = unserialize($arrMediaData['additionaldata']);
-					switch($arrMediaData['type']){
-						case 0: $arrOut['file_count']++;
-								  $arrOut['downloads'] = $arrOut['downloads'] + $arrMediaData['downloads'];
-								  if(isset($arrAdditional['size'])){
-								  	$arrOut['size'] = $arrOut['size'] + $arrAdditional['size'];
-								  }
-								  $arrOut['views'] = $arrOut['views'] + $arrMediaData['views'];
-								  $arrOut['comments'] = $arrOut['comments'] + $this->get_comment_count($intMediaID);
-						break;
-						
-						case 1: 
-							$arrOut['video_count']++;
-							$arrOut['downloads'] = $arrOut['downloads'] + $arrMediaData['downloads'];
-							if(isset($arrAdditional['size'])){
-								$arrOut['size'] = $arrOut['size'] + $arrAdditional['size'];
-							}
-							$arrOut['views'] = $arrOut['views'] + $arrMediaData['views'];
-							$arrOut['comments'] = $arrOut['comments'] + $this->get_comment_count($intMediaID);
-						break;
-						
-						case 2:
-							$arrOut['image_count']++;
-							$arrOut['downloads'] = $arrOut['downloads'] + $arrMediaData['downloads'];
-							if(isset($arrAdditional['size'])){
-								$arrOut['size'] = $arrOut['size'] + $arrAdditional['size'];
-							}
-							$arrOut['views'] = $arrOut['views'] + $arrMediaData['views'];
-							$arrOut['comments'] = $arrOut['comments'] + $this->get_comment_count($intMediaID);
+			if(is_array($this->mediacenter_media)){
+				foreach($this->mediacenter_media as $intMediaID => $arrMediaData){
+					if($arrMediaData['published']){
+						$arrOut['media_count'] = $arrOut['media_count'] + 1;
+						$arrAdditional = unserialize($arrMediaData['additionaldata']);
+						switch($arrMediaData['type']){
+							case 0: $arrOut['file_count']++;
+									  $arrOut['downloads'] = $arrOut['downloads'] + $arrMediaData['downloads'];
+									  if(isset($arrAdditional['size'])){
+									  	$arrOut['size'] = $arrOut['size'] + $arrAdditional['size'];
+									  }
+									  $arrOut['views'] = $arrOut['views'] + $arrMediaData['views'];
+									  $arrOut['comments'] = $arrOut['comments'] + $this->get_comment_count($intMediaID);
+							break;
+							
+							case 1: 
+								$arrOut['video_count']++;
+								$arrOut['downloads'] = $arrOut['downloads'] + $arrMediaData['downloads'];
+								if(isset($arrAdditional['size'])){
+									$arrOut['size'] = $arrOut['size'] + $arrAdditional['size'];
+								}
+								$arrOut['views'] = $arrOut['views'] + $arrMediaData['views'];
+								$arrOut['comments'] = $arrOut['comments'] + $this->get_comment_count($intMediaID);
+							break;
+							
+							case 2:
+								$arrOut['image_count']++;
+								$arrOut['downloads'] = $arrOut['downloads'] + $arrMediaData['downloads'];
+								if(isset($arrAdditional['size'])){
+									$arrOut['size'] = $arrOut['size'] + $arrAdditional['size'];
+								}
+								$arrOut['views'] = $arrOut['views'] + $arrMediaData['views'];
+								$arrOut['comments'] = $arrOut['comments'] + $this->get_comment_count($intMediaID);
+						}
 					}
 				}
 			}
