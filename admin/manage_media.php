@@ -282,7 +282,7 @@ class Manage_Media extends page_generic {
 		$this->tpl->assign_vars(array(
 			'CID' 			=> $intCategoryID,
 			'CATEGORY_NAME' => $this->pdh->get('mediacenter_categories', 'name', array($intCategoryID)),
-			'DD_FILTER'		=> new hdropdown('filter', array('options' => $arrFilter, 'js' => 'onchange="this.form.submit()"', 'value' => $strFilter)),
+			'DD_FILTER'		=> (new hdropdown('filter', array('options' => $arrFilter, 'js' => 'onchange="this.form.submit()"', 'value' => $strFilter)))->output(),
 			'BUTTON_MENU'	=> $this->core->build_dropdown_menu($this->user->lang('mc_selected_media').'...', $arrMenuItems, '', 'manage_members_menu', array("input[name=\"selected_ids[]\"]")),
 		));
 				

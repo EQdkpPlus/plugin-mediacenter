@@ -232,8 +232,8 @@ class mymedia_pageobject extends pageobject {
   			$this->tpl->assign_vars(array(
   					'MC_CATEGORY_NAME'	=> $this->user->lang('mc_mymedia'),
   					'MC_CATEGORY_MEDIA_COUNT' => count($arrMediaInCategory),
-  					'MC_LAYOUT_DD'		=> new hdropdown('selectlayout', array('options' => $this->user->lang('mc_layout_types'), 'value' => $intLayout, 'id' => 'selectlayout', 'class' => 'dropdown')),
-  					'MC_SORT_DD'		=> new hdropdown('selectsort', array('options' => $arrSortOptions, 'value' => $this->in->get('sort', '3|desc'), 'id' => 'selectsort', 'class' => 'dropdown')),
+  					'MC_LAYOUT_DD'		=> (new hdropdown('selectlayout', array('options' => $this->user->lang('mc_layout_types'), 'value' => $intLayout, 'id' => 'selectlayout', 'class' => 'dropdown')))->output(),
+  					'MC_SORT_DD'		=> (new hdropdown('selectsort', array('options' => $arrSortOptions, 'value' => $this->in->get('sort', '3|desc'), 'id' => 'selectsort', 'class' => 'dropdown')))->output(),
   					'MC_BASEURL_LAYOUT' => $strBaseLayoutURL,
   					'MC_BASEURL_SORT'	=> $strBaseSortURL,
   					'MC_BUTTON_MENU'	=> $this->core->build_dropdown_menu($this->user->lang('mc_selected_media').'...', $arrMenuItems, '', 'manage_members_menu', array("input[name=\"selected_ids[]\"]")),

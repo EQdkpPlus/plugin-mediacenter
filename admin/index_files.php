@@ -186,7 +186,7 @@ class IndexMediaFiles extends page_generic {
 		$this->tpl->assign_vars(array(
 			'S_MC_INDEX'	=> (function_exists("finfo_file")) ? true : false,
 			'S_START'		=> $start,
-			'DD_CATEGORIES' => 	new hdropdown('album', array('value'=>4, 'options' => $this->pdh->geth('mediacenter_albums', 'album_tree', array(false, false, true)),))
+			'DD_CATEGORIES' => 	(new hdropdown('album', array('value'=>4, 'options' => $this->pdh->geth('mediacenter_albums', 'album_tree', array(false, false, true)))))->output(),
 		));
 				
 		$this->core->set_vars(array(

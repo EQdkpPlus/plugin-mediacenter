@@ -355,7 +355,7 @@ class editmedia_pageobject extends pageobject {
 		}
 		$myArray = $tmp;
   	}
-  	echo new hdropdown('type', array('js' => 'onchange="handle_type(this.value)"', 'options' => $myArray, 'value' => $option));
+  	echo (new hdropdown('type', array('js' => 'onchange="handle_type(this.value)"', 'options' => $myArray, 'value' => $option)))->output();
   	exit;
   }
   
