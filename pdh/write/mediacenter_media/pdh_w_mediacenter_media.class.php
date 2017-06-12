@@ -336,7 +336,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				}
 				
 				//If it's a image, we have a preview image
-				if ($strFile != "" && $strPreviewimage == ""){
+				if ($strFile != "" && $strFilename != "" && $strPreviewimage == ""){
 					$strExtension = strtolower(pathinfo($strFilename, PATHINFO_EXTENSION));
 					if (in_array($strExtension, array('jpg', 'jpeg', 'png', 'gif'))) {
 						$filename = md5(rand().unique_id());
