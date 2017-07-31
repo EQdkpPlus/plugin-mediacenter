@@ -532,7 +532,9 @@ if ( !class_exists( "pdh_r_mediacenter_categories" ) ) {
 		public function get_path($intCategoryID,$blnWithSID=true){
 			$strPath = $this->add_path($intCategoryID);
 			
+			
 			if(substr($strPath, -1) == "/") $strPath = substr($strPath, 0, -1);
+			$strPath .= '-c'.$intCategoryID;
 			$strPath .= $this->routing->getSeoExtension();
 								
 			return 'MediaCenter/'.$strPath.(($blnWithSID) ? $this->SID : '');
