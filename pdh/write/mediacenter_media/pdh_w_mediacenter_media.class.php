@@ -21,7 +21,7 @@
 if ( !defined('EQDKP_INC') ){
 	die('Do not access this file directly.');
 }
-				
+
 if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 	class pdh_w_mediacenter_media extends pdh_w_generic {
 		
@@ -44,480 +44,487 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 		);
 		
 		public function insert_media($intAlbumID, $strName, $strDescription, $intType, $strExternalLink, $strPreviewimage, $strTags, $strFile, $strFilename,
-			$intPublished=false, $intFeatured=false, $intUserID=false, $intViews=false){
-			$strLocalfile = "";
-			$arrAdditionalData = array();
-			$strLocalPreviewImage = "";
-			$strThumbfolder = $this->pfh->FolderPath('thumbs', 'mediacenter');
-			
-			if(substr($intAlbumID, 0, 1) == 'c'){
-				$intCategoryID = (int)substr($intAlbumID, 1);
-				$intAlbumID = 0;
-			} else {
-				$intCategoryID = $this->pdh->get('mediacenter_albums', 'category_id', array($intAlbumID));
-			}
-			
-			$intRealCategoryID = $intCategoryID;
-			
-			//Check Type
-			$arrTypes = $this->pdh->get('mediacenter_categories', 'types', array($intCategoryID));			
-			if (!$intCategoryID || !$arrTypes || (count($arrTypes) == 0)) return false;
-			
-			//If Type is not allowed, make type file
-			if (!in_array($intType, $arrTypes)){
-				$intType = 0; //File
-			}
-			
-			//If type file now allowed: wrong type
-			if (!in_array($intType, $arrTypes)){
-				return "error:wrong_type";
-			}
-			
-			
-			if ($intType == 0){
-				//File
-				if ($strFile == "" && $strExternalLink == ""){
-					//No Local and External File
-					return "error:no_file";
-				} elseif($strFile != "") {
-					$strFileFolder = $this->pfh->FolderPath('files', 'mediacenter');
-					$strLocalfile = register('encrypt')->decrypt($strFile);
-					if(file_exists($strFileFolder.$strLocalfile)) $arrAdditionalData['size'] = filesize($strFileFolder.$strLocalfile);
+				$intPublished=false, $intFeatured=false, $intUserID=false, $intViews=false){
+					$strLocalfile = "";
+					$arrAdditionalData = array();
+					$strLocalPreviewImage = "";
+					$strThumbfolder = $this->pfh->FolderPath('thumbs', 'mediacenter');
 					
-					//Check Extension
-					$strExtension = strtolower(pathinfo($strFilename, PATHINFO_EXTENSION));
-					if (!in_array($strExtension, $this->extensions_file())) return "error:wrong_extension";;
-
-				}
-				
-				//If it's a image, we have a preview image
-				if ($strPreviewimage == ""){
-					$strExtension = strtolower(pathinfo($strFilename, PATHINFO_EXTENSION));
-					if (in_array($strExtension, array('jpg', 'jpeg', 'png', 'gif'))) {
-						$filename = md5(rand().unique_id());
+					if(substr($intAlbumID, 0, 1) == 'c'){
+						$intCategoryID = (int)substr($intAlbumID, 1);
+						$intAlbumID = 0;
+					} else {
+						$intCategoryID = $this->pdh->get('mediacenter_albums', 'category_id', array($intAlbumID));
+					}
+					
+					$intRealCategoryID = $intCategoryID;
+					
+					//Check Type
+					$arrTypes = $this->pdh->get('mediacenter_categories', 'types', array($intCategoryID));
+					if (!$intCategoryID || !$arrTypes || (count($arrTypes) == 0)) return false;
+					
+					//If Type is not allowed, make type file
+					if (!in_array($intType, $arrTypes)){
+						$intType = 0; //File
+					}
+					
+					//If type file now allowed: wrong type
+					if (!in_array($intType, $arrTypes)){
+						return "error:wrong_type";
+					}
+					
+					
+					if ($intType == 0){
+						//File
+						if ($strFile == "" && $strExternalLink == ""){
+							//No Local and External File
+							return "error:no_file";
+						} elseif($strFile != "") {
+							$strFileFolder = $this->pfh->FolderPath('files', 'mediacenter');
+							$strLocalfile = register('encrypt')->decrypt($strFile);
+							if(file_exists($strFileFolder.$strLocalfile)) $arrAdditionalData['size'] = filesize($strFileFolder.$strLocalfile);
+							
+							//Check Extension
+							$strExtension = strtolower(pathinfo($strFilename, PATHINFO_EXTENSION));
+							if (!in_array($strExtension, $this->extensions_file())) return "error:wrong_extension";;
+							
+						}
+						
+						//If it's a image, we have a preview image
+						if ($strPreviewimage == ""){
+							$strExtension = strtolower(pathinfo($strFilename, PATHINFO_EXTENSION));
+							if (in_array($strExtension, array('jpg', 'jpeg', 'png', 'gif'))) {
+								$filename = md5(rand().unique_id());
+								$strFileFolder = $this->pfh->FolderPath('files', 'mediacenter');
+								$this->pfh->copy($strFileFolder.$strLocalfile, $strThumbfolder.$filename.'.'.$strExtension);
+								$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.64.'.$strExtension, 64);
+								$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.240.'.$strExtension, 240);
+								
+								$strLocalPreviewImage = $filename.'.'.$strExtension;
+							}
+						}
+						
+					}elseif($intType == 1){
+						//Video
+						if ($strExternalLink != "" && $strFile == ""){
+							if(!$this->config->get('embedly_key') || $this->config->get('embedly_key') == ""){
+								$this->core->message($this->user->lang('mc_embedly_hint'), "Embedly Key", 'red');
+								return "error:embedly_error";;
+							}
+							
+							//External File
+							$objEmbedly = register('embedly');
+							$arrEmbedlyDetails = $objEmbedly->getLinkDetails($strExternalLink);
+							if (!$arrEmbedlyDetails) {
+								//Check if the file is a video we can use
+								$strExtension = strtolower(pathinfo($strExternalLink, PATHINFO_EXTENSION));
+								if (!in_array($strExtension, $this->extensions_video())) {
+									return "error:embedly_error";
+								}
+								
+								$arrAdditionalData = array(
+										'url' 			=> $strExternalLink,
+								);
+								
+							} else {
+								
+								$arrAdditionalData = array(
+										'thumbnail_url' => $arrEmbedlyDetails[0]->thumbnail_url,
+										'provider_name' => $arrEmbedlyDetails[0]->provider_name,
+										'html' 			=> $arrEmbedlyDetails[0]->html,
+										'url' 			=> $arrEmbedlyDetails[0]->url,
+										'title' 		=> $arrEmbedlyDetails[0]->title,
+								);
+								
+								$strLocalPreviewImage = "";
+								//Download Previewimage
+								if (isset($arrEmbedlyDetails[0]->thumbnail_url)){
+									$binImage = register('urlfetcher')->fetch($arrEmbedlyDetails[0]->thumbnail_url);
+									$strExtension = strtolower(pathinfo($arrEmbedlyDetails[0]->thumbnail_url, PATHINFO_EXTENSION));
+									$filename = md5(rand().unique_id());
+									$this->pfh->putContent($strThumbfolder.$filename.'.'.$strExtension, $binImage);
+									
+									$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.64.'.$strExtension, 64);
+									$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.240.'.$strExtension, 240);
+									$strLocalPreviewImage = $filename.'.'.$strExtension;
+								}
+							}
+							
+						} elseif ($strFile != ""){
+							//Internal File
+							$strLocalfile = register('encrypt')->decrypt($strFile);
+							if(file_exists($strFileFolder.$strLocalfile)) $arrAdditionalData['size'] = filesize($strFileFolder.$strLocalfile);
+							//Check Extension
+							$strExtension = strtolower(pathinfo($strFilename, PATHINFO_EXTENSION));
+							if (!in_array($strExtension, $this->extensions_video())) return "error:wrong_extension";
+							
+						} else return "error:no_file";
+						
+						
+					}else{
+						//Image
+						if ($strFile == "" || $strFilename == "") return "error:no_file";;
+						$strLocalfile = register('encrypt')->decrypt($strFile);
+						
+						$strExtension = strtolower(pathinfo($strFilename, PATHINFO_EXTENSION));
+						//Check Extension
+						if (!in_array($strExtension, $this->extensions_image())) return "error:wrong_extensions";
+						
+						//Exif Data
 						$strFileFolder = $this->pfh->FolderPath('files', 'mediacenter');
+						if(!file_exists($strFileFolder.$strLocalfile)) return "error:no_file";
+						
+						$arrAdditionalData['size'] = filesize($strFileFolder.$strLocalfile);
+						
+						//Check image Dimensions, because of memory usage
+						$imageInfo = getimagesize($strFileFolder.$strLocalfile);
+						$width			= $imageInfo[0];
+						$height			= $imageInfo[1];
+						
+						$neededMemory = $width * $height * ($strExtension == 'png' ? 4 : 3) * 2.1;
+						
+						if ($this->get_memory_limit() !== false && $this->get_memory_limit() != -1 && $this->get_memory_limit() < (memory_get_usage() + $neededMemory)) {
+							return "error:too_big";
+						}
+						
+						
+						if ($strExtension == 'jpg'){
+							$arrExif = $this->exif_data($strFileFolder.$strLocalfile);
+							if ($arrExif) $arrAdditionalData = array_merge($arrAdditionalData, $arrExif);
+							
+							if(isset($arrExif['Orientation']) && $this->config->get('rotate_exif', 'mediacenter')){
+								$this->rotate_image($strFileFolder.$strLocalfile, $arrExif['Orientation']);
+							}
+						}
+						
+						//Preview Image
+						if (!in_array($strExtension, array('jpg', 'jpeg', 'png', 'gif'))) return "error:wrong_extension";
+						$filename = md5(rand().unique_id());
 						$this->pfh->copy($strFileFolder.$strLocalfile, $strThumbfolder.$filename.'.'.$strExtension);
 						$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.64.'.$strExtension, 64);
 						$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.240.'.$strExtension, 240);
 						
 						$strLocalPreviewImage = $filename.'.'.$strExtension;
 					}
-				}
-				
-			}elseif($intType == 1){
-				//Video
-				if ($strExternalLink != "" && $strFile == ""){
-					if(!$this->config->get('embedly_key') || $this->config->get('embedly_key') == ""){
-						$this->core->message($this->user->lang('mc_embedly_hint'), "Embedly Key", 'red');
-						return "error:embedly_error";;
+					
+					//Handle Previewimage
+					if ($strLocalPreviewImage == "" && $strPreviewimage != ""){
+						$strLocalPreviewImage = str_replace($this->pfh->FolderPath('previewimages', 'mediacenter', 'relative'), "", $strPreviewimage);
+						$strLocalPreviewImage = str_replace($this->pfh->FolderPath('previewimages', 'mediacenter', 'plain'), "", $strPreviewimage);
+						
+						$filename = md5(rand().unique_id());
+						$strExtension = strtolower(pathinfo($strLocalPreviewImage, PATHINFO_EXTENSION));
+						
+						$this->pfh->copy($this->pfh->FolderPath('previewimages', 'mediacenter').$strLocalPreviewImage, $strThumbfolder.$filename.'.'.$strExtension);
+						$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.64.'.$strExtension, 64);
+						$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.240.'.$strExtension, 240);
+						$this->pfh->Delete($this->pfh->FolderPath('previewimages', 'mediacenter').$strLocalPreviewImage);
+						$strLocalPreviewImage = $filename.'.'.$strExtension;
 					}
 					
-					//External File
-					$objEmbedly = register('embedly');
-					$arrEmbedlyDetails = $objEmbedly->getLinkDetails($strExternalLink);
-					if (!$arrEmbedlyDetails) {
-						//Check if the file is a video we can use
-						$strExtension = strtolower(pathinfo($strExternalLink, PATHINFO_EXTENSION));
-						if (!in_array($strExtension, $this->extensions_video())) {
-							return "error:embedly_error";
+					//Handle Tags
+					$schluesselwoerter = preg_split("/[\s,]+/", $strTags);
+					$arrTags = array();
+					foreach($schluesselwoerter as $val){
+						if(trim($val) == "") continue;
+						$arrTags[] = utf8_strtolower(str_replace("-", "", $val));
+					}
+					
+					//Default Publish State
+					$blnDefaultPublishState = $this->pdh->get('mediacenter_categories', 'default_published_state', array($intCategoryID));
+					$intDefaultPublished = ($this->user->check_auth('a_mediacenter_manage', false)) ? 1 : $blnDefaultPublishState;
+					
+					//Admin Things
+					$intPublished = ($intPublished !== false) ? $intPublished : $intDefaultPublished;
+					$intFeatured = ($intFeatured !== false) ? $intFeatured : 0;
+					$intViews = ($intViews !== false) ? $intViews : 0;
+					$intUserID = ($intUserID !== false) ? $intUserID : $this->user->id;
+					
+					if($intAlbumID > 0){
+						$intCategoryID = 0;
+					}
+					
+					$arrQuery = array(
+							'album_id'		=> $intAlbumID,
+							'category_id'	=> $intCategoryID,
+							'name'			=> $strName,
+							'description'	=> $strDescription,
+							'type'			=> $intType,
+							'tags'			=> serialize($arrTags),
+							'filename'		=> $strFilename,
+							'localfile'		=> $strLocalfile,
+							'externalfile'	=> $strExternalLink,
+							'previewimage'	=> $strLocalPreviewImage,
+							'published'		=> $intPublished,
+							'additionaldata'=> serialize($arrAdditionalData),
+							'date'			=> $this->time->time,
+							'user_id'		=> $intUserID,
+							'featured'		=> $intFeatured,
+							'views'			=> $intViews,
+					);
+					
+					$objQuery = $this->db->prepare("INSERT INTO __mediacenter_media :p")->set($arrQuery)->execute();
+					
+					$this->pdh->enqueue_hook('mediacenter_media_update');
+					$this->pdh->enqueue_hook('mediacenter_categories_update');
+					if ($objQuery) {
+						$id = $objQuery->insertId;
+						//Dataset is here CategoryID for Grouping
+						$strLink = $this->controller_path_plain.$this->pdh->get('mediacenter_categories', 'path', array($intRealCategoryID));
+						$strCategoryName = $this->pdh->get('mediacenter_categories', 'name', array($intRealCategoryID));
+						$this->ntfy->add('mediacenter_media_new', $intRealCategoryID, $this->pdh->get('user', 'name', array($intUserID)), $strLink, false, $strCategoryName);
+						
+						$log_action = $this->logs->diff(false, $arrQuery, $this->arrLogLang);
+						$this->log_insert("action_media_added", $log_action, $id, $arrQuery["name"], 1, 'mediacenter');
+						
+						//Insert Data into Statistics Plugin
+						if ($this->pm->check('statistics', PLUGIN_INSTALLED)){
+							$this->pdh->put('statistics_plugin', 'insert', array('mediacenter_media', 1));
 						}
 						
-						$arrAdditionalData = array(
-							'url' 			=> $strExternalLink,
-						);
-						
-					} else {
-					
-						$arrAdditionalData = array(
-							'thumbnail_url' => $arrEmbedlyDetails[0]->thumbnail_url,
-							'provider_name' => $arrEmbedlyDetails[0]->provider_name,
-							'html' 			=> $arrEmbedlyDetails[0]->html,
-							'url' 			=> $arrEmbedlyDetails[0]->url,
-							'title' 		=> $arrEmbedlyDetails[0]->title,
-						);
-						
-						$strLocalPreviewImage = "";
-						//Download Previewimage
-						if (isset($arrEmbedlyDetails[0]->thumbnail_url)){
-							$binImage = register('urlfetcher')->fetch($arrEmbedlyDetails[0]->thumbnail_url);
-							$strExtension = strtolower(pathinfo($arrEmbedlyDetails[0]->thumbnail_url, PATHINFO_EXTENSION));
-							$filename = md5(rand().unique_id());
-							$this->pfh->putContent($strThumbfolder.$filename.'.'.$strExtension, $binImage);
-							
-							$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.64.'.$strExtension, 64);
-							$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.240.'.$strExtension, 240);
-							$strLocalPreviewImage = $filename.'.'.$strExtension;
-						}
+						return $id;
 					}
 					
-				} elseif ($strFile != ""){
-					//Internal File
-					$strLocalfile = register('encrypt')->decrypt($strFile);
-					if(file_exists($strFileFolder.$strLocalfile)) $arrAdditionalData['size'] = filesize($strFileFolder.$strLocalfile);
-					//Check Extension
-					$strExtension = strtolower(pathinfo($strFilename, PATHINFO_EXTENSION));
-					if (!in_array($strExtension, $this->extensions_video())) return "error:wrong_extension";
-				
-				} else return "error:no_file";
-				
-				
-			}else{
-				//Image
-				if ($strFile == "" || $strFilename == "") return "error:no_file";;
-				$strLocalfile = register('encrypt')->decrypt($strFile);
-				
-				$strExtension = strtolower(pathinfo($strFilename, PATHINFO_EXTENSION));
-				//Check Extension
-				if (!in_array($strExtension, $this->extensions_image())) return "error:wrong_extensions";
-				
-				//Exif Data
-				$strFileFolder = $this->pfh->FolderPath('files', 'mediacenter');
-				if(!file_exists($strFileFolder.$strLocalfile)) return "error:no_file";
-				
-				$arrAdditionalData['size'] = filesize($strFileFolder.$strLocalfile);
-				
-				//Check image Dimensions, because of memory usage
-				$imageInfo = getimagesize($strFileFolder.$strLocalfile);
-				$width			= $imageInfo[0];
-				$height			= $imageInfo[1];
-				
-				$neededMemory = $width * $height * ($strExtension == 'png' ? 4 : 3) * 2.1;
-					
-				if ($this->get_memory_limit() !== false && $this->get_memory_limit() != -1 && $this->get_memory_limit() < (memory_get_usage() + $neededMemory)) {
-					return "error:too_big";
-				}
-				
-				
-				if ($strExtension == 'jpg'){
-					$arrExif = $this->exif_data($strFileFolder.$strLocalfile);
-					if ($arrExif) $arrAdditionalData = array_merge($arrAdditionalData, $arrExif);
-
-					if(isset($arrExif['Orientation']) && $this->config->get('rotate_exif', 'mediacenter')){
-						$this->rotate_image($strFileFolder.$strLocalfile, $arrExif['Orientation']);
-					}
-				}
-				
-				//Preview Image
-				if (!in_array($strExtension, array('jpg', 'jpeg', 'png', 'gif'))) return "error:wrong_extension";
-				$filename = md5(rand().unique_id());
-				$this->pfh->copy($strFileFolder.$strLocalfile, $strThumbfolder.$filename.'.'.$strExtension);
-				$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.64.'.$strExtension, 64);
-				$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.240.'.$strExtension, 240);
-				
-				$strLocalPreviewImage = $filename.'.'.$strExtension;
-			}
-			
-			//Handle Previewimage
-			if ($strLocalPreviewImage == "" && $strPreviewimage != ""){
-				$strLocalPreviewImage = str_replace($this->pfh->FolderPath('previewimages', 'mediacenter', 'relative'), "", $strPreviewimage);
-				$strLocalPreviewImage = str_replace($this->pfh->FolderPath('previewimages', 'mediacenter', 'plain'), "", $strPreviewimage);
-				
-				$filename = md5(rand().unique_id());
-				$strExtension = strtolower(pathinfo($strLocalPreviewImage, PATHINFO_EXTENSION));
-				
-				$this->pfh->copy($this->pfh->FolderPath('previewimages', 'mediacenter').$strLocalPreviewImage, $strThumbfolder.$filename.'.'.$strExtension);
-				$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.64.'.$strExtension, 64);
-				$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.240.'.$strExtension, 240);
-				$this->pfh->Delete($this->pfh->FolderPath('previewimages', 'mediacenter').$strLocalPreviewImage);
-				$strLocalPreviewImage = $filename.'.'.$strExtension;
-			}		
-			
-			//Handle Tags
-			$schluesselwoerter = preg_split("/[\s,]+/", $strTags);
-			$arrTags = array();
-			foreach($schluesselwoerter as $val){
-				if(trim($val) == "") continue;
-				$arrTags[] = utf8_strtolower(str_replace("-", "", $val));
-			}
-			
-			//Default Publish State
-			$blnDefaultPublishState = $this->pdh->get('mediacenter_categories', 'default_published_state', array($intCategoryID));
-			$intDefaultPublished = ($this->user->check_auth('a_mediacenter_manage', false)) ? 1 : $blnDefaultPublishState;
-			
-			//Admin Things
-			$intPublished = ($intPublished !== false) ? $intPublished : $intDefaultPublished;
-			$intFeatured = ($intFeatured !== false) ? $intFeatured : 0;
-			$intViews = ($intViews !== false) ? $intViews : 0;
-			$intUserID = ($intUserID !== false) ? $intUserID : $this->user->id;
-			
-			if($intAlbumID > 0){
-				$intCategoryID = 0;
-			}
-			
-			$arrQuery = array(
-					'album_id'		=> $intAlbumID,
-					'category_id'	=> $intCategoryID,
-					'name'			=> $strName,
-					'description'	=> $strDescription,
-					'type'			=> $intType,
-					'tags'			=> serialize($arrTags),
-					'filename'		=> $strFilename,
-					'localfile'		=> $strLocalfile,
-					'externalfile'	=> $strExternalLink,
-					'previewimage'	=> $strLocalPreviewImage,
-					'published'		=> $intPublished,
-					'additionaldata'=> serialize($arrAdditionalData),
-					'date'			=> $this->time->time,
-					'user_id'		=> $intUserID,
-					'featured'		=> $intFeatured,
-					'views'			=> $intViews,
-			);
-			
-			$objQuery = $this->db->prepare("INSERT INTO __mediacenter_media :p")->set($arrQuery)->execute();
-			
-			$this->pdh->enqueue_hook('mediacenter_media_update');
-			$this->pdh->enqueue_hook('mediacenter_categories_update');
-			if ($objQuery) {
-				$id = $objQuery->insertId;
-				//Dataset is here CategoryID for Grouping
-				$strLink = $this->controller_path_plain.$this->pdh->get('mediacenter_categories', 'path', array($intRealCategoryID));
-				$strCategoryName = $this->pdh->get('mediacenter_categories', 'name', array($intRealCategoryID));
-				$this->ntfy->add('mediacenter_media_new', $intRealCategoryID, $this->pdh->get('user', 'name', array($intUserID)), $strLink, false, $strCategoryName);
-				
-				$log_action = $this->logs->diff(false, $arrQuery, $this->arrLogLang);
-				$this->log_insert("action_media_added", $log_action, $id, $arrQuery["name"], 1, 'mediacenter');
-				
-				//Insert Data into Statistics Plugin
-				if ($this->pm->check('statistics', PLUGIN_INSTALLED)){
-					$this->pdh->put('statistics_plugin', 'insert', array('mediacenter_media', 1));
-				}
-				
-				return $id;
-			}
-			
-			return false;
+					return false;
 		}
 		
 		
 		
 		public function update_media($intMediaID, $intAlbumID, $strName, $strDescription, $intType, $strExternalLink, $strPreviewimage, $strTags, $strFile, $strFilename,
-			$intPublished=false, $intFeatured=false, $intUserID=false, $intViews=false, $intReported=false, $intDownloads=false){
-			$strLocalfile = $this->pdh->get('mediacenter_media', 'localfile', array($intMediaID));
-			$arrAdditionalData = $this->pdh->get('mediacenter_media', 'additionaldata', array($intMediaID));
-			$strLocalPreviewImage = $this->pdh->get('mediacenter_media', 'previewimage', array($intMediaID));
-			$strThumbfolder = $this->pfh->FolderPath('thumbs', 'mediacenter');
-			$strLocalfilename = $this->pdh->get('mediacenter_media', 'filename', array($intMediaID));
-			$strFileFolder = $this->pfh->FolderPath('files', 'mediacenter');
-			
-			if(substr($intAlbumID, 0, 1) == 'c'){
-				$intCategoryID = (int)substr($intAlbumID, 1);
-				$intAlbumID = 0;
-			} else {
-				$intCategoryID = $this->pdh->get('mediacenter_albums', 'category_id', array($intAlbumID));
-			}
-
-				
-			//Check Type
-			$arrTypes = $this->pdh->get('mediacenter_categories', 'types', array($intCategoryID));
-			if (!$intCategoryID || !$arrTypes || (count($arrTypes) == 0)) return "error:wrong_type";
-				
-			//If Type is not allowed, make type file
-			if (!in_array($intType, $arrTypes)){
-				$intType = 0; //File
-			}
-				
-			//If type file now allowed: wrong type
-			if (!in_array($intType, $arrTypes)){
-				return "error:wrong_type";
-			}
-			
-			if ($intType == 0){
-				//File
-				
-				//New File?
-				if ($strFile != "" && $strFilename != ""){
-					$strLocalfile = register('encrypt')->decrypt($strFile);
-					$strLocalfilename = $strFilename;
-					if(file_exists($strFileFolder.$strLocalfile)) $arrAdditionalData['size'] = filesize($strFileFolder.$strLocalfile);
-				
-					//Check Extension
-					$strExtension = strtolower(pathinfo($strLocalfilename, PATHINFO_EXTENSION));
-					if (!in_array($strExtension, $this->extensions_file())) return "error:wrong_extension";
-				}
-				
-				//If it's a image, we have a preview image
-				if ($strFile != "" && $strFilename != "" && $strPreviewimage == ""){
-					$strExtension = strtolower(pathinfo($strFilename, PATHINFO_EXTENSION));
-					if (in_array($strExtension, array('jpg', 'jpeg', 'png', 'gif'))) {
+				$intPublished=false, $intFeatured=false, $intUserID=false, $intViews=false, $intReported=false, $intDownloads=false){
+					
+					$strLocalfile = $this->pdh->get('mediacenter_media', 'localfile', array($intMediaID));
+					$arrAdditionalData = $this->pdh->get('mediacenter_media', 'additionaldata', array($intMediaID));
+					$strLocalPreviewImage = $this->pdh->get('mediacenter_media', 'previewimage', array($intMediaID));
+					$strThumbfolder = $this->pfh->FolderPath('thumbs', 'mediacenter');
+					$strLocalfilename = $this->pdh->get('mediacenter_media', 'filename', array($intMediaID));
+					$strFileFolder = $this->pfh->FolderPath('files', 'mediacenter');
+					
+					if(substr($intAlbumID, 0, 1) == 'c'){
+						$intCategoryID = (int)substr($intAlbumID, 1);
+						$intAlbumID = 0;
+					} else {
+						$intCategoryID = $this->pdh->get('mediacenter_albums', 'category_id', array($intAlbumID));
+					}
+					
+					
+					//Check Type
+					$arrTypes = $this->pdh->get('mediacenter_categories', 'types', array($intCategoryID));
+					if (!$intCategoryID || !$arrTypes || (count($arrTypes) == 0)) return "error:wrong_type";
+					
+					//If Type is not allowed, make type file
+					if (!in_array($intType, $arrTypes)){
+						$intType = 0; //File
+					}
+					
+					//If type file now allowed: wrong type
+					if (!in_array($intType, $arrTypes)){
+						return "error:wrong_type";
+					}
+					
+					if ($intType == 0){
+						//File
+						
+						//New File?
+						if ($strFile != "" && $strFilename != ""){
+							$strLocalfile = register('encrypt')->decrypt($strFile);
+							$strLocalfilename = $strFilename;
+							if(file_exists($strFileFolder.$strLocalfile)) $arrAdditionalData['size'] = filesize($strFileFolder.$strLocalfile);
+							
+							//Check Extension
+							$strExtension = strtolower(pathinfo($strLocalfilename, PATHINFO_EXTENSION));
+							if (!in_array($strExtension, $this->extensions_file())) return "error:wrong_extension";
+						}
+						
+						//If it's a image, we have a preview image
+						if ($strFile != "" && $strFilename != "" && $strPreviewimage == ""){
+							$strExtension = strtolower(pathinfo($strFilename, PATHINFO_EXTENSION));
+							if (in_array($strExtension, array('jpg', 'jpeg', 'png', 'gif'))) {
+								$filename = md5(rand().unique_id());
+								$this->pfh->copy($strFileFolder.$strLocalfile, $strThumbfolder.$filename.'.'.$strExtension);
+								$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.64.'.$strExtension, 64);
+								$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.240.'.$strExtension, 240);
+								
+								$strLocalPreviewImage = $filename.'.'.$strExtension;
+							}
+						} elseif($strPreviewimage != "") {
+							$strLocalPreviewImage = "";
+						}
+						
+					}elseif($intType == 1){
+						//Video
+						if ($strExternalLink != "" && $strFile == ""){
+							//External File
+							$objEmbedly = register('embedly');
+							$arrEmbedlyDetails = $objEmbedly->getLinkDetails($strExternalLink);
+							if (!$arrEmbedlyDetails) return "error:embedly_error";
+							
+							$arrAdditionalData = array(
+									'thumbnail_url' => $arrEmbedlyDetails[0]->thumbnail_url,
+									'provider_name' => $arrEmbedlyDetails[0]->provider_name,
+									'html' 			=> $arrEmbedlyDetails[0]->html,
+									'url' 			=> $arrEmbedlyDetails[0]->url,
+									'title' 		=> $arrEmbedlyDetails[0]->title,
+							);
+							
+							$strOldLocalPreviewImage = $strLocalPreviewImage;
+							$strLocalPreviewImage = "";
+							//Download Previewimage
+							if (isset($arrEmbedlyDetails[0]->thumbnail_url)){
+								$binImage = register('urlfetcher')->fetch($arrEmbedlyDetails[0]->thumbnail_url);
+								$strExtension = strtolower(pathinfo($arrEmbedlyDetails[0]->thumbnail_url, PATHINFO_EXTENSION));
+								$filename = md5(rand().unique_id());
+								$this->pfh->putContent($strThumbfolder.$filename.'.'.$strExtension, $binImage);
+								
+								$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.64.'.$strExtension, 64);
+								$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.240.'.$strExtension, 240);
+								$strLocalPreviewImage = $filename.'.'.$strExtension;
+								
+								//Delete old PreviewImages
+								if($strOldLocalPreviewImage != "") {
+									$this->pfh->Delete('thumbs/'.$strOldLocalPreviewImage, 'mediacenter');
+									$this->pfh->Delete('thumbs/'.str_replace('.', '.64.', $strOldLocalPreviewImage), 'mediacenter');
+									$this->pfh->Delete('thumbs/'.str_replace('.', '.240.', $strOldLocalPreviewImage), 'mediacenter');
+								}
+							}
+							
+						} elseif ($strFile != ""){
+							//Internal File
+							$strLocalfile = register('encrypt')->decrypt($strFile);
+							$strLocalfilename = $strFilename;
+							if(file_exists($strFileFolder.$strLocalfile)) $arrAdditionalData['size'] = filesize($strFileFolder.$strLocalfile);
+							//Check Extension
+							$strExtension = strtolower(pathinfo($strLocalfilename, PATHINFO_EXTENSION));
+							if (!in_array($strExtension, $this->extensions_video())) return "error:wrong_extension";
+						}
+						
+						if($strPreviewimage != "") {
+							$strLocalPreviewImage = "";
+						}
+						
+						
+					}else{
+						//Image
+						
+						//New Image
+						if ($strFile != "" && $strFilename != ""){
+							$strLocalfile = register('encrypt')->decrypt($strFile);
+							$strLocalfilename = $strFilename;
+							if(!file_exists($strFileFolder.$strLocalfile)) return "error:no_file";
+							
+							$arrAdditionalData['size'] = filesize($strFileFolder.$strLocalfile);
+							
+							$strExtension = strtolower(pathinfo($strFilename, PATHINFO_EXTENSION));
+							//Check Extension
+							if (!in_array($strExtension, $this->extensions_image())) return "error:wrong_extension";
+							
+							//Check image Dimensions, because of memory usage
+							$imageInfo = getimagesize($strFileFolder.$strLocalfile);
+							$width			= $imageInfo[0];
+							$height			= $imageInfo[1];
+							
+							$neededMemory = $width * $height * ($strExtension == 'png' ? 4 : 3) * 2.1;
+							
+							if ($this->get_memory_limit() !== false && $this->get_memory_limit() != -1 && $this->get_memory_limit() < (memory_get_usage() + $neededMemory)) {
+								return "error:too_big";
+							}
+							
+							//Exif Data
+							if ($strExtension == 'jpg'){
+								$arrExif = $this->exif_data($strFileFolder.$strLocalfile);
+								if ($arrExif) $arrAdditionalData = array_merge($arrAdditionalData, $arrExif);
+								
+								if(isset($arrExif['Orientation'])  && $this->config->get('rotate_exif', 'mediacenter')){
+									$this->rotate_image($strFileFolder.$strLocalfile, $arrExif['Orientation']);
+								}
+							}
+							
+							//Preview Image
+							if (!in_array($strExtension, array('jpg', 'jpeg', 'png', 'gif'))) return false;
+							$filename = md5(rand().unique_id());
+							$this->pfh->copy($strFileFolder.$strLocalfile, $strThumbfolder.$filename.'.'.$strExtension);
+							$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.64.'.$strExtension, 64);
+							$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.240.'.$strExtension, 240);
+							
+							$strLocalPreviewImage = $filename.'.'.$strExtension;
+						}
+					}
+					
+					//Handle Previewimage
+					if ($strLocalPreviewImage == "" && $strPreviewimage != ""){
+						$strLocalPreviewImage = str_replace($this->pfh->FolderPath('previewimages', 'mediacenter', 'relative'), "", $strPreviewimage);
+						$strLocalPreviewImage = str_replace($this->pfh->FolderPath('previewimages', 'mediacenter', 'plain'), "", $strPreviewimage);
+						
 						$filename = md5(rand().unique_id());
-						$this->pfh->copy($strFileFolder.$strLocalfile, $strThumbfolder.$filename.'.'.$strExtension);
+						$strExtension = strtolower(pathinfo($strLocalPreviewImage, PATHINFO_EXTENSION));
+						
+						$this->pfh->copy($this->pfh->FolderPath('previewimages', 'mediacenter').$strLocalPreviewImage, $strThumbfolder.$filename.'.'.$strExtension);
 						$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.64.'.$strExtension, 64);
 						$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.240.'.$strExtension, 240);
-						
+						$this->pfh->Delete($this->pfh->FolderPath('previewimages', 'mediacenter').$strLocalPreviewImage);
 						$strLocalPreviewImage = $filename.'.'.$strExtension;
 					}
-				}
-				
-			}elseif($intType == 1){
-				//Video
-				if ($strExternalLink != "" && $strFile == ""){
-					//External File
-					$objEmbedly = register('embedly');
-					$arrEmbedlyDetails = $objEmbedly->getLinkDetails($strExternalLink);
-					if (!$arrEmbedlyDetails) return "error:embedly_error";
 					
-					$arrAdditionalData = array(
-						'thumbnail_url' => $arrEmbedlyDetails[0]->thumbnail_url,
-						'provider_name' => $arrEmbedlyDetails[0]->provider_name,
-						'html' 			=> $arrEmbedlyDetails[0]->html,
-						'url' 			=> $arrEmbedlyDetails[0]->url,
-						'title' 		=> $arrEmbedlyDetails[0]->title,
+					//Handle Tags
+					$schluesselwoerter = preg_split("/[\s,]+/", $strTags);
+					$arrTags = array();
+					foreach($schluesselwoerter as $val){
+						$tag = utf8_strtolower(str_replace("-", "", $val));
+						if ($tag != "") $arrTags[] = $tag;
+					}
+					
+					//Default Publish State
+					$blnDefaultPublishState = $this->pdh->get('mediacenter_categories', 'default_published_state', array($intCategoryID));
+					$intPublishedState = ($this->user->check_auth('a_mediacenter_manage', false)) ? 1 : $blnDefaultPublishState;
+					
+					//Admin Things
+					$intPublished = ($intPublished !== false) ? $intPublishedState : (int)$blnDefaultPublishState;
+					$intFeatured = ($intFeatured !== false) ? $intFeatured : $this->pdh->get('mediacenter_media', 'featured', array($intMediaID));
+					$intViews = ($intViews !== false) ? $intViews : $this->pdh->get('mediacenter_media', 'views', array($intMediaID));
+					$intUserID = ($intUserID !== false) ? $intUserID : $this->pdh->get('mediacenter_media', 'user_id', array($intMediaID));
+					$intReported = ($intReported !== false) ? $intReported : $this->pdh->get('mediacenter_media', 'reported', array($intMediaID));
+					$intDownloads = ($intDownloads !== false) ? $intDownloads : $this->pdh->get('mediacenter_media', 'downloads', array($intMediaID));
+					
+					$arrOldData = $this->pdh->get('mediacenter_media', 'data', array($intMediaID));
+					
+					if($intAlbumID > 0){
+						$intCategoryID = 0;
+					}
+					
+					$arrQuery = array(
+							'album_id'		=> $intAlbumID,
+							'category_id'	=> $intCategoryID,
+							'name'			=> $strName,
+							'description'	=> $strDescription,
+							'type'			=> $intType,
+							'tags'			=> serialize($arrTags),
+							'filename'		=> $strLocalfilename,
+							'localfile'		=> $strLocalfile,
+							'externalfile'	=> $strExternalLink,
+							'previewimage'	=> $strLocalPreviewImage,
+							'published'		=> $intPublishedState,
+							'additionaldata'=> serialize($arrAdditionalData),
+							'date'			=> $this->time->time,
+							'user_id'		=> $intUserID,
+							'featured'		=> $intFeatured,
+							'views'			=> $intViews,
+							'downloads'		=> $intDownloads,
+							'reported'		=> $intReported,
 					);
 					
-					$strOldLocalPreviewImage = $strLocalPreviewImage;
-					$strLocalPreviewImage = "";
-					//Download Previewimage
-					if (isset($arrEmbedlyDetails[0]->thumbnail_url)){
-						$binImage = register('urlfetcher')->fetch($arrEmbedlyDetails[0]->thumbnail_url);
-						$strExtension = strtolower(pathinfo($arrEmbedlyDetails[0]->thumbnail_url, PATHINFO_EXTENSION));
-						$filename = md5(rand().unique_id());
-						$this->pfh->putContent($strThumbfolder.$filename.'.'.$strExtension, $binImage);
+					$objQuery = $this->db->prepare("UPDATE __mediacenter_media :p WHERE id=?")->set($arrQuery)->execute($intMediaID);
+					
+					$this->pdh->enqueue_hook('mediacenter_media_update');
+					$this->pdh->enqueue_hook('mediacenter_categories_update');
+					if ($objQuery) {
 						
-						$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.64.'.$strExtension, 64);
-						$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.240.'.$strExtension, 240);
-						$strLocalPreviewImage = $filename.'.'.$strExtension;
+						$log_action = $this->logs->diff($arrOldData, $arrQuery, $this->arrLogLang, array('description' => 1), true);
+						$this->log_insert("action_media_updated", $log_action, $intMediaID, $arrOldData["name"], 1, 'mediacenter');
 						
-						//Delete old PreviewImages
-						if($strOldLocalPreviewImage != "") {
-							$this->pfh->Delete('thumbs/'.$strOldLocalPreviewImage, 'mediacenter');
-							$this->pfh->Delete('thumbs/'.str_replace('.', '.64.', $strOldLocalPreviewImage), 'mediacenter');
-							$this->pfh->Delete('thumbs/'.str_replace('.', '.240.', $strOldLocalPreviewImage), 'mediacenter');
-						}
+						return $objQuery->insertId;
 					}
 					
-				} elseif ($strFile != ""){
-					//Internal File
-					$strLocalfile = register('encrypt')->decrypt($strFile);
-					$strLocalfilename = $strFilename;
-					if(file_exists($strFileFolder.$strLocalfile)) $arrAdditionalData['size'] = filesize($strFileFolder.$strLocalfile);
-					//Check Extension
-					$strExtension = strtolower(pathinfo($strLocalfilename, PATHINFO_EXTENSION));
-					if (!in_array($strExtension, $this->extensions_video())) return "error:wrong_extension";
-				}
-				
-				
-			}else{
-				//Image
-				
-				//New Image
-				if ($strFile != "" && $strFilename != ""){
-					$strLocalfile = register('encrypt')->decrypt($strFile);
-					$strLocalfilename = $strFilename;
-					if(!file_exists($strFileFolder.$strLocalfile)) return "error:no_file";
-					
-					$arrAdditionalData['size'] = filesize($strFileFolder.$strLocalfile);
-					
-					$strExtension = strtolower(pathinfo($strFilename, PATHINFO_EXTENSION));
-					//Check Extension
-					if (!in_array($strExtension, $this->extensions_image())) return "error:wrong_extension";
-					
-					//Check image Dimensions, because of memory usage
-					$imageInfo = getimagesize($strFileFolder.$strLocalfile);
-					$width			= $imageInfo[0];
-					$height			= $imageInfo[1];
-					
-					$neededMemory = $width * $height * ($strExtension == 'png' ? 4 : 3) * 2.1;
-					
-					if ($this->get_memory_limit() !== false && $this->get_memory_limit() != -1 && $this->get_memory_limit() < (memory_get_usage() + $neededMemory)) {
-						return "error:too_big";
-					}
-					
-					//Exif Data
-					if ($strExtension == 'jpg'){
-						$arrExif = $this->exif_data($strFileFolder.$strLocalfile);
-						if ($arrExif) $arrAdditionalData = array_merge($arrAdditionalData, $arrExif);
-						
-						if(isset($arrExif['Orientation'])  && $this->config->get('rotate_exif', 'mediacenter')){
-							$this->rotate_image($strFileFolder.$strLocalfile, $arrExif['Orientation']);
-						}
-					}
-					
-					//Preview Image
-					if (!in_array($strExtension, array('jpg', 'jpeg', 'png', 'gif'))) return false;
-					$filename = md5(rand().unique_id());
-					$this->pfh->copy($strFileFolder.$strLocalfile, $strThumbfolder.$filename.'.'.$strExtension);
-					$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.64.'.$strExtension, 64);
-					$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.240.'.$strExtension, 240);
-					
-					$strLocalPreviewImage = $filename.'.'.$strExtension;
-				}				
-			}
-			
-			//Handle Previewimage
-			if ($strLocalPreviewImage == "" && $strPreviewimage != ""){
-				$strLocalPreviewImage = str_replace($this->pfh->FolderPath('previewimages', 'mediacenter', 'relative'), "", $strPreviewimage);
-				$strLocalPreviewImage = str_replace($this->pfh->FolderPath('previewimages', 'mediacenter', 'plain'), "", $strPreviewimage);
-				
-				$filename = md5(rand().unique_id());
-				$strExtension = strtolower(pathinfo($strLocalPreviewImage, PATHINFO_EXTENSION));
-				
-				$this->pfh->copy($this->pfh->FolderPath('previewimages', 'mediacenter').$strLocalPreviewImage, $strThumbfolder.$filename.'.'.$strExtension);
-				$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.64.'.$strExtension, 64);
-				$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.240.'.$strExtension, 240);
-				$this->pfh->Delete($this->pfh->FolderPath('previewimages', 'mediacenter').$strLocalPreviewImage);
-				$strLocalPreviewImage = $filename.'.'.$strExtension;
-			}		
-			
-			//Handle Tags
-			$schluesselwoerter = preg_split("/[\s,]+/", $strTags);
-			$arrTags = array();
-			foreach($schluesselwoerter as $val){
-				$tag = utf8_strtolower(str_replace("-", "", $val));
-				if ($tag != "") $arrTags[] = $tag;
-			}
-			
-			//Default Publish State
-			$blnDefaultPublishState = $this->pdh->get('mediacenter_categories', 'default_published_state', array($intCategoryID));
-			$intPublishedState = ($this->user->check_auth('a_mediacenter_manage', false)) ? 1 : $blnDefaultPublishState;
-			
-			//Admin Things
-			$intPublished = ($intPublished !== false) ? $intPublishedState : (int)$blnDefaultPublishState;
-			$intFeatured = ($intFeatured !== false) ? $intFeatured : $this->pdh->get('mediacenter_media', 'featured', array($intMediaID));
-			$intViews = ($intViews !== false) ? $intViews : $this->pdh->get('mediacenter_media', 'views', array($intMediaID));
-			$intUserID = ($intUserID !== false) ? $intUserID : $this->pdh->get('mediacenter_media', 'user_id', array($intMediaID));
-			$intReported = ($intReported !== false) ? $intReported : $this->pdh->get('mediacenter_media', 'reported', array($intMediaID));
-			$intDownloads = ($intDownloads !== false) ? $intDownloads : $this->pdh->get('mediacenter_media', 'downloads', array($intMediaID));
-			
-			$arrOldData = $this->pdh->get('mediacenter_media', 'data', array($intMediaID));
-			
-			if($intAlbumID > 0){
-				$intCategoryID = 0;
-			}
-			
-			$arrQuery = array(
-					'album_id'		=> $intAlbumID,
-					'category_id'	=> $intCategoryID,
-					'name'			=> $strName,
-					'description'	=> $strDescription,
-					'type'			=> $intType,
-					'tags'			=> serialize($arrTags),
-					'filename'		=> $strLocalfilename,
-					'localfile'		=> $strLocalfile,
-					'externalfile'	=> $strExternalLink,
-					'previewimage'	=> $strLocalPreviewImage,
-					'published'		=> $intPublishedState,
-					'additionaldata'=> serialize($arrAdditionalData),
-					'date'			=> $this->time->time,
-					'user_id'		=> $intUserID,
-					'featured'		=> $intFeatured,
-					'views'			=> $intViews,
-					'downloads'		=> $intDownloads,
-					'reported'		=> $intReported,
-			);
-			
-			$objQuery = $this->db->prepare("UPDATE __mediacenter_media :p WHERE id=?")->set($arrQuery)->execute($intMediaID);
-			
-			$this->pdh->enqueue_hook('mediacenter_media_update');
-			$this->pdh->enqueue_hook('mediacenter_categories_update');
-			if ($objQuery) {
-
-				$log_action = $this->logs->diff($arrOldData, $arrQuery, $this->arrLogLang, array('description' => 1), true);
-				$this->log_insert("action_media_updated", $log_action, $intMediaID, $arrOldData["name"], 1, 'mediacenter');
-				
-				return $objQuery->insertId;
-			}
-			
-			return false;
+					return false;
 		}
 		
 		
@@ -527,7 +534,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			} else {
 				$intCategoryID = $this->pdh->get('mediacenter_albums', 'category_id', array($intAlbumID));
 			}
-
+			
 			$intRealCategoryID = $intCategoryID;
 			
 			$arrTypes = $this->pdh->get('mediacenter_categories', 'types', array($intCategoryID));
@@ -536,7 +543,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			
 			//Try to detect the Type
 			$strExtension = strtolower(pathinfo($strFilename, PATHINFO_EXTENSION));
-			$intType = $oldType = 0; //Default: file			
+			$intType = $oldType = 0; //Default: file
 			
 			if (in_array($strExtension, $this->extensions_image())){
 				$intType = $oldType = 2;// Image
@@ -547,7 +554,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			if (!in_array($intType, $arrTypes)){
 				$intType = 0; //File
 			}
-
+			
 			//If type file now allowed: wrong type
 			if (!in_array($intType, $arrTypes)){
 				echo "not allowed"; return false;
@@ -572,14 +579,14 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			if(file_exists($strFileFolder.$strLocalfile)) $arrAdditionalData['size'] = filesize($strFileFolder.$strLocalfile);
 			$strLocalPreviewImage = "";
 			$strThumbfolder = $this->pfh->FolderPath('thumbs', 'mediacenter');
-
+			
 			if ($intType == 2 || $oldType == 2){
 				if ($intType == 2){
 					//Check image Dimensions, because of memory usage
 					$imageInfo = getimagesize($strFileFolder.$strLocalfile);
 					$width			= $imageInfo[0];
 					$height			= $imageInfo[1];
-						
+					
 					$neededMemory = $width * $height * ($strExtension == 'png' ? 4 : 3) * 2.1;
 					
 					if ($this->get_memory_limit() !== false && $this->get_memory_limit() != -1 && $this->get_memory_limit() < (memory_get_usage() + $neededMemory)) {
@@ -600,13 +607,13 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				//Preview Image
 				$filename = md5(rand().unique_id());
 				$this->pfh->copy($strFileFolder.$strLocalfile, $strThumbfolder.$filename.'.'.$strExtension);
-								
+				
 				$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.64.'.$strExtension, 64);
 				$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.240.'.$strExtension, 240);
 				
 				$strLocalPreviewImage = $filename.'.'.$strExtension;
 			}
-
+			
 			//Default Publish State
 			$intCategoryID  = $this->pdh->get('mediacenter_albums', 'category_id', array($intAlbumID));
 			$blnDefaultPublishState = $this->pdh->get('mediacenter_categories', 'default_published_state', array($intCategoryID));
@@ -635,7 +642,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			);
 			
 			$objQuery = $this->db->prepare("INSERT INTO __mediacenter_media :p")->set($arrQuery)->execute();
-				
+			
 			$this->pdh->enqueue_hook('mediacenter_media_update');
 			$this->pdh->enqueue_hook('mediacenter_categories_update');
 			if ($objQuery) {
@@ -656,7 +663,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				
 				return $id;
 			}
-				
+			
 			return false;
 		}
 		
@@ -673,11 +680,11 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				if ($log_action) $this->log_insert('action_media_updated', $log_action, $id, $this->pdh->get('mediacenter_media', 'name', array($id)), 1, 'mediacenter');
 			}
 			
-				
+			
 			$objQuery = $this->db->prepare("UPDATE __mediacenter_media :p WHERE id :in")->set(array(
 					'published'		=> 1,
 			))->in($arrIDs)->execute($id);
-				
+			
 			$this->pdh->enqueue_hook('mediacenter_media_update');
 			$this->pdh->enqueue_hook('mediacenter_categories_update');
 		}
@@ -698,7 +705,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			$objQuery = $this->db->prepare("UPDATE __mediacenter_media :p WHERE id :in")->set(array(
 					'published'		=> 0,
 			))->in($arrIDs)->execute($id);
-				
+			
 			$this->pdh->enqueue_hook('mediacenter_media_update');
 			$this->pdh->enqueue_hook('mediacenter_categories_update');
 		}
@@ -711,22 +718,22 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			} else $intCategoryID = 0;
 			
 			$arrNew = array(
-				'album_id'		=> $intAlbumID,
-				'category_id'	=> $intCategoryID,
+					'album_id'		=> $intAlbumID,
+					'category_id'	=> $intCategoryID,
 			);
 			foreach($arrIDs as $id){
 				$arrOld = array(
-					'album_id' => $this->pdh->get('mediacenter_media', 'album_id', array($id))
+						'album_id' => $this->pdh->get('mediacenter_media', 'album_id', array($id))
 				);
 				$log_action = $this->logs->diff($arrOld, $arrNew, $this->arrLang);
 				if ($log_action) $this->log_insert('action_media_updated', $log_action, $id, $this->pdh->get('mediacenter_media', 'name', array($id)), 1, 'mediacenter');
 			}
 			
-				
+			
 			$objQuery = $this->db->prepare("UPDATE __mediacenter_media :p WHERE id :in")->set(array(
-				'album_id' => $intAlbumID,
+					'album_id' => $intAlbumID,
 			))->in($arrIDs)->execute();
-				
+			
 			$this->pdh->enqueue_hook('mediacenter_media_update');
 			$this->pdh->enqueue_hook('mediacenter_categories_update');
 		}
@@ -737,13 +744,13 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 					'featured' => $this->pdh->get('mediacenter_media', 'featured', array($id)),
 					'published'=> $this->pdh->get('mediacenter_media', 'published', array($id))
 			);
-
-				
+			
+			
 			$objQuery = $this->db->prepare("UPDATE __mediacenter_media :p WHERE id=?")->set(array(
 					'featured'		=> $intFeatured,
 					'published'		=> $intPublished,
 			))->execute($id);
-				
+			
 			if ($objQuery){
 				
 				$arrNew = array(
@@ -753,7 +760,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				$log_action = $this->logs->diff($arrOld, $arrNew, $this->arrLang);
 				if ($log_action) $this->log_insert('action_mediacenter_updated', $log_action, $id, $this->pdh->get('mediacenter_media', 'name', array($id)), 1, 'article');
 				
-		
+				
 				$this->pdh->enqueue_hook('mediacenter_media_update');
 				$this->pdh->enqueue_hook('mediacenter_categories_update');
 				return $id;
@@ -762,7 +769,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 		}
 		
 		public function delete($id) {
-			$arrOldData = $this->pdh->get('mediacenter_media', 'data', array($id));	
+			$arrOldData = $this->pdh->get('mediacenter_media', 'data', array($id));
 			
 			if ($arrOldData['localfile'] != ""){
 				$this->pfh->Delete('files/'.$arrOldData['localfile'], 'mediacenter');
@@ -774,9 +781,9 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			}
 			
 			$objQuery = $this->db->prepare("DELETE FROM __mediacenter_media WHERE id =?")->execute($id);
-							
+			
 			$this->pdh->put("comment", "delete_attach_id", array("mediacenter", $id));
-		
+			
 			$this->pdh->enqueue_hook('mediacenter_media_update');
 			$this->pdh->enqueue_hook('mediacenter_categories_update');
 			
@@ -798,14 +805,14 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 					'votes_sum'			=> 0,
 					'votes_users'		=> '',
 			))->execute($intMediaID);
-				
+			
 			if ($objQuery) {
 				$this->log_insert('action_mediacenter_reset_votes', array(), $intMediaID, $this->pdh->get('mediacenter_media', 'name', array($intMediaID)), 1, 'mediacenter');
-		
+				
 				$this->pdh->enqueue_hook('mediacenter_media_update');
 				return true;
 			}
-				
+			
 			return false;
 		}
 		
@@ -819,18 +826,18 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 			$arrVotedUsers[] = $this->user->id;
 			$intSum += $intVoting;
 			$intCount++;
-				
+			
 			$objQuery = $this->db->prepare("UPDATE __mediacenter_media :p WHERE id=?")->set(array(
 					'votes_count' 		=> $intCount,
 					'votes_sum'			=> $intSum,
 					'votes_users'		=> serialize($arrVotedUsers),
 			))->execute($intMediaID);
-				
+			
 			if ($objQuery) {
 				$this->pdh->enqueue_hook('mediacenter_media_update');
 				return true;
 			}
-				
+			
 			return false;
 		}
 		
@@ -853,7 +860,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 		
 		public function update_download($intMediaID){
 			$objQuery = $this->db->prepare("UPDATE __mediacenter_media SET downloads=downloads+1 WHERE id=?")->execute($intMediaID);
-				
+			
 			if ($objQuery) {
 				//Insert Data into Statistics Plugin
 				if ($this->pm->check('statistics', PLUGIN_INSTALLED)){
@@ -863,23 +870,23 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				$this->pdh->enqueue_hook('mediacenter_media_update');
 				return true;
 			}
-				
+			
 			return false;
 		}
 		
 		public function report($intMediaID, $strReason, $intUserID){
 			$arrSet = array(
-				'reported'		=> 1,
-				'reported_by'	=> $intUserID,
-				'reported_text' => $strReason,	
+					'reported'		=> 1,
+					'reported_by'	=> $intUserID,
+					'reported_text' => $strReason,
 			);
 			$objQuery = $this->db->prepare("UPDATE __mediacenter_media :p WHERE id=?")->set($arrSet)->execute($intMediaID);
-		
+			
 			if ($objQuery) {
 				$this->pdh->enqueue_hook('mediacenter_media_update');
 				return true;
 			}
-		
+			
 			return false;
 		}
 		
@@ -918,7 +925,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 					$arrOut['Camera'] = $strMake.((strlen($strMake)) ? ' ': '').$strModel;
 				}
 				
-
+				
 				if (isset($arrExifData['EXIF'])) {
 					//CreationTime
 					if (isset($arrExifData['EXIF']['DateTimeOriginal'])) {
@@ -945,7 +952,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 					}
 					if (isset($arrExifData['EXIF']['ISOSpeedRatings'])) {
 						$arrOut['ISOSpeedRatings'] = intval($arrExifData['EXIF']['ISOSpeedRatings']);
-					}		
+					}
 					if(isset($arrExifData['EXIF']['ShutterSpeedValue'])){
 						$arrOut['ShutterSpeedValue'] = $this->exif_get_shutter($arrExifData['EXIF']['ShutterSpeedValue']);
 					}
@@ -981,7 +988,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 					if ($arrExifData['GPS']['GPSLatitudeRef'] == 'S') $latitude *= -1;
 					$arrOut['Latitude'] = $latitude;
 				}
-
+				
 				return $arrOut;
 			}
 			return array();
@@ -991,27 +998,27 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 		// Helper Functions
 		
 		private function exif_get_float($value) {
-		  $pos = strpos($value, '/');
-		  if ($pos === false) return (float) $value;
-		  $a = (float) substr($value, 0, $pos);
-		  $b = (float) substr($value, $pos+1);
-		  return ($b == 0) ? ($a) : ($a / $b);
+			$pos = strpos($value, '/');
+			if ($pos === false) return (float) $value;
+			$a = (float) substr($value, 0, $pos);
+			$b = (float) substr($value, $pos+1);
+			return ($b == 0) ? ($a) : ($a / $b);
 		}
 		
 		private function exif_get_shutter($shutterspeed) {
-
-		  $apex    = $this->exif_get_float($shutterspeed);
-		  $shutter = pow(2, -$apex);
-		  if ($shutter == 0) return false;
-		  if ($shutter >= 1) return round($shutter) . 's';
-		  return '1/' . round(1 / $shutter) . 's';
+			
+			$apex    = $this->exif_get_float($shutterspeed);
+			$shutter = pow(2, -$apex);
+			if ($shutter == 0) return false;
+			if ($shutter >= 1) return round($shutter) . 's';
+			return '1/' . round(1 / $shutter) . 's';
 		}
 		
 		private function exif_get_fstop($aperturevalue) {
-		  $apex  = $this->exif_get_float($aperturevalue);
-		  $fstop = pow(2, $apex/2);
-		  if ($fstop == 0) return false;
-		  return 'f/' . round($fstop,1);
+			$apex  = $this->exif_get_float($aperturevalue);
+			$fstop = pow(2, $apex/2);
+			if ($fstop == 0) return false;
+			return 'f/' . round($fstop,1);
 		}
 		
 		private function coordinate_to_decimal($coordinate) {
@@ -1021,7 +1028,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				if ($i == 0) $result = (float) $coordinateData[0];
 				else if ($coordinateData[$i]) $result /= (float) $coordinateData[$i];
 			}
-		
+			
 			return $result;
 		}
 		
@@ -1079,28 +1086,28 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 		
 		private function get_memory_limit(){
 			$memoryLimit = ini_get('memory_limit');
-				
+			
 			// no limit
 			if ($memoryLimit == -1) {
 				return -1;
 			}
-				
+			
 			// completely numeric, PHP assumes bytes
 			if (is_numeric($memoryLimit)) {
 				return $memoryLimit;
 			}
-				
+			
 			// PHP supports 'K', 'M' and 'G' shorthand notation
 			if (preg_match('~^(\d+)([KMG])$~', $memoryLimit, $matches)) {
 				switch ($matches[2]) {
 					case 'K':
 						return $matches[1] * 1024;
 						break;
-							
+						
 					case 'M':
 						return $matches[1] * 1024 * 1024;
 						break;
-							
+						
 					case 'G':
 						return $matches[1] * 1024 * 1024 * 1024;
 						break;
