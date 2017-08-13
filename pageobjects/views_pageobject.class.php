@@ -847,7 +847,7 @@ class views_pageobject extends pageobject {
   				} else{
   					$strExternalExtension = strtolower(pathinfo($arrMediaData['externalfile'], PATHINFO_EXTENSION));
   					if(strlen($arrMediaData['externalfile']) && in_array($strExternalExtension, $arrPlayableVideos)){
-  						$this->tpl->css_file($this->root_path.'plugins/mediacenter/includes/videojs/video-js.min.css');
+  						$this->tpl->css_file($this->root_path.'plugins/mediacenter/includes/videojs/video-js.css');
   						$this->tpl->js_file($this->root_path.'plugins/mediacenter/includes/videojs/video.js');
   						$this->tpl->add_js('videojs.options.flash.swf = "'.$this->server_path.'plugins/mediacenter/includes/videojs/video-js.swf"; ', 'docready');
   							
@@ -857,7 +857,7 @@ class views_pageobject extends pageobject {
   							case 'ogg': $strSource =  '   <source src="'.$arrMediaData['externalfile'].'" type=\'video/ogg\' />'; break;
   						}
   							
-  						$strVideo = '  <video id="example_video_1" class="video-js vjs-default-skin" controls preload="none" width="640" height="364"
+  						$strVideo = '  <video id="example_video_1" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="none" width="640" height="364"
 						      poster="" data-setup="{}">
 						    '.$strSource.'
 						    <p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
@@ -865,7 +865,7 @@ class views_pageobject extends pageobject {
   						
   						
   					} elseif(in_array($strExtension, $arrPlayableVideos)){
-  						$this->tpl->css_file($this->root_path.'plugins/mediacenter/includes/videojs/video-js.min.css');
+  						$this->tpl->css_file($this->root_path.'plugins/mediacenter/includes/videojs/video-js.css');
   						$this->tpl->js_file($this->root_path.'plugins/mediacenter/includes/videojs/video.js');
   						$this->tpl->add_js('videojs.options.flash.swf = "'.$this->server_path.'plugins/mediacenter/includes/videojs/video-js.swf"; ', 'docready');
   						
@@ -877,7 +877,7 @@ class views_pageobject extends pageobject {
   							case 'ogg': $strSource =  '   <source src="'.$strLocalFile.'" type=\'video/ogg\' />'; break;
   						}
   							
-  						$strVideo = '  <video id="example_video_1" class="video-js vjs-default-skin" controls preload="none" width="640" height="364"
+  						$strVideo = '  <video id="example_video_1" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="none" width="640" height="364"
 						      poster="" data-setup="{}">
 						    '.$strSource.'
 						    <p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
