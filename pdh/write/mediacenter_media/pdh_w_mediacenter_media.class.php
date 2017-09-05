@@ -106,12 +106,7 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 						
 					}elseif($intType == 1){
 						//Video
-						if ($strExternalLink != "" && $strFile == ""){
-							if(!$this->config->get('embedly_key') || $this->config->get('embedly_key') == ""){
-								$this->core->message($this->user->lang('mc_embedly_hint'), "Embedly Key", 'red');
-								return "error:embedly_error";;
-							}
-							
+						if ($strExternalLink != "" && $strFile == ""){							
 							//External File
 							$objEmbedly = register('embedly');
 							$arrEmbedlyDetails = $objEmbedly->getLinkDetails($strExternalLink);
@@ -129,18 +124,18 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 							} else {
 								
 								$arrAdditionalData = array(
-										'thumbnail_url' => $arrEmbedlyDetails[0]->thumbnail_url,
-										'provider_name' => $arrEmbedlyDetails[0]->provider_name,
-										'html' 			=> $arrEmbedlyDetails[0]->html,
-										'url' 			=> $arrEmbedlyDetails[0]->url,
-										'title' 		=> $arrEmbedlyDetails[0]->title,
+										'thumbnail_url' => $arrEmbedlyDetails->thumbnail_url,
+										'provider_name' => $arrEmbedlyDetails->provider_name,
+										'html' 			=> $arrEmbedlyDetails->html,
+										'url' 			=> $arrEmbedlyDetails->url,
+										'title' 		=> $arrEmbedlyDetails->title,
 								);
 								
 								$strLocalPreviewImage = "";
 								//Download Previewimage
-								if (isset($arrEmbedlyDetails[0]->thumbnail_url)){
-									$binImage = register('urlfetcher')->fetch($arrEmbedlyDetails[0]->thumbnail_url);
-									$strExtension = strtolower(pathinfo($arrEmbedlyDetails[0]->thumbnail_url, PATHINFO_EXTENSION));
+								if (isset($arrEmbedlyDetails->thumbnail_url)){
+									$binImage = register('urlfetcher')->fetch($arrEmbedlyDetails->thumbnail_url);
+									$strExtension = strtolower(pathinfo($arrEmbedlyDetails->thumbnail_url, PATHINFO_EXTENSION));
 									$filename = md5(rand().unique_id());
 									$this->pfh->putContent($strThumbfolder.$filename.'.'.$strExtension, $binImage);
 									
@@ -360,19 +355,19 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 							if (!$arrEmbedlyDetails) return "error:embedly_error";
 							
 							$arrAdditionalData = array(
-									'thumbnail_url' => $arrEmbedlyDetails[0]->thumbnail_url,
-									'provider_name' => $arrEmbedlyDetails[0]->provider_name,
-									'html' 			=> $arrEmbedlyDetails[0]->html,
-									'url' 			=> $arrEmbedlyDetails[0]->url,
-									'title' 		=> $arrEmbedlyDetails[0]->title,
+									'thumbnail_url' => $arrEmbedlyDetails->thumbnail_url,
+									'provider_name' => $arrEmbedlyDetails->provider_name,
+									'html' 			=> $arrEmbedlyDetails->html,
+									'url' 			=> $arrEmbedlyDetails->url,
+									'title' 		=> $arrEmbedlyDetails->title,
 							);
 							
 							$strOldLocalPreviewImage = $strLocalPreviewImage;
 							$strLocalPreviewImage = "";
 							//Download Previewimage
-							if (isset($arrEmbedlyDetails[0]->thumbnail_url)){
-								$binImage = register('urlfetcher')->fetch($arrEmbedlyDetails[0]->thumbnail_url);
-								$strExtension = strtolower(pathinfo($arrEmbedlyDetails[0]->thumbnail_url, PATHINFO_EXTENSION));
+							if (isset($arrEmbedlyDetails->thumbnail_url)){
+								$binImage = register('urlfetcher')->fetch($arrEmbedlyDetails->thumbnail_url);
+								$strExtension = strtolower(pathinfo($arrEmbedlyDetails->thumbnail_url, PATHINFO_EXTENSION));
 								$filename = md5(rand().unique_id());
 								$this->pfh->putContent($strThumbfolder.$filename.'.'.$strExtension, $binImage);
 								

@@ -92,8 +92,7 @@ $lang = array(
 	'mc_f_delete_votes'			=> 'Bewertungen löschen',
 	'mc_f_downloads'			=> 'Anzahl Downloads',
 	'mc_insert_media'			=> 'Medien einfügen',
-	'mc_embedly_hint'			=> 'Um Videos einfügen zu können, benötigst du einen Key von <a href="https://embed.ly/">embedly</a>. Diesen kannst du <a href="https://embed.ly/">hier</a> kostenlos holen und anschließend in den EQdkp Plus Einstellungen hinterlegen.',
-		
+
 	'action_category_deleted'	=> 'Kategorie gelöscht',
 	'action_category_update'	=> 'Kategorie geändert',
 	'action_category_added'		=> 'Kategorie hinzugefügt',
@@ -251,7 +250,7 @@ $lang = array(
 	"mc_editmedia_save_error_wrong_extension" => "Die Erweiterung der Datei ist für diesen Typ nicht erlaubt.",
 	"mc_editmedia_save_error_no_file" => "Datei konnte nicht gefunden werden.",
 	"mc_editmedia_save_error_too_big" => "Die hochgeladene Datei ist zu groß.",
-	"mc_editmedia_save_error_embedly_error" => "Dieses Video wird von Embedly nicht unterstützt, oder kein Embedly-Key gefunden.",
+	"mc_editmedia_save_error_embedly_error" => "Dieses Video wird von Embedly nicht unterstützt.",
 		
 	"mc_fs_exif" => "EXIF",
 	"mc_f_show_exif" => "EXIF-Daten von Bildern anzeigen, sofern vorhanden",
