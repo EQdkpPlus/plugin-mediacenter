@@ -69,6 +69,7 @@
 
 .mcDownloadButton .button {
 	font-size: 1.3em;
+	display: inline-block;
 }
 
 .mcDownloadButton .button .small {

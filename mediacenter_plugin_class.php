@@ -42,7 +42,7 @@ class mediacenter extends plugin_generic
   }
 
 //This Version is for EQdkp PLus 2.2.x
-  public $version    = '2.1.7';
+  public $version    = '2.1.8';
   public $build      = '';
   public $copyright  = 'GodMod';
   public $vstatus    = 'Alpha';

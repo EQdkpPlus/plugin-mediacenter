@@ -496,7 +496,7 @@ class editmedia_pageobject extends pageobject {
   	$arrValues['album_id'] = $this->in->get('album_id');
   	
   	//Check if Personal Album
-  	if (is_numeric($arrValues['album_id']) && $this->pdh->get('mediacenter_albums', 'personal_album', array())){
+  	if (is_numeric($arrValues['album_id']) && $this->pdh->get('mediacenter_albums', 'personal_album', array((int)$arrValues['album_id']))){
   		if (!$this->user->check_auth('a_mediacenter_manage', false) && $this->user->id != $this->pdh->get('mediacenter_albums', 'user_id', array((int)$arrValues['album_id']))) {
   			$this->user->check_auth('u_mediacenter_something');
   		};

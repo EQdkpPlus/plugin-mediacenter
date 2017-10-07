@@ -330,15 +330,16 @@ if ( !class_exists( "pdh_w_mediacenter_media" ) ) {
 				}
 				
 				//If it's a image, we have a preview image
-				if ($strFile != "" && $strPreviewimage == ""){
+				if ($strFile != "" && $strFilename != "" && $strPreviewimage == ""){
 					$strExtension = strtolower(pathinfo($strFilename, PATHINFO_EXTENSION));
-					if (!in_array($strExtension, array('jpg', 'jpeg', 'png', 'gif'))) return false;
-					$filename = md5(rand().unique_id());
-					$this->pfh->copy($strFileFolder.$strLocalfile, $strThumbfolder.$filename.'.'.$strExtension);
-					$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.64.'.$strExtension, 64);
-					$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.240.'.$strExtension, 240);
-					
-					$strLocalPreviewImage = $filename.'.'.$strExtension;
+					if (in_array($strExtension, array('jpg', 'jpeg', 'png', 'gif'))) {
+						$filename = md5(rand().unique_id());
+						$this->pfh->copy($strFileFolder.$strLocalfile, $strThumbfolder.$filename.'.'.$strExtension);
+						$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.64.'.$strExtension, 64);
+						$this->pfh->thumbnail($strThumbfolder.$filename.'.'.$strExtension, $strThumbfolder, $filename.'.240.'.$strExtension, 240);
+						
+						$strLocalPreviewImage = $filename.'.'.$strExtension;
+					}
 				}
 				
 			}elseif($intType == 1){
