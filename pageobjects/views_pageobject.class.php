@@ -758,7 +758,6 @@ class views_pageobject extends pageobject {
   					'MC_CATEGORY_NAME'	=> $arrAlbumData['name'],
   					'MC_CATEGORY_ID'	=> $intCategoryId,
   					'MC_ALBUM_ID'		=> $intAlbumID,
-  					'MC_BREADCRUMB'		=> $this->pdh->get('mediacenter_albums', 'breadcrumb', array($intAlbumID)),
   					'MC_CATEGORY_MEDIA_COUNT' => count($arrMediaInCategory),
   					'MC_LAYOUT_DD'		=> (new hdropdown('selectlayout', array('options' => $this->user->lang('mc_layout_types'), 'value' => $intLayout, 'id' => 'selectlayout', 'class' => 'dropdown')))->output(),
   					'MC_SORT_DD'		=> (new hdropdown('selectsort', array('options' => $arrSortOptions, 'value' => $this->in->get('sort', '3|desc'), 'id' => 'selectsort', 'class' => 'dropdown')))->output(),
