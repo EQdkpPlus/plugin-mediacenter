@@ -245,6 +245,10 @@ class mymedia_pageobject extends pageobject {
   			'page_title'    => $this->user->lang('mc_mymedia').' - '.$this->user->lang('mediacenter'),
   			'template_path' => $this->pm->get_data('mediacenter', 'template_path'),
   			'template_file' => 'mymedia.html',
+  			'page_path'     => [
+  					['title'=>$this->user->lang('mc_mediacenter'), 'url'=> $this->routing->build('mediacenter')],
+  					['title'=>$this->user->lang('mc_mymedia'), 'url'=> ''],
+  			],
   			'display'       => true
   	));
 

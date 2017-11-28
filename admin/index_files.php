@@ -190,9 +190,13 @@ class IndexMediaFiles extends page_generic {
 		));
 				
 		$this->core->set_vars(array(
-				'page_title'		=> $this->user->lang('mc_index_files').': '.$this->pdh->get('mediacenter_categories', 'name', array($intCategoryID)),
+				'page_title'		=> $this->user->lang('mc_index_files'),
 				'template_path'		=> $this->pm->get_data('mediacenter', 'template_path'),
 				'template_file'		=> 'admin/index_files.html',
+				'page_path'			=> [
+						['title'=>$this->user->lang('menu_admin_panel'), 'url'=>$this->root_path.'admin/'.$this->SID],
+						['title'=>$this->user->lang('mc_mediacenter').': '.$this->user->lang('mc_index_files'), 'url'=>' '],
+				],
 				'display'			=> true)
 		);
 	}

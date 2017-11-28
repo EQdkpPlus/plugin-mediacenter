@@ -579,21 +579,36 @@ if ( !class_exists( "pdh_r_mediacenter_categories" ) ) {
 		}
 		
 		public function get_breadcrumb($intCategoryID){
-			$strBreadcrumb = ($this->get_parent($intCategoryID)) ? $this->add_breadcrumb($this->get_parent($intCategoryID)) : '';
-			$strBreadcrumb .=  '<li class="current"><a href="'.$this->controller_path.$this->get_path($intCategoryID).'">'.$this->get_name($intCategoryID).'</a></li>';
-			return $strBreadcrumb;
+			$arrBreadcrumb =  ($this->get_parent($intCategoryID)) ? $this->add_breadcrumb($this->get_parent($intCategoryID)) : [];
+			
+			$arrBreadcrumb[] =  [
+					'title'	=> $this->get_name($intCategoryID),
+					'url'	=> $this->controller_path.$this->get_path($intCategoryID),
+			];
+			
+			array_unshift($arrBreadcrumb, array(
+					'title' => $this->user->lang('mc_mediacenter'),
+					'url' => $this->routing->build('mediacenter'),
+			));
+			
+			return $arrBreadcrumb;
 		}
 		
-		private function add_breadcrumb($intCategoryID, $strBreadcrumb=''){
+		private function add_breadcrumb($intCategoryID, $arrBreadcrumb=[]){
 			$strName = $this->get_name($intCategoryID);
 			$strPath = $this->get_path($intCategoryID);
-			$strBreadcrumb = '<li><a href="'.$this->controller_path.$strPath.'">'.$strName.'</a></li>'.$strBreadcrumb;
+			
+			$arrBreadcrumb = array_merge([[
+					'title'	=> $strName,
+					'url'	=> $this->controller_path.$strPath,
+			]], $arrBreadcrumb);
+
 				
 			if ($this->get_parent($intCategoryID)){
-				$strBreadcrumb = $this->add_breadcrumb($this->get_parent($intCategoryID), $strBreadcrumb);
+				$arrBreadcrumb= $this->add_breadcrumb($this->get_parent($intCategoryID), $arrBreadcrumb);
 			}
 				
-			return $strBreadcrumb;
+			return $arrBreadcrumb;
 		}
 		
 		public function get_childs($intCategoryID){

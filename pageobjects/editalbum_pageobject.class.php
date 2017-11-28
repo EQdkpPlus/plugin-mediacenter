@@ -151,6 +151,9 @@ class editalbum_pageobject extends pageobject {
       'page_title'    => $this->user->lang('mc_edit_album'),
       'template_path' => $this->pm->get_data('mediacenter', 'template_path'),
       'template_file' => 'album_edit.html',
+      'page_path'     => [
+    		['title'=>$this->user->lang('mc_edit_album').': '.(($this->url_id) ? $this->user->lang('mc_edit_album') : $this->user->lang('mc_new_album') ), 'url'=> ''],
+      ],
       'display'       => true
     ));	
   }

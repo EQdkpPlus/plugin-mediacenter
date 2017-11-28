@@ -236,10 +236,17 @@ class Manage_Categories extends page_generic {
 		$this->tpl->assign_vars(array(
 			'CID' => $id,
 		));
+		
+		$strPagetitle = (($id) ? $this->pdh->get('mediacenter_categories', 'name', array($id)) : $this->user->lang('mc_add_category'));
 		$this->core->set_vars(array(
-			'page_title'		=> (($id) ? $this->user->lang('mc_manage_categories').': '.$this->pdh->get('mediacenter_categories', 'name', array($id)) : $this->user->lang('mc_add_category')),
+			'page_title'		=> $strPagetitle,
 			'template_path'		=> $this->pm->get_data('mediacenter', 'template_path'),
 			'template_file'		=> 'admin/manage_categories_edit.html',
+			'page_path'			=> [
+					['title'=>$this->user->lang('menu_admin_panel'), 'url'=>$this->root_path.'admin/'.$this->SID],
+					['title'=>$this->user->lang('mc_mediacenter').': '.$this->user->lang('mc_manage_categories'), 'url'=> $this->root_path.'plugins/mediacenter/admin/manage_categories.php'.$this->SID],
+					['title'=>$strPagetitle, 'url'=> ' '],
+			],
 			'display'			=> true)
 		);
 	}
@@ -314,6 +321,10 @@ class Manage_Categories extends page_generic {
 			'page_title'		=> $this->user->lang('mc_manage_categories'),
 			'template_path'		=> $this->pm->get_data('mediacenter', 'template_path'),
 			'template_file'		=> 'admin/manage_categories.html',
+			'page_path'			=> [
+					['title'=>$this->user->lang('menu_admin_panel'), 'url'=>$this->root_path.'admin/'.$this->SID],
+					['title'=>$this->user->lang('mc_mediacenter').': '.$this->user->lang('mc_manage_categories'), 'url'=> ' '],
+			],
 			'display'			=> true)
 		);
 	}

@@ -290,6 +290,11 @@ class Manage_Media extends page_generic {
 				'page_title'		=> $this->user->lang('mc_manage_media').': '.$this->pdh->get('mediacenter_categories', 'name', array($intCategoryID)),
 				'template_path'		=> $this->pm->get_data('mediacenter', 'template_path'),
 				'template_file'		=> 'admin/manage_media.html',
+				'page_path'			=> [
+						['title'=>$this->user->lang('menu_admin_panel'), 'url'=>$this->root_path.'admin/'.$this->SID],
+						['title'=>$this->user->lang('mc_mediacenter').': '.$this->user->lang('mc_manage_categories'), 'url'=> $this->root_path.'plugins/mediacenter/admin/manage_categories.php'.$this->SID],
+						['title'=>$this->pdh->get('mediacenter_categories', 'name', array($intCategoryID)), 'url'=> $this->root_path.'plugins/mediacenter/admin/manage_media.php'.$this->SID.'&cid='.$intCategoryID],
+				],
 				'display'			=> true)
 		);
 	}

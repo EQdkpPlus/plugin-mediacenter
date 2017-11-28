@@ -96,15 +96,18 @@ class views_pageobject extends pageobject {
   			$this->tpl->assign_vars(array(
   					'MC_CATEGORY_NAME'	=> $arrCategoryData['name'],
   					'MC_CATEGORY_ID'	=> $intCategoryId,
-  					'MC_BREADCRUMB'		=> $this->pdh->get('mediacenter_categories', 'breadcrumb', array($intCategoryId)),
   					'MC_CATEGORY_MEDIA_COUNT' => $intCount,
   			));
   			
+  			$arrBreadcrumb = $this->pdh->get('mediacenter_categories', 'breadcrumb', array($intCategoryId));
+  			$arrBreadcrumb[] = array('title' => $this->user->lang('mc_show_map'), 'url' => ' ');
+  			
   			// -- EQDKP ---------------------------------------------------------------
   			$this->core->set_vars(array (
-  					'page_title'    => $arrCategoryData['name'].' - '.$this->user->lang('mediacenter'),
+  					'page_title'    => $arrCategoryData['name'].' - '.$this->user->lang('mc_mediacenter'),
   					'template_path' => $this->pm->get_data('mediacenter', 'template_path'),
   					'template_file' => 'map.html',
+  					'page_path'     => $arrBreadcrumb,
   					'display'       => true
   			));
   			
@@ -286,7 +289,6 @@ class views_pageobject extends pageobject {
   		$this->tpl->assign_vars(array(
   				'MC_CATEGORY_NAME'	=> $arrCategoryData['name'],
   				'MC_CATEGORY_ID'	=> $intCategoryId,
-  				'MC_BREADCRUMB'		=> $this->pdh->get('mediacenter_categories', 'breadcrumb', array($intCategoryId)),
   				'MC_CATEGORY_MEDIA_COUNT' => $this->pdh->get('mediacenter_categories', 'media_count', array($intCategoryId)),
   				'MC_CATEGORY_DESCRIPTION'	=> $this->bbcode->parse_shorttags(xhtml_entity_decode($arrCategoryData['description'])),
   				'MC_LAYOUT_DD'		=> (new hdropdown('selectlayout', array('options' => $this->user->lang('mc_layout_types'), 'value' => $intLayout, 'id' => 'selectlayout', 'class' => 'dropdown')))->output(),
@@ -303,11 +305,14 @@ class views_pageobject extends pageobject {
   				'S_SHOW_MAP'		=> ($intMapCount && $this->config->get('show_maps', 'mediacenter')) ? true : false,
   		));
   		
+  		$arrBreadcrumb = $this->pdh->get('mediacenter_categories', 'breadcrumb', array($intCategoryId));
+  		
   		// -- EQDKP ---------------------------------------------------------------
   		$this->core->set_vars(array (
-  				'page_title'    => $arrCategoryData['name'].' - '.$this->user->lang('mediacenter'),
+  				'page_title'    => $arrCategoryData['name'].' - '.$this->user->lang('mc_mediacenter'),
   				'template_path' => $this->pm->get_data('mediacenter', 'template_path'),
   				'template_file' => 'category.html',
+  				'page_path'		=> $arrBreadcrumb,
   				'display'       => true
   		));
   		
@@ -581,15 +586,18 @@ class views_pageobject extends pageobject {
   		$this->tpl->assign_vars(array(
   				'MC_CATEGORY_NAME'	=> $arrAlbumData['name'],
   				'MC_CATEGORY_ID'	=> $intCategoryId,
-  				'MC_BREADCRUMB'		=> $this->pdh->get('mediacenter_albums', 'breadcrumb', array($intAlbumID)),
   				'MC_CATEGORY_MEDIA_COUNT' => $intCount,
   		));
+  		
+  		$arrBreadcrumb = $this->pdh->get('mediacenter_albums', 'breadcrumb', array($intAlbumID));
+  		$arrBreadcrumb[] = array('title' => $this->user->lang('mc_show_map'), 'url' => ' ');
   			
   		// -- EQDKP ---------------------------------------------------------------
   		$this->core->set_vars(array (
-  				'page_title'    => $arrCategoryData['name'].' - '.$this->user->lang('mediacenter'),
+  				'page_title'    => $arrCategoryData['name'].' - '.$this->user->lang('mc_mediacenter'),
   				'template_path' => $this->pm->get_data('mediacenter', 'template_path'),
   				'template_file' => 'map.html',
+  				'page_path'		=> $arrBreadcrumb,
   				'display'       => true
   		));
   	
@@ -769,10 +777,14 @@ class views_pageobject extends pageobject {
   			));
 
   	// -- EQDKP ---------------------------------------------------------------
+  	$arrBreadcrumb = $this->pdh->get('mediacenter_albums', 'breadcrumb', array($intAlbumID));
+
+  			
   	$this->core->set_vars(array (
-  			'page_title'    => $arrAlbumData['name'].' - '.$this->user->lang('mediacenter'),
+  			'page_title'    => $arrAlbumData['name'].' - '.$this->user->lang('mc_mediacenter'),
   			'template_path' => $this->pm->get_data('mediacenter', 'template_path'),
   			'template_file' => 'album.html',
+  			'page_path'		=> $arrBreadcrumb,
   			'display'       => true
   	));
   	
@@ -1056,7 +1068,6 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   					'MC_MEDIA_ALBUM'				=> ((strlen($this->pdh->geth('mediacenter_media', 'album_id', array($intMediaID, true)))) ? $this->pdh->geth('mediacenter_media', 'album_id', array($intMediaID, true)): ''),
   					'MC_MEDIA_DESCRIPTION'			=> $this->bbcode->toHTML($this->pdh->get('mediacenter_media', 'description', array($intMediaID))),
   					'MC_MEDIA_TYPE'					=> $intType,
-  					'MC_BREADCRUMB'					=> ($intAlbumID) ? str_replace('class="current"', '', $this->pdh->get('mediacenter_albums', 'breadcrumb', array($intAlbumID))) : str_replace('class="current"', '', $this->pdh->get('mediacenter_categories', 'breadcrumb', array($intCategoryId))),
   					'S_MC_TAGS'						=> (count($arrTags)) ? true : false,
   					'S_NEXT_MEDIA'					=> ($nextID !== false) ? true : false,
   					'S_PREV_MEDIA'					=> ($prevID !== false) ? true : false,
@@ -1107,11 +1118,15 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   				);
   			}
   			
+  			$arrBreadcrumb = ($intAlbumID) ? $this->pdh->get('mediacenter_albums', 'breadcrumb', array($intAlbumID)) : $this->pdh->get('mediacenter_categories', 'breadcrumb', array($intCategoryId));
+  			$arrBreadcrumb[] = array('title' => $this->pdh->get('mediacenter_media', 'name', array($intMediaID)), 'url' => $this->controller_path.$this->pdh->get('mediacenter_media', 'path', array($intMediaID)));
+  			
 	  		// -- EQDKP ---------------------------------------------------------------
 	  		$this->core->set_vars(array (
-	  				'page_title'    => $this->pdh->get('mediacenter_media', 'name', array($intMediaID)).' - '.$this->user->lang('mediacenter'),
+	  				'page_title'    => $this->pdh->get('mediacenter_media', 'name', array($intMediaID)).' - '.$this->user->lang('mc_mediacenter'),
 	  				'template_path' => $this->pm->get_data('mediacenter', 'template_path'),
 	  				'template_file' => 'media.html',
+	  				'page_path'		=> $arrBreadcrumb,
 	  				'display'       => true
 	  		));
   		} else {
@@ -1196,9 +1211,13 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   		
   		// -- EQDKP ---------------------------------------------------------------
   		$this->core->set_vars(array (
-  				'page_title'    => ucfirst(sanitize($strTag)).' - '.$this->user->lang('mediacenter'),
+  				'page_title'    => ucfirst(sanitize($strTag)).' - '.$this->user->lang('mc_mediacenter'),
   				'template_path' => $this->pm->get_data('mediacenter', 'template_path'),
   				'template_file' => 'tags.html',
+  				'page_path'		=> array(
+  						array('title' => $this->user->lang('mc_mediacenter'), 'url' => $this->routing->build('mediacenter')),
+  						array('title' => $this->user->lang('tag').': '.ucfirst(sanitize($strTag)), 'url' => ' '),
+  				),
   				'display'       => true
   		));
   	} else {
@@ -1379,9 +1398,12 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   		
   		// -- EQDKP ---------------------------------------------------------------
 	  	$this->core->set_vars(array (
-	  			'page_title'    => $this->user->lang('mediacenter'),
+	  			'page_title'    => $this->user->lang('mc_mediacenter'),
 	  			'template_path' => $this->pm->get_data('mediacenter', 'template_path'),
 	  			'template_file' => 'mediacenter_index.html',
+	  			'page_path'		=> array(
+	  					array('url' => ' ', 'title' => $this->user->lang('mc_mediacenter'))	
+	  			),
 	  			'display'       => true
 	  	));
   	}

@@ -148,6 +148,9 @@ class inserteditor_pageobject extends pageobject {
   			'page_title'    => $this->user->lang('mc_edit_media'),
   			'template_path' => $this->pm->get_data('mediacenter', 'template_path'),
   			'template_file' => 'insert_media_editor.html',
+  			'page_path'		=> array(
+  					array('title' => $this->pdh->get('mediacenter_categories', 'name', array($intCategoryID)), 'url' => ' ')	
+  			),
   			'display'       => true
   	));
   }

@@ -326,9 +326,13 @@ if ( !class_exists( "pdh_r_mediacenter_albums" ) ) {
 		public function get_breadcrumb($intAlbumID){
 			$intCategoryID = $this->get_category_id($intAlbumID);
 			
-			$strBreadcrumb = str_replace('class="current"', '', $this->pdh->get('mediacenter_categories', 'breadcrumb', array($intCategoryID)));
-			$strBreadcrumb .=  '<li class="current"><a href="'.$this->controller_path.$this->get_path($intAlbumID).'">'.$this->get_name($intAlbumID).'</a></li>';
-			return $strBreadcrumb;
+			$arrBreadcrumbs = $this->pdh->get('mediacenter_categories', 'breadcrumb', array($intCategoryID));
+			$arrBreadcrumbs[] = array(
+					'title' => $this->get_name($intAlbumID),
+					'url'	=> $this->controller_path.$this->get_path($intAlbumID),
+			);
+			
+			return $arrBreadcrumbs;
 		}
 
 		public function get_my_albums($intUserID){
