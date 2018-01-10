@@ -155,8 +155,9 @@
 		$('#drag-drop-area-single').show();
 		$("#myfile").val("");
 		$("#myfilename").val("");
-		$(".nl_progressbar_label .fa-spinner").removeClass("fa-remove");
-		$(".nl_progressbar_label .fa-spinner").addClass("fa-spin fa-spinner");
+		$(".progressIcon").removeClass("fa-remove");
+		$(".progressIcon").removeClass("fa-check");
+		$(".progressIcon").addClass("fa-spin fa-spinner");
 		document.getElementById("editalbum").reset();
 	}
 	
@@ -176,14 +177,37 @@
 		  });
 	      $('#drag-drop-area-single').hide();
 	      
-	      
 	      //Handle empty fields
 	      if ($('#name').val() == ""){
 	    	  $('#name').val(file.name);
 	      }
 	      
-	      //Select Dropdown to Image
-	      if (file.type == "image/jpeg" || file.type == "image/png" || file.type == "image/gif"){
+	      //Try to guess the file type
+	      var re = /(?:\.([^.]+))?$/;
+	      var extension = re.exec(file.name)[1];
+	      extension = extension.toLowerCase();
+	      if(extension){
+	    	  var a = extensionsImage.indexOf(extension);
+	    	  var b = extensionsVideo.indexOf(extension);
+	    	  var c = extensionsFile.indexOf(extension);
+	    	
+	    	  if(a > -1){
+	    		  $("#type").val(2);
+	    	  }else if(b > -1){
+	    		  $("#type").val(1);
+	    	  } else if(c > -1) {
+	    		  $("#type").val(0);
+	    	  } else {
+	    		  $("#nl_progressbar").progressbar({
+		     			 value: 0
+		     		});
+	          		$(".progressIcon").addClass("fa-remove");
+		            $(".progressIcon").removeClass("fa-spin fa-spinner");
+		            
+		            return false;
+	    	  }
+	    	  $("#type").trigger('change');
+	      } else if (file.type == "image/jpeg" || file.type == "image/png" || file.type == "image/gif"){
 	    	  $("#type").val(2);
 	    	  $("#type").trigger('change');
 	      }
@@ -197,6 +221,13 @@
 			  withCredentials: true,
 			});
 	      
+	      	$(".progressIcon").removeClass("fa-remove");
+	      	$(".progressIcon").removeClass("fa-check");
+	      	$(".progressIcon").removeClass("fa-spin");
+	      	$(".progressIcon").removeClass("fa-spinner");
+	      	$(".progressIcon").addClass("fa-spin");
+	      	$(".progressIcon").addClass("fa-spinner");
+	      	
 			// Resumable.js isn't supported, fall back to normal Ajax Request
 			if(!r.support) {
 				  var uploadURL = "{EQDKP_CONTROLLER_PATH}AddMedia/{SID}&upload=1"; //Upload URL
@@ -232,8 +263,8 @@
 				     		  });
 				              
 				              //Remove Spinner
-				              $(".nl_progressbar_label .fa-spinner").addClass("fa-check");
-				              $(".nl_progressbar_label .fa-spinner").removeClass("fa-spin fa-spinner");
+				              $(".progressIcon").addClass("fa-check");
+				              $(".progressIcon").removeClass("fa-spin fa-spinner");
 				              
 				              $("#myfile").val(data);
 				              
@@ -241,16 +272,16 @@
 			          		$("#nl_progressbar").progressbar({
 				     			 value: 0
 				     		});
-			          		$(".nl_progressbar_label .fa-spinner").addClass("fa-remove");
-				            $(".nl_progressbar_label .fa-spinner").removeClass("fa-spin fa-spinner");
+			          		$(".progressIcon").addClass("fa-remove");
+				            $(".progressIcon").removeClass("fa-spin fa-spinner");
 			          	}
 			          },
 			          error: function(){
-			        	  $("#nl_progressbar").progressbar({
+			        	   $("#nl_progressbar").progressbar({
 				     			 value: 0
 				     		});
-			          		$(".nl_progressbar_label .fa-spinner").addClass("fa-remove");
-				            $(".nl_progressbar_label .fa-spinner").removeClass("fa-spin fa-spinner");
+			          		$(".progressIcon").addClass("fa-remove");
+				            $(".progressIcon").removeClass("fa-spin fa-spinner");
 			          }
 			      });
 				
@@ -263,8 +294,8 @@
 		     		  });
 		              
 		              //Remove Spinner
-		              $(".nl_progressbar_label .fa-spinner").addClass("fa-check");
-		              $(".nl_progressbar_label .fa-spinner").removeClass("fa-spin fa-spinner");
+		              $(".progressIcon").addClass("fa-check");
+		              $(".progressIcon").removeClass("fa-spin fa-spinner");
 				  });
 				
 				r.on('fileSuccess', function(file,message){
@@ -274,8 +305,8 @@
 						$("#nl_progressbar").progressbar({
 			     			 value: 0,
 			     		});
-		          		$(".nl_progressbar_label .fa-spinner").addClass("fa-remove");
-			            $(".nl_progressbar_label .fa-spinner").removeClass("fa-spin fa-spinner");
+		          		$(".progressIcon").addClass("fa-remove");
+			            $(".progressIcon").removeClass("fa-spin fa-spinner");
 					}
 				});
 				
@@ -292,8 +323,8 @@
 					$("#nl_progressbar").progressbar({
 		     			 value: 0,
 		     		});
-	          		$(".nl_progressbar_label .fa-spinner").addClass("fa-remove");
-		            $(".nl_progressbar_label .fa-spinner").removeClass("fa-spin fa-spinner");
+	          		$(".progressIcon").addClass("fa-remove");
+		            $(".progressIcon").removeClass("fa-spin fa-spinner");
 				});
 				
 				r.addFile(file);
@@ -704,7 +735,7 @@ option.filevideoimage:after {
 	</div>
 	
 	<div id="nl_progressbar" style="display:none;">
-		<span class="nl_progressbar_label"><i class="fa fa-spinner fa-spin fa-lg"></i> &nbsp;<span id="nl_progressbar_label"></span></span>
+		<span class="nl_progressbar_label"><i class="progressIcon fa fa-spinner fa-spin fa-lg"></i> &nbsp;<span id="nl_progressbar_label"></span></span>
 	</div>
 	
 	<input type="hidden" name="localfile" value="" id="myfile" />
