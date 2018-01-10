@@ -951,6 +951,33 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 		public function get_statistics(){
 			return $this->stats;
 		}
+		
+		public function get_extensions_file(){
+			$arrExtensionsFilePlain = preg_split("/[\s,]+/", $this->config->get('extensions_file', 'mediacenter'));
+			$arrExtensionsFile = array();
+			foreach($arrExtensionsFilePlain as $val){
+				$arrExtensionsFile[] = utf8_strtolower(str_replace(".", "", $val));
+			}
+			return $arrExtensionsFile;
+		}
+		
+		public function get_extensions_image(){
+			$arrExtensionsFilePlain = preg_split("/[\s,]+/", $this->config->get('extensions_image', 'mediacenter'));
+			$arrExtensionsFile = array();
+			foreach($arrExtensionsFilePlain as $val){
+				$arrExtensionsFile[] = utf8_strtolower(str_replace(".", "", $val));
+			}
+			return $arrExtensionsFile;
+		}
+		
+		public function get_extensions_video(){
+			$arrExtensionsFilePlain = preg_split("/[\s,]+/", $this->config->get('extensions_video', 'mediacenter'));
+			$arrExtensionsFile = array();
+			foreach($arrExtensionsFilePlain as $val){
+				$arrExtensionsFile[] = utf8_strtolower(str_replace(".", "", $val));
+			}
+			return $arrExtensionsFile;
+		}
 
 	}//end class
 }//end if

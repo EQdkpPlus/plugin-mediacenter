@@ -99,6 +99,11 @@
 
 <script src="{EQDKP_ROOT_PATH}plugins/mediacenter/includes/js/flow.js"></script>
 <script>
+	
+	var extensionsImage = {EXTENSIONS_IMAGE};
+	var extensionsVideo = {EXTENSIONS_VIDEO};
+	var extensionsFile  = {EXTENSIONS_FILE};
+
 	function reload_albums(){
 		$.get("{EQDKP_CONTROLLER_PATH}/AddMedia/{SID}&reload_albums",
 			function(data){
@@ -302,6 +307,8 @@
 		
 	$(function(){
 		handle_type($("#type").val());
+		
+		set_albums('{MY_ALBUM_ID}');
 		
 		load_mediatypes();
 				

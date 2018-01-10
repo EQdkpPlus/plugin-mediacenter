@@ -645,15 +645,22 @@ class editmedia_pageobject extends pageobject {
   		'DD_ALBUMS' => $this->pdh->geth('mediacenter_albums', 'album_tree', array($this->in->get('aid', 0), $blnCheckPerms)),
   		'ADMINMODE'	=> $this->blnAdminMode,
   		'MAX_UPLOADSIZE' => human_filesize($this->detectMaxUploadFileSize()),
-  	));
+  	));	
+  	
+  	//Set Album ID
+	if ($this->in->get('aid')) $arrValues['album_id'] = $this->in->get('aid');
   	
 	//Output, with Values
 	if (count($this->arrData)) $arrValues = $this->arrData;
-	
-	//Set Album ID
-	if ($this->in->get('aid')) $arrValues['album_id'] = $this->in->get('aid');
-	
+
 	$objForm->output($arrValues);
+	
+	$this->tpl->assign_vars(array(
+			'MY_ALBUM_ID' => $arrValues['album_id'],
+			'EXTENSIONS_FILE' => json_encode($this->pdh->get('mediacenter_media', 'extensions_file')),
+			'EXTENSIONS_IMAGE' => json_encode($this->pdh->get('mediacenter_media', 'extensions_image')),
+			'EXTENSIONS_VIDEO' => json_encode($this->pdh->get('mediacenter_media', 'extensions_video')),
+	));
 	
 	$this->jquery->Dialog('addalbum', $this->user->lang('mc_new_album'), array('url'=> $this->controller_path.'AddAlbum/'.$this->SID.'&simple_head=1', 'width'=>'640', 'height'=>'520', 'onclosejs'=>'reload_albums();'));
 	
