@@ -421,6 +421,7 @@
 		$('#massupload_reset').on('click', function(evt){
 			storedFiles = [];
 			$('#files').html("");
+			$('#massuploadform')[0].reset();
 		});
 		
 		$('#massupload_start').on('click', function(evt){
@@ -580,6 +581,8 @@
 #files .filename {
 	float: left;
 	margin-top: 4px;
+    word-wrap: break-word;
+    max-width: 95%;
 }
 
 #files .fileprogress {
@@ -686,6 +689,11 @@ option.filevideoimage:after {
 	font-weight: normal;
 }
 
+@media all and (max-width: 899px) {
+	#files .fileprogress {
+		width: 95%;
+	}
+}
 </style>
 
 <!-- IF S_NORMAL_HEADER -->
@@ -751,7 +759,7 @@ option.filevideoimage:after {
 	</div>
 	<!-- IF not S_EDIT -->
 	<div id="massupload">
-		<form id="editalbum" action="" method="post" enctype='multipart/form-data'>
+		<form id="massuploadform" action="" method="post" enctype='multipart/form-data'>
 		<fieldset class="settings mediumsettings">
 		<dl>
 			<dt><label>{L_mc_f_album}</label></dt>

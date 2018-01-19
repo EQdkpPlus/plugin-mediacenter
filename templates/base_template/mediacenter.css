@@ -39,6 +39,9 @@
 	margin-left: 10px;
 }
 
+.mcDashboardBox  h3 {
+	word-break: break-word;
+}
 .mcPreviewImageSmall img {
 	background-color: @eqdkpContentContrastBackgroundColor;
 	border: 1px solid @eqdkpContentContrastBorderColor;
