@@ -1,5 +1,5 @@
 <div>
-	<h2>{MC_CATEGORY_NAME} <span class="badge">{MC_CATEGORY_MEDIA_COUNT}</span>
+	<h2>{MC_CATEGORY_NAME} <span class="bubble">{MC_CATEGORY_MEDIA_COUNT}</span>
 		<!-- IF S_MC_TOOLBAR -->
 		<div class="floatRight">
 			<div class="toolbar-button">
@@ -19,7 +19,7 @@
 		<div class="mcCategoryList DoubleColumn">
 				<ul>
 				<!-- BEGIN child_row -->
-					<li><a href="{child_row.CATEGORY_LINK}"><!-- IF child_row.S_HAS_CHILDS --><i class="fa fa-folder-open-o fa-lg"></i><!-- ELSE --><i class="fa fa-folder-o fa-lg"></i><!-- ENDIF -->  {child_row.CATEGORY_NAME}</a><span class="badge">{child_row.MEDIA_COUNT}</span></li>
+					<li><a href="{child_row.CATEGORY_LINK}"><!-- IF child_row.S_HAS_CHILDS --><i class="fa fa-folder-open-o fa-lg"></i><!-- ELSE --><i class="fa fa-folder-o fa-lg"></i><!-- ENDIF -->  {child_row.CATEGORY_NAME}</a><span class="bubble">{child_row.MEDIA_COUNT}</span></li>
 				<!-- END child_row -->
 				</ul>
 		</div>

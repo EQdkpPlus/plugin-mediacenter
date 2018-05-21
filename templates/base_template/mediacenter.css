@@ -122,7 +122,7 @@
   color: fadein(@mcBadgeColor,100%);
   display: inline-block;
   font-size: .85rem;
-  padding: 1px 6px 1px;
+  padding: 4px 10px 4px;
   position: relative;
   text-shadow: none !important;
   vertical-align: middle;
