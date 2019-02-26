@@ -448,7 +448,7 @@ class views_pageobject extends pageobject {
   			$this->pdh->process_hook_queue();
   			
   			if (file_exists($file)){
-  				ob_clean();
+  				@ob_end_clean();
   				header('Content-Type: application/octet-stream');
   				header('Content-Length: '.$this->pfh->FileSize($file));
   				header('Content-Disposition: attachment; filename="'.sanitize($arrMediaData['filename']).'"');
@@ -497,7 +497,8 @@ class views_pageobject extends pageobject {
   			}
 
   			if (file_exists($strImage)){
-  				ob_clean();
+  				@ob_end_clean();
+  				
   				switch(strtolower($strExtension)){
   					case 'jpg':
   					case 'jpeg':
