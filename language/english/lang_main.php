@@ -260,6 +260,8 @@ $lang = array(
 	"plugin_statistics_mediacenter_media" => "MediaCenter: Uploads",
 	"plugin_statistics_mediacenter_views" => "MediaCenter: Views",
 	"plugin_statistics_mediacenter_downloads" => "MediaCenter: Downloads",
+	
+	"user_sett_fs_notifications_mediacenter" => "MediaCenter",	
  );
 
 ?>
