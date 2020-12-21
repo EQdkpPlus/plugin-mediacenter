@@ -74,6 +74,8 @@ class views_pageobject extends pageobject {
   		$arrPermissions = $this->pdh->get('mediacenter_categories', 'user_permissions', array($intCategoryId, $this->user->id));
   		if (!$arrPermissions['read']) message_die($this->user->lang('category_noauth'), $this->user->lang('noauth_default_title'), 'access_denied', true);
   		
+  		$blnShowUnpublished = ($arrPermissions['change_state'] || $this->user->check_auth('a_mediacenter_manage', false));
+  		
   		if($this->in->exists('map') && (int)$this->config->get('show_maps', 'mediacenter') == 1){
   			$arrMediaInCategory = $this->pdh->get('mediacenter_media', 'id_list_for_category', array($intCategoryId, (($blnShowUnpublished) ? false : true), true));
   			
@@ -112,7 +114,7 @@ class views_pageobject extends pageobject {
   			));
   			
   		} else {
-  			$arrMediaInCategory = $this->pdh->get('mediacenter_media', 'id_list_for_category', array($intCategoryId, (($blnShowUnpublished) ? false : true), true));
+  		   $arrMediaInCategory = $this->pdh->get('mediacenter_media', 'id_list_for_category', array($intCategoryId, (($blnShowUnpublished) ? false : true), true));
   			$intMapCount = 0;
   			foreach($arrMediaInCategory as $intMediaID){
   				$arrAdditionalData = $this->pdh->get('mediacenter_media', 'additionaldata', array($intMediaID));
@@ -122,9 +124,6 @@ class views_pageobject extends pageobject {
   			}
   		}
   		
-  		
-  		
-  		$blnShowUnpublished = ($arrPermissions['change_state'] || $this->user->check_auth('a_mediacenter_manage', false));
   		
   		$arrChilds = $this->pdh->get('mediacenter_categories', 'childs', array($intCategoryId));
   		foreach($arrChilds as $intChildID){
@@ -564,6 +563,7 @@ class views_pageobject extends pageobject {
   	$arrPermissions = $this->pdh->get('mediacenter_categories', 'user_permissions', array($intCategoryId, $this->user->id));
   	if (!$arrPermissions['read']) message_die($this->user->lang('category_noauth'), $this->user->lang('noauth_default_title'), 'access_denied', true);
   	
+  	$blnShowUnpublished = ($arrPermissions['change_state'] || $this->user->check_auth('a_mediacenter_manage', false)) ? true : false;
   	
   	if($this->in->exists('map') && (int)$this->config->get('show_maps', 'mediacenter') == 1){
   		$arrMediaInCategory = $this->pdh->get('mediacenter_media', 'id_list', array($intAlbumID, (!$blnShowUnpublished)));
@@ -603,6 +603,7 @@ class views_pageobject extends pageobject {
   		));
   	
   	} else {
+  	    $blnShowUnpublished = ($this->user->check_auth('a_mediacenter_manage', false)) ? true : false;
   		$arrMediaInCategory = $this->pdh->get('mediacenter_media', 'id_list', array($intAlbumID, (!$blnShowUnpublished)));
   		$intMapCount = 0;
   		foreach($arrMediaInCategory as $intMediaID){
@@ -1355,7 +1356,7 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   		}
   		
   		$arrToolbarItems = array();
-  		if ($arrPermissions['create'] || $this->user->check_auth('a_mediacenter_manage', false)) {
+  		if ( $this->user->check_auth('a_mediacenter_manage', false)) {
   			$arrToolbarItems[] = array(
   					'icon'	=> 'fa-plus',
   					'js'	=> 'onclick="editMedia(0)"',
@@ -1392,7 +1393,7 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
   			'S_MC_SHOW_BESTRATED'	=> intval($this->config->get('show_bestrated', 'mediacenter')) && count($arrBestRatedMedia),
   			'S_MC_SHOW_MOSTVIEWED'	=> intval($this->config->get('show_mostviewed', 'mediacenter')) && count($arrMostViewedMedia),
   			'S_MC_SHOW_LATESTCOMMENTS' => intval($this->config->get('show_latestcomments', 'mediacenter')) && count($arrLatestCommentMedia),
-  			'S_MC_TOOLBAR'			=> ($arrPermissions['create'] || $this->user->check_auth('a_mediacenter_manage', false)),
+  			'S_MC_TOOLBAR'			=> ($this->user->check_auth('a_mediacenter_manage', false)),
   			'MC_TOOLBAR'			=> $jqToolbar['id'],
   		));
   		

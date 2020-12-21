@@ -81,6 +81,10 @@ if ( !class_exists( "pdh_r_mediacenter_media" ) ) {
 			if($this->mediacenter_media !== NULL){
 				return true;
 			}		
+			
+			$this->mediacenter_media = array();
+			$this->tags = array();
+			$this->stats = array();
 
 			$objQuery = $this->db->query('SELECT * FROM __mediacenter_media ORDER by date DESC');
 			if($objQuery){
