@@ -279,12 +279,12 @@ if (!class_exists('mediacenter_article_parse_hook'))
 		
 		$lightboxID = md5('article_'.$intAlbumID.rand());
 		
-		$this->jquery->lightbox($lightboxID, array('slideshow' => true, 'transition' => "elastic", 'slideshowSpeed' => 4500, 'slideshowAuto' => false, 'type' => 'photo', 'title_function' => "var url = $(this).data('url');
+		$this->jquery->lightbox($lightboxID, array('slideshow' => true, 'transition' => "elastic", 'slideshowSpeed' => 4500, 'slideshowAuto' => false, 'type' => 'photo', 'oncomplete' => "var url = $(this).data('url');
 var title = $(this).attr('title');
 if(url == undefined){ url = $(this).attr('href');}
 var desc = $(this).data('desc');
 if(desc == undefined) { desc = ''; } else { desc = '<br />'+desc;}
-return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
+$('#cboxTitle').html('<a href=\"' + url + '\">'+title+'</a>'+desc);"));
 		
 		foreach($arrMediaInCategory as $intMediaID){
 			$strPreviewImage = 	$this->pdh->geth('mediacenter_media', 'previewimage', array($intMediaID, 2));
@@ -336,12 +336,12 @@ return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
 		
 		$lightboxID = md5('category_'.$intCategoryId.rand());
 		
-		$this->jquery->lightbox($lightboxID, array('slideshow' => true, 'transition' => "elastic", 'slideshowSpeed' => 4500, 'slideshowAuto' => false, 'type' => 'photo', 'title_function' => "var url = $(this).data('url');
+		$this->jquery->lightbox($lightboxID, array('slideshow' => true, 'transition' => "elastic", 'slideshowSpeed' => 4500, 'slideshowAuto' => false, 'type' => 'photo', 'oncomplete' => "var url = $(this).data('url');
 var title = $(this).attr('title');
 if(url == undefined){ url = $(this).attr('href');}
 var desc = $(this).data('desc');
 if(desc == undefined) { desc = ''; } else { desc = '<br />'+desc;}
-return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
+$('#cboxTitle').html('<a href=\"' + url + '\">'+title+'</a>'+desc);"));
 		
 		foreach($arrMediaInCategory as $intMediaID){
 			$strPreviewImage = 	$this->pdh->geth('mediacenter_media', 'previewimage', array($intMediaID, 2));

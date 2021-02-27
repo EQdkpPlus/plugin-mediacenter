@@ -919,12 +919,12 @@ class views_pageobject extends pageobject {
   				
   				$strOtherImages = "";
   				$arrOtherFiles = $this->pdh->get('mediacenter_media', 'other_ids', array($intMediaID, (($strRef != "") ? true : false)));
-  				$this->jquery->lightbox(md5($intMediaID), array('slideshow' => true, 'transition' => "elastic", 'slideshowSpeed' => 4500, 'slideshowAuto' => false, 'type' => 'photo', 'title_function' => "var url = $(this).data('url');
+  				$this->jquery->lightbox(md5($intMediaID), array('slideshow' => true, 'transition' => "elastic", 'slideshowSpeed' => 4500, 'slideshowAuto' => false, 'type' => 'photo', 'oncomplete' => "var url = $(this).data('url');
 var title = $(this).attr('title');
 if(url == undefined){ url = $(this).attr('href');}
 var desc = $(this).data('desc');
 if(desc == undefined) { desc = ''; } else { desc = '<br />'+desc;}
-return '<a href=\"' + url + '\">'+title+'</a>'+desc;"));
+$('#cboxTitle').html('<a href=\"' + url + '\">'+title+'</a>'+desc);"));
   					
   				foreach($arrOtherFiles as $intFileID){
   					if($intFileID === $intMediaID) continue;
